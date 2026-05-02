@@ -5,7 +5,7 @@
 [![Issues](https://img.shields.io/github/issues/softwareworkercom/byo)](https://github.com/softwareworkercom/byo/issues)
 [![Stars](https://img.shields.io/github/stars/softwareworkercom/byo?style=social)](https://github.com/softwareworkercom/byo/stargazers)
 
-**BYO CLI** is a modern, extensible developer productivity CLI built with .NET.
+**BYO CLI** is a modern, extensible developer productivity CLI.
 It helps developers organize commands, run repeatable workflows, and manage local secrets in a single command-line experience.
 
 <img width="1571" height="626" alt="WindowsTerminal_NPwKUL7hRV" src="https://github.com/user-attachments/assets/00645042-279a-4f1f-bcc9-558402e932b1" />
