@@ -1,1 +1,8 @@
-{}
+{
+  "profiles": {
+    "SoftwareWorker.BYO.Core": {
+      "commandName": "Project",
+      "commandLineArgs": "workflows run"
+    }
+  }
+}

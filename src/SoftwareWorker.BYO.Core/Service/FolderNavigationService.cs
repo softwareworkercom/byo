@@ -70,8 +70,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                     return null;
                 }
 
-                var pathDisplay = string.IsNullOrEmpty(currentPath) ? "/" : $"/{currentPath}/";
-                var selected = UserInterfaceService.SelectSingleItem($"{selectionTitle} [grey]{pathDisplay}[/]", options);
+                var pathDisplay = string.IsNullOrEmpty(currentPath) ? "/" : $"/{currentPath}";
+                var selected = UserInterfaceService.SelectSingleItem($"{selectionTitle} {pathDisplay}", options);
 
                 if (selected == BackOption)
                 {
