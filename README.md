@@ -8,6 +8,8 @@
 **BYO CLI** is a modern, extensible developer productivity CLI built with .NET.
 It helps teams organize commands, run repeatable workflows, and manage local secrets in a single command-line experience.
 
+<img width="1571" height="626" alt="WindowsTerminal_NPwKUL7hRV" src="https://github.com/user-attachments/assets/00645042-279a-4f1f-bcc9-558402e932b1" />
+
 ## Why BYO CLI?
 
 - ⚡ **Fast local automation** for day-to-day developer and DevOps tasks
@@ -25,7 +27,7 @@ It helps teams organize commands, run repeatable workflows, and manage local sec
 ### Install as a global tool
 
 ```bash
-dotnet tool install --global byo
+dotnet tool install --global byo --version 0.0.1-gb475e9fe17
 ```
 
 ### Run
