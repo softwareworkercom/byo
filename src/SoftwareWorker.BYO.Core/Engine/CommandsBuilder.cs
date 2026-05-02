@@ -236,11 +236,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 }
                 optionsDict = updatedOptions;
 
-                if (interactive)
-                {
-                    SaveInteractiveCommandToHistory(Environment.GetCommandLineArgs().Skip(1), optionsDict);
-                }
-
                 var executeOnce = async () =>
                 {
                     var handlerInstance = (BaseCommandHandler)Activator.CreateInstance(handlerType)!;
@@ -642,72 +637,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             return metadata?.Value;
         }
 
-        public static void UpdateCommandsBookmark(List<TrunkCommand> trunkCommands)
-        {
-            var psReadLineFile = GetPowerShellHistoryFilePath();
-            if (string.IsNullOrWhiteSpace(psReadLineFile))
-            {
-                return;
-            }
-
-            var historyDirectory = Path.GetDirectoryName(psReadLineFile);
-            if (!string.IsNullOrWhiteSpace(historyDirectory))
-            {
-                Directory.CreateDirectory(historyDirectory);
-            }
-
-            var commands = StorageService.LoadList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE);
-            var existingHistory = File.Exists(psReadLineFile)
-                ? File.ReadAllLines(psReadLineFile).ToList()
-                : new List<string>();
-
-            List<string> bookmarks = GenerateAllCommandCombinations(trunkCommands);
-
-            foreach (var command in commands)
-            {
-                bookmarks.Add(command.Executable);
-            }
-
-            var mergedHistory = new HashSet<string>(existingHistory.Where(line => !string.IsNullOrWhiteSpace(line)), StringComparer.Ordinal);
-            var nonEmptyBookmarks = bookmarks.Where(line => !string.IsNullOrWhiteSpace(line));
-            foreach (var bookmark in nonEmptyBookmarks)
-            {
-                mergedHistory.Add(bookmark);
-            }
-
-            File.WriteAllLines(psReadLineFile, mergedHistory);
-        }
-
-        private static void SaveInteractiveCommandToHistory(IEnumerable<string> rawTokens, IReadOnlyDictionary<string, object> options)
-        {
-            try
-            {
-                var replayCommand = BuildReplayCommand(rawTokens, options);
-                if (string.IsNullOrWhiteSpace(replayCommand))
-                {
-                    return;
-                }
-
-                var historyFile = GetPowerShellHistoryFilePath();
-                if (string.IsNullOrWhiteSpace(historyFile))
-                {
-                    return;
-                }
-
-                var historyDirectory = Path.GetDirectoryName(historyFile);
-                if (!string.IsNullOrWhiteSpace(historyDirectory))
-                {
-                    Directory.CreateDirectory(historyDirectory);
-                }
-
-                File.AppendAllLines(historyFile, [replayCommand]);
-            }
-            catch (Exception ex)
-            {
-                UserInterfaceService.ShowGrey($"Unable to persist interactive command history entry: {ex.Message}");
-            }
-        }
-
         private static string BuildReplayCommand(IEnumerable<string> rawTokens, IReadOnlyDictionary<string, object> options)
         {
             var knownOptions = new HashSet<string>(options.Keys, StringComparer.OrdinalIgnoreCase)
@@ -880,22 +809,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 .Replace("\n", " ", StringComparison.Ordinal);
 
             return $"'{sanitized.Replace("'", "''", StringComparison.Ordinal)}'";
-        }
-
-        private static string? GetPowerShellHistoryFilePath()
-        {
-            string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            if (string.IsNullOrWhiteSpace(userFolder))
-            {
-                return null;
-            }
-
-            if (OperatingSystem.IsWindows())
-            {
-                return Path.Combine(userFolder, "AppData", "Roaming", "Microsoft", "Windows", "PowerShell", "PSReadLine", "ConsoleHost_history.txt");
-            }
-
-            return Path.Combine(userFolder, ".local", "share", "powershell", "PSReadLine", "ConsoleHost_history.txt");
         }
 
         /// <summary>
