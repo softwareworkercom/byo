@@ -219,23 +219,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         private static bool TryResolveTokenFromSystem(string token, out string? value)
         {
             value = null;
-            //Timezone Configuration
-            var timeZoneById = SettingsService.Get("User:TimeZoneById");
-            if (string.IsNullOrEmpty(timeZoneById))
-                return false;
-            var targetTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneById);
-
             switch (token)
             {
                 case "Date":
                     var date = UserInterfaceService.SelectDate();
-                    var targetDate = TimeZoneInfo.ConvertTime(date, targetTimeZone);
                     value = $"{date:yyyy-MM-dd}";
                     break;
                 case "DateTimeRangeFromNow":
                     var startDate = UserInterfaceService.SelectDateTimeRangeFromNow();
-                    var targetStartDate = TimeZoneInfo.ConvertTime(startDate, targetTimeZone);
-                    value = $"{targetStartDate:yyyy-MM-dd HH:mm}";
+                    value = $"{startDate:yyyy-MM-dd HH:mm}";
                     break;
                 case "Guid":
                     value = Guid.NewGuid().ToString();
