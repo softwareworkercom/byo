@@ -64,7 +64,7 @@ Please include a clear description of the problem, your solution, and examples w
 
 - ⭐ Star this repo if BYO CLI is useful
 - 🐞 Report bugs and request features in [Issues](https://github.com/softwareworkercom/byo/issues)
-- 💬 Share ideas in Discussions (when enabled)
+- 💬 Share ideas in Discussions
 
 ## License
 
