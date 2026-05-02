@@ -23,6 +23,11 @@
 		<PackageTags>cli;productivity;software-worker;developer;devex;devops</PackageTags>
 	</PropertyGroup>
 
+ <ItemGroup>
+		<None Include="Icons\byo-logo.png" Pack="true" PackagePath="Icons\" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" Link="README.md" />
+	</ItemGroup>
+
 	<ItemGroup>
 	<AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
 	<_Parameter1>ToolCommandName</_Parameter1>
@@ -37,9 +42,6 @@
 
 		<ItemGroup>
 			<ProjectReference Include="..\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.Core.csproj" />
-			<None Update="Icons\byo-logo.png">
-			  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			</None>
 			<None Update="version.json">
 				<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			</None>
