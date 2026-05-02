@@ -37,6 +37,9 @@
 
 		<ItemGroup>
 			<ProjectReference Include="..\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.Core.csproj" />
+			<None Update="Icons\byo-logo.png">
+			  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			</None>
 			<None Update="version.json">
 				<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			</None>
