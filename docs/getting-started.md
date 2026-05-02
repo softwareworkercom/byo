@@ -44,7 +44,7 @@ byo workflows create --name "Demo API Smoke Test" --description "Runs basic API 
 When prompted, add steps in this order:
 
 1. **Message**
-   - Prompt: `Starting demo API smoke test`
+   - Enter message to display: `Starting demo API smoke test`
    - Color: `Cyan`
    - Wait for Enter: `No`
 2. **Execute Command**
