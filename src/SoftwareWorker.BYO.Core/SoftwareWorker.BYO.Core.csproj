@@ -29,10 +29,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Icons\sw-logo.png" Pack="true">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-			<PackagePath>Icons\</PackagePath>
-		</None>
 		<ProjectReference Include="..\SoftwareWorker.BYO.Abstractions\SoftwareWorker.BYO.Abstractions.csproj" />
 		<None Update="version.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>

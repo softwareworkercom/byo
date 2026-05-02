@@ -36,10 +36,6 @@
 	</ItemGroup>
 
 		<ItemGroup>
-			<None Include="Icons\byo-logo.png" Pack="true">
-				<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-				<PackagePath>Icons\</PackagePath>
-			</None>
 			<ProjectReference Include="..\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.Core.csproj" />
 			<None Update="version.json">
 				<CopyToOutputDirectory>Never</CopyToOutputDirectory>
