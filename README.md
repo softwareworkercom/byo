@@ -25,7 +25,7 @@ It helps teams organize commands, run repeatable workflows, and manage local sec
 ### Install as a global tool
 
 ```bash
-dotnet tool install --global byo
+dotnet tool install --global byo --version 0.0.1-gb475e9fe17
 ```
 
 ### Run
