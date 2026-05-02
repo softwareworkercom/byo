@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/build/">
+    <File Path="build/publish.yml" />
+  </Folder>
+  <Folder Name="/docs/" />
+  <Folder Name="/src/">
+    <Project Path="src/SoftwareWorker.BYO.Abstractions/SoftwareWorker.BYO.Abstractions.csproj" />
+    <Project Path="src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj" />
+    <Project Path="src/SoftwareWorker.BYO.Core/SoftwareWorker.BYO.Core.csproj" />
+  </Folder>
+</Solution>
