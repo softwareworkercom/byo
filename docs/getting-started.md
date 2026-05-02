@@ -24,13 +24,13 @@ byo secrets update --key Demo:ApiToken --value public-demo-token
 ### Command 1: Bearer token check
 
 ```bash
-byo commands create --description "Demo API Bearer Check" --executable "curl -s -H \"Authorization: Bearer {{Demo:ApiToken}}\" {{Demo:ApiBaseUrl}}/bearer" --path "Examples/GettingStarted"
+byo commands create --description "Demo API Bearer Check" --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer'" --path "Examples/GettingStarted"
 ```
 
 ### Command 2: Echo users request check
 
 ```bash
-byo commands create --description "Demo API Users" --executable "curl -s -H \"Authorization: Bearer {{Demo:ApiToken}}\" {{Demo:ApiBaseUrl}}/anything/v1/users?limit=5" --path "Examples/GettingStarted"
+byo commands create --description "Demo API Users" --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/anything/v1/users?limit=5'" --path "Examples/GettingStarted"
 ```
 
 ## 4) Create one workflow using the two commands
