@@ -9,8 +9,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
     [TrunkCommand("workflows", "Workflow Management")]
     [BranchCommand("create", "Create a new workflow with interactive steps")]
     [Parameter("name", "Workflow name", true, null)]
-    [Parameter("description", "Workflow description", false, null)]
-    [Parameter("path", "Folder hierarchy path (e.g. DevOps/Deploy)", false, null)]
+    [Parameter("description", "Workflow description", true, null)]
+    [Parameter("path", "Folder hierarchy path (e.g. DevOps/Deploy)", true, null)]
     public class WorkflowCreateHandler : BaseCommandHandler
     {
         public string? Name { get; set; }

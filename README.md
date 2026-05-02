@@ -41,6 +41,16 @@ byo help
 > dotnet run --project src/SoftwareWorker.BYO.CLI -- help
 > ```
 
+## Getting Started Guide (Simple Realistic Example)
+
+Follow this step-by-step guide to set up:
+- 1 setting
+- 1 secret
+- 2 saved commands
+- 1 workflow that executes those 2 commands
+
+➡️ See [`docs/getting-started.md`](docs/getting-started.md)
+
 ## Core Command Areas
 
 - `byo help` — show all available commands

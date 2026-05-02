@@ -6,8 +6,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Settings
 {
     [TrunkCommand("settings", "Settings operations")]
     [BranchCommand("update", "Update a setting")]
-    [Parameter("key", "The key to update", false, null)]
-    [Parameter("value", "The new value", false, null)]
+    [Parameter("key", "The key to update", true, null)]
+    [Parameter("value", "The new value", true, null)]
     public class SettingsUpdateCommand : BaseCommandHandler
     {
         public string? Key { get; set; }
@@ -17,15 +17,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Settings
         {
             var settings = SettingsService.GetList() ?? new Dictionary<string, string>();
 
-            if (settings.Count == 0)
+            if (string.IsNullOrWhiteSpace(Key))
             {
-                UserInterfaceService.ShowWarning("No settings found.");
-                return;
-            }
+                if (settings.Count == 0)
+                {
+                    UserInterfaceService.ShowWarning("No settings found.");
+                    return;
+                }
 
-
-            if (string.IsNullOrEmpty(Key))
-            {
                 Key = UserInterfaceService.SelectSingleItem(
                     "setting to update",
                     settings.Keys.OrderBy(k => k).ToList(),
