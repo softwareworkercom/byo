@@ -36,8 +36,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.10.8-alpha" />
-		<PackageReference Include="Spectre.Console" Version="0.55.0" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.10.44-alpha">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Spectre.Console" Version="0.55.3-alpha.0.7" />
 	</ItemGroup>
 
 		<ItemGroup>

@@ -13,23 +13,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Identity" Version="1.20.0" />
 		<PackageReference Include="CsvHelper" Version="33.1.0" />
-		<PackageReference Include="GitHub.Copilot.SDK" Version="0.2.1" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
-		<PackageReference Include="Microsoft.Graph" Version="5.103.0" />
-		<PackageReference Include="ModelContextProtocol" Version="1.2.0" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.10.8-alpha">
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.10.44-alpha">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="OpenAI" Version="2.10.0" />
-		<PackageReference Include="StreamJsonRpc" Version="2.24.84" />
-		<PackageReference Include="Spectre.Console" Version="0.55.0" />
+		<PackageReference Include="Spectre.Console" Version="0.55.3-alpha.0.7" />
 		<PackageReference Include="SpreadCheetah" Version="1.27.0" />
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.5" />
-        <PackageReference Include="System.CommandLine" Version="2.0.7" />
+        <PackageReference Include="System.CommandLine" Version="3.0.0-preview.3.26207.106" />
 	</ItemGroup>
 
 	<ItemGroup>
