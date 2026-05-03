@@ -25,7 +25,6 @@
 
  <ItemGroup>
 		<None Include="Icons\byo-logo.png" Pack="true" PackagePath="Icons\" />
-		<None Include="..\..\README.md" Pack="true" PackagePath="\" Link="README.md" />
 	</ItemGroup>
 
 	<ItemGroup>

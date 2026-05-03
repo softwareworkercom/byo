@@ -2,10 +2,16 @@
   <Folder Name="/build/">
     <File Path=".github/workflows/publish.yml" />
   </Folder>
-  <Folder Name="/docs/" />
+  <Folder Name="/docs/">
+    <File Path="README.md" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/SoftwareWorker.BYO.Abstractions/SoftwareWorker.BYO.Abstractions.csproj" />
     <Project Path="src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj" />
     <Project Path="src/SoftwareWorker.BYO.Core/SoftwareWorker.BYO.Core.csproj" />
+    <Project Path="src/SoftwareWorker.BYO.Integrations/SoftwareWorker.BYO.Integrations.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj" Id="82d7b6c5-1669-4edc-8180-2b2f01f5aaa1" />
   </Folder>
 </Solution>

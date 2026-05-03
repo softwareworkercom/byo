@@ -1,5 +1,4 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
-using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using SoftwareWorker.BYO.Core.Storage;
 
@@ -30,14 +29,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
             KeyManagementService.Save(newRSAKeyPair);
 
             // Re-encrypt vault entries directly to avoid double encryption
-            var secrets = StorageService.LoadDictionary(SystemConstants.STORAGE_SECRETS_FILE);
+            var secrets = StorageService.LoadDictionary(SecretsService.SecretsFilePath);
             foreach (var item in decryptedItems)
             {
                 // Encrypt with the new key (now stored) and update secrets directly
                 var newEncryptedValue = EncryptionService.EncryptVaultEntry(item.Value);
                 secrets[item.Key] = newEncryptedValue;
             }
-            StorageService.SaveDictionary(SystemConstants.STORAGE_SECRETS_FILE, secrets);
+            StorageService.SaveDictionary(SecretsService.SecretsFilePath, secrets);
 
             UserInterfaceService.ShowGreen("Secrets re-encrypted with new key.");
         }

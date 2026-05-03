@@ -5,6 +5,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 {
     public static class KeyManagementService
     {
+        public static string RsaKeyFilePath { get; set; } = SystemConstants.STORAGE_RSA_KEY_FILE;
+
         /// <summary>
         /// Generate the RSA Public (to encrypt) and Private (to decrypt) key pair.
         /// Uses 4096-bit key size for enhanced security.
@@ -29,12 +31,12 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// </summary>
         public static string? Get()
         {
-            if (!File.Exists(SystemConstants.STORAGE_RSA_KEY_FILE))
+            if (!File.Exists(RsaKeyFilePath))
             {
                 Initialize();
             }
 
-            var rsaKeyPair = File.ReadAllText(SystemConstants.STORAGE_RSA_KEY_FILE);
+            var rsaKeyPair = File.ReadAllText(RsaKeyFilePath);
             return rsaKeyPair;
         }
 
@@ -44,12 +46,12 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         public static void Save(string keyPair)
         {
             // Ensure directory exists
-            var directory = Path.GetDirectoryName(SystemConstants.STORAGE_RSA_KEY_FILE);
+            var directory = Path.GetDirectoryName(RsaKeyFilePath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
-            File.WriteAllText(SystemConstants.STORAGE_RSA_KEY_FILE, keyPair);
+            File.WriteAllText(RsaKeyFilePath, keyPair);
         }
 
         /// <summary>

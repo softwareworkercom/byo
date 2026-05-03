@@ -5,6 +5,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 {
     public static class SecretsService
     {
+        public static string SecretsFilePath { get; set; } = SystemConstants.STORAGE_SECRETS_FILE;
+        public static string SettingsFilePath { get; set; } = SystemConstants.STORAGE_SETTINGS_FILE;
+
         public static string? Get(string key)
         {
             var secrets = GetList(key);
@@ -29,7 +32,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
         public static Dictionary<string, string>? GetList(string startsWithKey = "")
         {
-            var secrets = StorageService.LoadDictionary(SystemConstants.STORAGE_SECRETS_FILE);
+            var secrets = StorageService.LoadDictionary(SecretsFilePath);
             var result = new Dictionary<string, string>();
 
             // Add matching secrets (decrypted)
@@ -43,7 +46,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
         public static string? Update(string key, string value)
         {
-            var settings = StorageService.LoadDictionary(SystemConstants.STORAGE_SETTINGS_FILE);
+            var settings = StorageService.LoadDictionary(SettingsFilePath);
 
             // Validate mutual exclusivity between Settings and Secrets
             if (settings.ContainsKey(key))
@@ -53,21 +56,21 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             var encryptedValue = EncryptionService.EncryptVaultEntry(value);
-            var secrets = StorageService.LoadDictionary(SystemConstants.STORAGE_SECRETS_FILE);
+            var secrets = StorageService.LoadDictionary(SecretsFilePath);
             secrets[key] = encryptedValue;
-            StorageService.SaveDictionary(SystemConstants.STORAGE_SECRETS_FILE, secrets);
+            StorageService.SaveDictionary(SecretsFilePath, secrets);
 
             return encryptedValue;
         }
 
         public static void Delete(string key)
         {
-            var secrets = StorageService.LoadDictionary(SystemConstants.STORAGE_SECRETS_FILE);
+            var secrets = StorageService.LoadDictionary(SecretsFilePath);
 
             if (secrets.ContainsKey(key))
             {
                 secrets.Remove(key);
-                StorageService.SaveDictionary(SystemConstants.STORAGE_SECRETS_FILE, secrets);
+                StorageService.SaveDictionary(SecretsFilePath, secrets);
             }
             else
             {
