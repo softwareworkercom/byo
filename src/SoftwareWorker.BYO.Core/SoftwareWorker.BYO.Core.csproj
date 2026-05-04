@@ -8,10 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Icons\byo-logo.png" />
-	</ItemGroup>
-
-	<ItemGroup>
        <PackageReference Include="CsvHelper" />
 		<PackageReference Include="Nerdbank.GitVersioning">
 			<PrivateAssets>all</PrivateAssets>
@@ -24,7 +20,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\SoftwareWorker.BYO.Abstractions\SoftwareWorker.BYO.Abstractions.csproj" />
-		<Resource Include="Icons\byo-logo.png">
+      <Resource Include="C:\GitHub\softwareworkercom\byo\docs\Images\byo-logo.png" Link="Icons\byo-logo.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Resource>
 		<None Update="version.json">

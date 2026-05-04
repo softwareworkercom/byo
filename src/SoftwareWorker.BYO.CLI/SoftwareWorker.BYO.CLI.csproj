@@ -23,7 +23,7 @@
 	</PropertyGroup>
 
  <ItemGroup>
-		<None Include="Icons\byo-logo.png" Pack="true" PackagePath="Icons\">
+        <None Include="C:\GitHub\softwareworkercom\byo\docs\Images\byo-logo.png" Link="Icons\byo-logo.png" Pack="true" PackagePath="Icons\">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

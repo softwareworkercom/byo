@@ -6,6 +6,9 @@
     <File Path="docs/getting-started.md" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/docs/Images/">
+    <File Path="docs/Images/byo-logo.png" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/SoftwareWorker.BYO.Abstractions/SoftwareWorker.BYO.Abstractions.csproj" />
     <Project Path="src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj" />
