@@ -85,6 +85,10 @@ The workflow runs immediately and executes both commands in sequence.
 
 ---
 
+## Token Replacement
+
+See [`docs/token-replacement.md`](token-replacement.md) for token syntax, resolution order, and examples.
+
 ## Notes
 
 - `{{Demo:ApiBaseUrl}}` and `{{Demo:ApiToken}}` are resolved from settings/secrets at runtime.

@@ -37,7 +37,7 @@ Build custom automations that match how you actually work. BYO adapts to you, no
 ### Install as a global tool
 
 ```bash
-dotnet tool install --global byo
+dotnet tool install --global byo --version 0.0.1-gffadd774f0
 ```
 
 ### Run
@@ -53,9 +53,10 @@ byo --help
 > dotnet run --project src/SoftwareWorker.BYO.CLI -- --help
 > ```
 
-## Getting Started Guide
+## Documentation
 
-See [`docs/getting-started.md`](docs/getting-started.md)
+- [`docs/getting-started.md`](docs/getting-started.md)
+- [`docs/token-replacement.md`](docs/token-replacement.md)
 
 ## Commands
 
