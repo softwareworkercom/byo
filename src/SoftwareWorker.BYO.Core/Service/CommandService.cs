@@ -7,6 +7,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 {
     public static class CommandService
     {
+        public static string CommandsFilePath { get; set; } = SystemConstants.STORAGE_COMMANDS_FILE;
+
         /// <summary>
         /// Creates a new command and adds it to storage.
         /// </summary>
@@ -18,7 +20,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <returns>The created command.</returns>
         public static ShellCommand Create(string description, string executable, string? workingDirectory = null, ShellTypeEnum? shell = null, string? folderPath = null)
         {
-            var commands = StorageService.LoadList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE);
+            var commands = StorageService.LoadList<ShellCommand>(CommandsFilePath);
 
             var command = new ShellCommand
             {
@@ -33,7 +35,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             commands.Add(command);
             commands = commands.OrderBy(c => c.Name).ToList();
 
-            StorageService.SaveList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE, commands);
+            StorageService.SaveList<ShellCommand>(CommandsFilePath, commands);
 
             return command;
         }
@@ -56,7 +58,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             ShellTypeEnum? shell = null,
             string? folderPath = null)
         {
-            var commands = StorageService.LoadList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE);
+            var commands = StorageService.LoadList<ShellCommand>(CommandsFilePath);
             var existingCommand = commands.FirstOrDefault(c => c.Name.Equals(description, StringComparison.OrdinalIgnoreCase));
 
             if (existingCommand == null)
@@ -74,7 +76,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             commands = commands.OrderBy(c => c.Name).ToList();
 
-            StorageService.SaveList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE, commands);
+            StorageService.SaveList<ShellCommand>(CommandsFilePath, commands);
 
             return existingCommand;
         }
@@ -85,7 +87,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <returns>A list of all commands.</returns>
         public static List<ShellCommand> GetList()
         {
-            return StorageService.LoadList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE);
+            return StorageService.LoadList<ShellCommand>(CommandsFilePath);
         }
 
         /// <summary>
@@ -95,7 +97,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <returns>True if the command was deleted, false if not found.</returns>
         public static bool Delete(ShellCommand command)
         {
-            var commands = StorageService.LoadList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE);
+            var commands = StorageService.LoadList<ShellCommand>(CommandsFilePath);
 
             var existingCommand = commands.FirstOrDefault(c =>
                 c.Executable == command.Executable &&
@@ -107,7 +109,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             commands.Remove(existingCommand);
-            StorageService.SaveList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE, commands);
+            StorageService.SaveList<ShellCommand>(CommandsFilePath, commands);
 
             return true;
         }

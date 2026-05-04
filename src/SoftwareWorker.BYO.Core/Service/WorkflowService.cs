@@ -6,6 +6,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 {
     public static class WorkflowService
     {
+        public static string WorkflowsFilePath { get; set; } = SystemConstants.STORAGE_WORKFLOWS_FILE;
+
         /// <summary>
         /// Creates a new workflow and adds it to storage.
         /// </summary>
@@ -16,7 +18,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <returns>The created workflow.</returns>
         public static Workflow Create(string name, string? description, List<WorkflowStep> steps, string? folderPath = null)
         {
-            var workflows = StorageService.LoadList<Workflow>(SystemConstants.STORAGE_WORKFLOWS_FILE);
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
 
             // Check for duplicate names
             if (workflows.Any(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
@@ -36,7 +38,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             workflows.Add(workflow);
             workflows = [.. workflows.OrderBy(r => r.Name)];
 
-            StorageService.SaveList(SystemConstants.STORAGE_WORKFLOWS_FILE, workflows);
+            StorageService.SaveList(WorkflowsFilePath, workflows);
 
             return workflow;
         }
@@ -47,7 +49,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <returns>A list of all workflows.</returns>
         public static List<Workflow> GetList()
         {
-            return StorageService.LoadList<Workflow>(SystemConstants.STORAGE_WORKFLOWS_FILE);
+            return StorageService.LoadList<Workflow>(WorkflowsFilePath);
         }
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <returns>The workflow if found, null otherwise.</returns>
         public static Workflow? GetByName(string name)
         {
-            var workflows = StorageService.LoadList<Workflow>(SystemConstants.STORAGE_WORKFLOWS_FILE);
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
             return workflows.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -77,7 +79,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             List<WorkflowStep>? steps = null,
             string? folderPath = null)
         {
-            var workflows = StorageService.LoadList<Workflow>(SystemConstants.STORAGE_WORKFLOWS_FILE);
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
             var existingWorkflow = workflows.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
             if (existingWorkflow == null)
@@ -92,12 +94,12 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             if (folderPath != null) existingWorkflow.FolderPath = NormalizeFolderPath(folderPath);
             existingWorkflow.UpdatedAt = DateTime.UtcNow;
 
-            StorageService.SaveList(SystemConstants.STORAGE_WORKFLOWS_FILE, workflows);
+            StorageService.SaveList(WorkflowsFilePath, workflows);
 
             // Re-read to get the properly ordered list
-            workflows = StorageService.LoadList<Workflow>(SystemConstants.STORAGE_WORKFLOWS_FILE);
+            workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
             workflows = [.. workflows.OrderBy(r => r.Name)];
-            StorageService.SaveList(SystemConstants.STORAGE_WORKFLOWS_FILE, workflows);
+            StorageService.SaveList(WorkflowsFilePath, workflows);
 
             return existingWorkflow;
         }
@@ -109,7 +111,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <returns>True if the workflow was deleted, false if not found.</returns>
         public static bool Delete(string name)
         {
-            var workflows = StorageService.LoadList<Workflow>(SystemConstants.STORAGE_WORKFLOWS_FILE);
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
 
             var existingWorkflow = workflows.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
@@ -119,7 +121,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             workflows.Remove(existingWorkflow);
-            StorageService.SaveList(SystemConstants.STORAGE_WORKFLOWS_FILE, workflows);
+            StorageService.SaveList(WorkflowsFilePath, workflows);
 
             return true;
         }

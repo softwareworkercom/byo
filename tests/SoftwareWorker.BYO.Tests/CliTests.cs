@@ -13,7 +13,7 @@ public class CliTests
         var trunkCommands = CommandsScanner.BuildFromReflection();
 
         Assert.NotEmpty(trunkCommands);
-        Assert.Contains(trunkCommands, command => command.Name == "help");
+        Assert.Contains(trunkCommands, command => command.Name == "commands");
         Assert.All(trunkCommands, command =>
         {
             Assert.False(string.IsNullOrWhiteSpace(command.Name));
