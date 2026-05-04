@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs
+
+# Test project build artifacts
+/tests/**/bin/
+/tests/**/obj/
+
+# Local launch profiles
+**/launchSettings.json

@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SoftwareWorker.BYO.CLI": {
-      "commandName": "Project",
-      "commandLineArgs": "commands run"
-    }
-  }
-}
