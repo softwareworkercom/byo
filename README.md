@@ -9,7 +9,7 @@
 
 **BYO CLI** is a developer productivity tool. It helps developers organize commands, run repeatable workflows, and manage local secrets.
 
-<img width="1571" height="626" alt="WindowsTerminal_NPwKUL7hRV" src="https://github.com/user-attachments/assets/00645042-279a-4f1f-bcc9-558402e932b1" />
+<img width="1113" height="626" alt="WindowsTerminal_aI8IWCqW4q" src="https://github.com/user-attachments/assets/0cb79010-16e7-4d17-a103-70d8dc1332fe" />
 
 ## Why BYO CLI?
 
