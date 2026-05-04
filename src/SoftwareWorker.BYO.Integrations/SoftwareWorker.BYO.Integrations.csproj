@@ -5,7 +5,7 @@
     <RootNamespace>SoftwareWorker.BYO.Integrations</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PackageIcon>Icons\byo-logo.png</PackageIcon>
+    <PackageIcon>Icons/sw-logo.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,9 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="C:\GitHub\softwareworkercom\byo\docs\Images\byo-logo.png" Link="Icons\byo-logo.png" Pack="true">
+    <None Include="Icons\sw-logo.png" Link="Icons/sw-logo.png" Pack="true">
         <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <PackagePath>Icons\</PackagePath>
+        <PackagePath>Icons/</PackagePath>
     </None>
   </ItemGroup>
 

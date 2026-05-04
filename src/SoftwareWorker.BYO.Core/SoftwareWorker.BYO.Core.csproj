@@ -4,7 +4,7 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<PackageIcon>Icons\byo-logo.png</PackageIcon>
+        <PackageIcon>Icons/sw-logo.png</PackageIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,9 +20,9 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\SoftwareWorker.BYO.Abstractions\SoftwareWorker.BYO.Abstractions.csproj" />
-      <Resource Include="C:\GitHub\softwareworkercom\byo\docs\Images\byo-logo.png" Link="Icons\byo-logo.png">
+       <None Include="..\SoftwareWorker.BYO.Integrations\Icons\sw-logo.png" Link="Icons/sw-logo.png" Pack="true" PackagePath="Icons/">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
+		</None>
 		<None Update="version.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>

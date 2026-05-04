@@ -8,7 +8,7 @@
 		<PackAsTool>true</PackAsTool>
 		<!-- The command users will run -->
 		<ToolCommandName>byo</ToolCommandName>
-		<PackageIcon>Icons\byo-logo.png</PackageIcon>
+        <PackageIcon>Icons/sw-logo.png</PackageIcon>
 
 		<!-- NuGet Package Metadata -->
 		<Title>BYO CLI</Title>
@@ -22,8 +22,8 @@
 		<PackageTags>cli;productivity;software-worker;developer;devex;devops</PackageTags>
 	</PropertyGroup>
 
- <ItemGroup>
-		<None Include="..\..\docs\Images\byo-logo.png" Link="Icons\byo-logo.png" Pack="true" PackagePath="Icons\">
+    <ItemGroup>
+      <None Include="..\SoftwareWorker.BYO.Integrations\Icons\sw-logo.png" Link="Icons/sw-logo.png" Pack="true" PackagePath="Icons/">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
