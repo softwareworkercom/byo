@@ -5,31 +5,22 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 {
     [TrunkCommand("workflows", "Workflow management")]
     [BranchCommand("run", "Run a workflow (execute interactive steps)")]
+    [Parameter("name", "Workflow name", true, null)]
     internal class WorkflowRunHandler : BaseCommandHandler
     {
+        public string? Name { get; set; }
+
         public override async Task ExecuteAsync()
         {
-            var workflows = WorkflowService.GetList();
-
-            if (workflows == null || workflows.Count == 0)
-            {
-                UserInterfaceService.ShowWarning("No workflows found. Use 'sw workflow create' to create a workflow.");
-                return;
-            }
-
-            var selectedWorkflow = FolderNavigationService.NavigateAndSelect(
-                workflows,
-                w => w.FolderPath,
-                w => w.Name,
-                "workflow to run");
+            var selectedWorkflow = WorkflowService.GetByName(Name!);
 
             if (selectedWorkflow == null)
             {
-                UserInterfaceService.ShowWarning("No workflow selected.");
+                UserInterfaceService.ShowWarning($"Workflow '{Name}' not found. Use 'byo workflows read' to list available workflows.");
                 return;
             }
 
-            await WorkflowManagementService.ExecuteWorkflowAsync(selectedWorkflow);
+            await WorkflowExecutionService.ExecuteWorkflowAsync(selectedWorkflow);
         }
     }
 }

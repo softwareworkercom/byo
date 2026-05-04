@@ -13,14 +13,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 
             if (commands.Count == 0)
             {
-                UserInterfaceService.ShowWarning("No saved commands found. Use 'sw commands create' to add a command.");
+                UserInterfaceService.ShowWarning("No saved commands found. Use 'byo commands create' to add a command.");
                 return;
             }
 
             var selectedCommand = FolderNavigationService.NavigateAndSelect(
                 commands,
-                c => c.FolderPath,
-                c => string.IsNullOrWhiteSpace(c.Description) ? c.Executable : c.Description,
+                c => c.Bookmark,
+                c => string.IsNullOrWhiteSpace(c.Name) ? c.Executable : c.Name,
                 "command to delete");
 
             if (selectedCommand == null)
@@ -30,9 +30,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
             }
 
             // Confirm deletion
-            var selectedCommandName = string.IsNullOrWhiteSpace(selectedCommand.Description)
+            var selectedCommandName = string.IsNullOrWhiteSpace(selectedCommand.Name)
                 ? selectedCommand.Executable
-                : selectedCommand.Description;
+                : selectedCommand.Name;
 
             if (!UserInterfaceService.Confirm($"Are you sure you want to delete '{selectedCommandName}'?"))
             {

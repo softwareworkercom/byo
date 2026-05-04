@@ -4,7 +4,7 @@ using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Service
 {
-    public static class WorkflowManagementService
+    public static class WorkflowExecutionService
     {
         /// <summary>
         /// Builds a display string for a workflow suitable for selection prompts.
@@ -176,7 +176,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             var allCommands = CommandService.GetList();
             var command = allCommands.FirstOrDefault(c =>
-                c.Description.Equals(step.CommandName, StringComparison.OrdinalIgnoreCase));
+                c.Name.Equals(step.CommandName, StringComparison.OrdinalIgnoreCase));
 
             if (command == null)
             {
@@ -186,17 +186,17 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             var resolvedExecutable = TokenService.ResolveTokens(command.Executable);
 
-            UserInterfaceService.ShowMarkup($"[cyan]Executing command:[/] [yellow]{Markup.Escape(command.Description)}[/]");
+            UserInterfaceService.ShowMarkup($"[cyan]Executing command:[/] [yellow]{Markup.Escape(command.Name)}[/]");
             UserInterfaceService.ShowMarkup($"[grey]Command: {Markup.Escape(resolvedExecutable)}[/]");
             UserInterfaceService.ShowInformation("Running...");
 
             TerminalService.Run(
                 resolvedExecutable,
-                command.WorkingDirectory,
+                command.Directory,
                 shell: command.Shell,
                 runAsync: step.RunAsync);
 
-            UserInterfaceService.ShowSuccess($"Command '{command.Description}' completed.");
+            UserInterfaceService.ShowSuccess($"Command '{command.Name}' completed.");
 
             await Task.CompletedTask;
         }

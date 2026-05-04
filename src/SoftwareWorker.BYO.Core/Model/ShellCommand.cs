@@ -4,9 +4,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Model
 {
     public class ShellCommand
     {
-        public string Description { get; set; }
+        public string Name { get; set; }
         public string Executable { get; set; }
-        public string? WorkingDirectory { get; set; }
+        public string? Directory { get; set; }
 
         /// <summary>
         /// Shell to use for executing the command.
@@ -18,7 +18,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Model
         /// Optional hierarchical folder path for organising commands (e.g. "DevOps/Deploy").
         /// Use "/" as the separator between folder levels.
         /// </summary>
-        public string? FolderPath { get; set; }
+        public string? Bookmark { get; set; }
 
         /// <summary>
         /// Date and time when the command was created.

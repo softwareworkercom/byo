@@ -14,15 +14,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 
             if (commands == null || commands.Count == 0)
             {
-                UserInterfaceService.ShowWarning("No commands found. Use 'sw command create' to create a command.");
+                UserInterfaceService.ShowWarning("No commands found. Use 'byo commands create' to create a command.");
                 return;
             }
 
             // Group commands by folder path (null/empty = root)
             var grouped = commands
-                .OrderBy(c => c.FolderPath ?? string.Empty)
-                .ThenBy(c => c.Description)
-                .GroupBy(c => FolderNavigationService.NormalizePath(c.FolderPath))
+                .OrderBy(c => c.Bookmark ?? string.Empty)
+                .ThenBy(c => c.Name)
+                .GroupBy(c => FolderNavigationService.NormalizePath(c.Bookmark))
                 .OrderBy(g => g.Key);
 
             foreach (var group in grouped)
@@ -41,9 +41,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
                 foreach (var command in group)
                 {
                     table.AddRow(
-                        command.Description,
+                        command.Name,
                         Markup.Escape(command.Executable),
-                        command.WorkingDirectory ?? "[grey]-[/]",
+                        command.Directory ?? "[grey]-[/]",
                         command.CreatedAt.ToString("yyyy-MM-dd HH:mm")
                     );
                 }

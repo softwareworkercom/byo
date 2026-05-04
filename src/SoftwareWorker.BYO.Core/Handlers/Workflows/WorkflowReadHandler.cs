@@ -16,7 +16,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 
             if (workflows == null || workflows.Count == 0)
             {
-                UserInterfaceService.ShowWarning("No workflows found. Use 'sw workflows create' to create a workflow.");
+                UserInterfaceService.ShowWarning("No workflows found. Use 'byo workflows create' to create a workflow.");
                 return;
             }
 

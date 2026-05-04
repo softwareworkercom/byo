@@ -7,6 +7,17 @@ This guide creates a simple but realistic API smoke-test flow using a public tes
 - 2 saved commands
 - 1 workflow that runs the 2 commands in sequence
 
+## Prerequisites
+
+- .NET SDK 10+
+- BYO CLI installed and available on your `PATH`
+
+Quick check:
+
+```bash
+byo help
+```
+
 ## 1) Add one setting
 
 ```bash
@@ -27,7 +38,7 @@ byo secrets update --key Demo:ApiToken --value public-demo-token
 byo commands create --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer'"
 ```
 
-### Command 2: Echo users request check
+### Command 2: Echo users request
 
 ```bash
 byo commands create --name "Demo API Users" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/anything/v1/users?limit=5'"
@@ -67,10 +78,10 @@ byo workflows read
 ## 6) Run the workflow
 
 ```bash
-byo workflows run
+byo workflows run --name "Demo API Smoke Test"
 ```
 
-Select `Demo API Smoke Test` and let the workflow execute both commands.
+The workflow runs immediately and executes both commands in sequence.
 
 ---
 
@@ -79,4 +90,6 @@ Select `Demo API Smoke Test` and let the workflow execute both commands.
 - `{{Demo:ApiBaseUrl}}` and `{{Demo:ApiToken}}` are resolved from settings/secrets at runtime.
 - `commands create` uses `--name` (not `--description`) and `--bookmark` (not `--path`).
 - `workflows create` requires both `--name` and `--bookmark`.
+- `workflows run` expects `--name` to identify which workflow to execute.
+- In PowerShell, keep single quotes around tokenized values (for example `'{{Demo:ApiToken}}'`) to avoid interpolation issues.
 - If your environment does not have `curl`, replace the command executable with any HTTP command available in your shell.

@@ -22,16 +22,16 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             var command = new ShellCommand
             {
-                Description = description,
+                Name = description,
                 Executable = executable,
-                WorkingDirectory = workingDirectory,
+                Directory = workingDirectory,
                 Shell = shell,
-                FolderPath = NormalizeFolderPath(folderPath),
+                Bookmark = NormalizeFolderPath(folderPath),
                 CreatedAt = DateTime.UtcNow
             };
 
             commands.Add(command);
-            commands = commands.OrderBy(c => c.Description).ToList();
+            commands = commands.OrderBy(c => c.Name).ToList();
 
             StorageService.SaveList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE, commands);
 
@@ -57,7 +57,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             string? folderPath = null)
         {
             var commands = StorageService.LoadList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE);
-            var existingCommand = commands.FirstOrDefault(c => c.Description.Equals(description, StringComparison.OrdinalIgnoreCase));
+            var existingCommand = commands.FirstOrDefault(c => c.Name.Equals(description, StringComparison.OrdinalIgnoreCase));
 
             if (existingCommand == null)
             {
@@ -65,14 +65,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             // Update only provided values
-            if (newDescription != null) existingCommand.Description = newDescription;
+            if (newDescription != null) existingCommand.Name = newDescription;
             if (executable != null) existingCommand.Executable = executable;
-            if (workingDirectory != null) existingCommand.WorkingDirectory = workingDirectory;
+            if (workingDirectory != null) existingCommand.Directory = workingDirectory;
             if (shell != null) existingCommand.Shell = shell;
-            if (folderPath != null) existingCommand.FolderPath = NormalizeFolderPath(folderPath);
+            if (folderPath != null) existingCommand.Bookmark = NormalizeFolderPath(folderPath);
             existingCommand.UpdatedAt = DateTime.UtcNow;
 
-            commands = commands.OrderBy(c => c.Description).ToList();
+            commands = commands.OrderBy(c => c.Name).ToList();
 
             StorageService.SaveList<ShellCommand>(SystemConstants.STORAGE_COMMANDS_FILE, commands);
 
@@ -99,7 +99,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             var existingCommand = commands.FirstOrDefault(c =>
                 c.Executable == command.Executable &&
-                c.WorkingDirectory == command.WorkingDirectory);
+                c.Directory == command.Directory);
 
             if (existingCommand == null)
             {

@@ -19,7 +19,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
 
             if (secrets.Count == 0)
             {
-                UserInterfaceService.ShowWarning("No secrets found.");
+                UserInterfaceService.ShowWarning("No secrets found. Use 'byo secrets update --key <key> --value <value>' to add one.");
                 return;
             }
 

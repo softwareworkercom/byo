@@ -77,7 +77,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
                             continue;
                         }
 
-                        var commandNames = commands.Select(c => c.Description).ToList();
+                        var commandNames = commands.Select(c => c.Name).ToList();
                         step.CommandName = UserInterfaceService.SelectSingleItem("command", commandNames);
                         step.RunAsync = UserInterfaceService.AskYesNo("Run this command asynchronously in background?");
                         break;

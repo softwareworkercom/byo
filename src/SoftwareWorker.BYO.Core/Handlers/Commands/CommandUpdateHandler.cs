@@ -32,14 +32,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 
                 if (allCommands.Count == 0)
                 {
-                    UserInterfaceService.ShowWarning("No commands found. Use 'sw command add' to create a command.");
+                    UserInterfaceService.ShowWarning("No commands found. Use 'byo commands create' to create a command.");
                     return;
                 }
 
                 var selectedCommand = FolderNavigationService.NavigateAndSelect(
                     allCommands,
-                    c => c.FolderPath,
-                    c => c.Description,
+                    c => c.Bookmark,
+                    c => c.Name,
                     "command to update");
 
                 if (selectedCommand == null)
@@ -48,7 +48,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
                     return;
                 }
 
-                targetName = selectedCommand.Description;
+                targetName = selectedCommand.Name;
             }
 
             // Check if at least one update field is provided

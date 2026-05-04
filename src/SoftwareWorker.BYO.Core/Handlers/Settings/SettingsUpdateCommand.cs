@@ -21,7 +21,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Settings
             {
                 if (settings.Count == 0)
                 {
-                    UserInterfaceService.ShowWarning("No settings found.");
+                    UserInterfaceService.ShowWarning("No settings found. Use 'byo settings update --key <key> --value <value>' to add one.");
                     return;
                 }
 
