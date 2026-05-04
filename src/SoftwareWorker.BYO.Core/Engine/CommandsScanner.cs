@@ -27,14 +27,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 var actionAttr = handlerType.GetCustomAttribute<LeafCommandAttribute>();
 
                 // Get or create command entry
-                if (!commandsDict.TryGetValue(commandAttr.CommandName, out var trunkCommandData))
+                if (!commandsDict.TryGetValue(commandAttr.Name, out var trunkCommandData))
                 {
                     trunkCommandData = new TrunkCommandData
                     {
-                        Description = commandAttr.CommandDescription,
+                        Description = commandAttr.Description,
                         BranchCommands = new Dictionary<string, BranchCommandData>()
                     };
-                    commandsDict[commandAttr.CommandName] = trunkCommandData;
+                    commandsDict[commandAttr.Name] = trunkCommandData;
                 }
 
                 // Check if this is a 1-level command (no branch attribute)
@@ -47,14 +47,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 else
                 {
                     // Get or create subcommand entry
-                    if (!trunkCommandData.BranchCommands.TryGetValue(subCommandAttr.SubCommandName, out var subCommandData))
+                    if (!trunkCommandData.BranchCommands.TryGetValue(subCommandAttr.Name, out var subCommandData))
                     {
                         subCommandData = new BranchCommandData
                         {
-                            Description = subCommandAttr.SubCommandDescription,
+                            Description = subCommandAttr.Description,
                             LeafCommands = new List<LeafCommand>()
                         };
-                        trunkCommandData.BranchCommands[subCommandAttr.SubCommandName] = subCommandData;
+                        trunkCommandData.BranchCommands[subCommandAttr.Name] = subCommandData;
                     }
 
                     // If there's an action attribute, this is a three-level command
@@ -62,8 +62,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     {
                         var action = new LeafCommand
                         {
-                            Name = actionAttr.ActionName,
-                            Description = actionAttr.ActionDescription,
+                            Name = actionAttr.Name,
+                            Description = actionAttr.Description,
                             Handler = handlerType.FullName,
                             Parameters = BuildParameters(handlerType)
                         };

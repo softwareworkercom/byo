@@ -4,29 +4,29 @@ using SoftwareWorker.BYO.Core.Model.Enums;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 {
-    [TrunkCommand("commands", "Saved Commands")]
-    [BranchCommand("update", "Update an existing command")]
-    [Parameter("description", "Command description to update", false, null)]
-    [Parameter("newdescription", "New command description", false, null)]
+    [TrunkCommand("commands", "Saved command management")]
+    [BranchCommand("update", "Update an existing saved command")]
+    [Parameter("name", "Command name to update", false, null)]
+    [Parameter("newname", "New command name", false, null)]
     [Parameter("executable", "New command executable", false, null)]
-    [Parameter("folder", "New working directory", false, null)]
+    [Parameter("directory", "New working directory", false, null)]
     [Parameter("shell", "New shell type", false, "PowerShell|Cmd|Wsl")]
-    [Parameter("path", "New folder hierarchy path (e.g. DevOps/Deploy)", false, null)]
+    [Parameter("bookmark", "New bookmark hierarchy path (e.g. DevOps/Deploy)", false, null)]
     internal class CommandUpdateHandler : BaseCommandHandler
     {
-        public string? Description { get; set; }
-        public string? NewDescription { get; set; }
+        public string? Name { get; set; }
+        public string? NewName { get; set; }
         public string? Executable { get; set; }
-        public string? Folder { get; set; }
+        public string? Directory { get; set; }
         public string? Shell { get; set; }
-        public string? Path { get; set; }
+        public string? Bookmark { get; set; }
 
         public override async Task ExecuteAsync()
         {
-            var targetDescription = Description;
+            var targetName = Name;
 
-            // If description is not provided, use folder navigation for interactive selection
-            if (string.IsNullOrEmpty(targetDescription))
+            // If name is not provided, use folder navigation for interactive selection
+            if (string.IsNullOrEmpty(targetName))
             {
                 var allCommands = CommandService.GetList().ToList();
 
@@ -48,15 +48,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
                     return;
                 }
 
-                targetDescription = selectedCommand.Description;
+                targetName = selectedCommand.Description;
             }
 
             // Check if at least one update field is provided
-            if (string.IsNullOrEmpty(NewDescription) &&
+            if (string.IsNullOrEmpty(NewName) &&
                 string.IsNullOrEmpty(Executable) &&
-                string.IsNullOrEmpty(Folder) &&
+                string.IsNullOrEmpty(Directory) &&
                 string.IsNullOrEmpty(Shell) &&
-                string.IsNullOrEmpty(Path))
+                string.IsNullOrEmpty(Bookmark))
             {
                 UserInterfaceService.ShowWarning("No update fields provided. Please specify at least one field to update.");
                 return;
@@ -77,15 +77,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
                 }
             }
 
-            var updatedCommand = CommandService.Update(targetDescription, NewDescription, Executable, Folder, shell, Path);
+            var updatedCommand = CommandService.Update(targetName, NewName, Executable, Directory, shell, Bookmark);
 
             if (updatedCommand == null)
             {
-                UserInterfaceService.ShowError($"Error: Command with description '{Description}' not found.");
+                UserInterfaceService.ShowError($"Error: Command with name '{Name}' not found.");
                 return;
             }
 
-            UserInterfaceService.ShowGreen($"Command '{targetDescription}' updated successfully.");
+            UserInterfaceService.ShowGreen($"Command '{targetName}' updated successfully.");
             await Task.CompletedTask;
         }
     }

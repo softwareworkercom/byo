@@ -9,19 +9,19 @@ namespace SoftwareWorker.BYO.CLI.Abstractions.Attributes
         /// <summary>
         /// Leaf command name (e.g., "create", "update", "delete")
         /// </summary>
-        public string ActionName { get; }
+        public string Name { get; }
 
         /// <summary>
         /// Description of the leaf command
         /// </summary>
-        public string ActionDescription { get; }
+        public string Description { get; }
 
         public LeafCommandAttribute(
-            string actionName,
-            string actionDescription)
+            string Name,
+            string Description)
         {
-            ActionName = actionName;
-            ActionDescription = actionDescription;
+            this.Name = Name;
+            this.Description = Description;
         }
     }
 }

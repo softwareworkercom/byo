@@ -9,19 +9,19 @@ namespace SoftwareWorker.BYO.CLI.Abstractions.Attributes
         /// <summary>
         /// Branch command name (e.g., "issue", "page", "clone", "create")
         /// </summary>
-        public string SubCommandName { get; }
+        public string Name { get; }
 
         /// <summary>
         /// Description of the branch command
         /// </summary>
-        public string SubCommandDescription { get; }
+        public string Description { get; }
 
         public BranchCommandAttribute(
-            string subCommandName,
-            string subCommandDescription)
+            string Name,
+            string Description)
         {
-            SubCommandName = subCommandName;
-            SubCommandDescription = subCommandDescription;
+            this.Name = Name;
+            this.Description = Description;
         }
     }
 }

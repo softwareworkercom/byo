@@ -4,8 +4,8 @@ using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 {
-    [TrunkCommand("commands", "Saved Commands")]
-    [BranchCommand("read", "Read all saved commands")]
+    [TrunkCommand("commands", "Saved command management")]
+    [BranchCommand("read", "List all saved commands")]
     internal class CommandReadHandler : BaseCommandHandler
     {
         public override async Task ExecuteAsync()

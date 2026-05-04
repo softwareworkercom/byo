@@ -6,16 +6,14 @@ using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 {
-    [TrunkCommand("workflows", "Workflow Management")]
+    [TrunkCommand("workflows", "Workflow management")]
     [BranchCommand("create", "Create a new workflow with interactive steps")]
     [Parameter("name", "Workflow name", true, null)]
-    [Parameter("description", "Workflow description", true, null)]
-    [Parameter("path", "Folder hierarchy path (e.g. DevOps/Deploy)", true, null)]
+    [Parameter("bookmark", "Bookmark hierarchy path (e.g. DevOps/Deploy)", true, null)]
     public class WorkflowCreateHandler : BaseCommandHandler
     {
         public string? Name { get; set; }
-        public string? Description { get; set; }
-        public string? Path { get; set; }
+        public string? Bookmark { get; set; }
         private sealed record StepTypeOption(WorkflowStepTypeEnum? StepType, string Label);
 
         public override async Task ExecuteAsync()
@@ -100,7 +98,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 
             try
             {
-                WorkflowService.Create(Name, Description, workflowSteps, Path);
+                WorkflowService.Create(Name, null, workflowSteps, Bookmark);
                 UserInterfaceService.ShowGreen($"Workflow '{Name}' created successfully with {workflowSteps.Count} step(s).");
             }
             catch (InvalidOperationException ex)

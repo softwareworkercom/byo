@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 {
-    [TrunkCommand("workflows", "Workflow Management")]
+    [TrunkCommand("workflows", "Workflow management")]
     [BranchCommand("read", "List all workflows")]
     internal class WorkflowReadHandler : BaseCommandHandler
     {

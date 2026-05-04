@@ -4,26 +4,26 @@ using SoftwareWorker.BYO.Core.Model.Enums;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 {
-    [TrunkCommand("commands", "Saved Commands")]
-    [BranchCommand("create", "Create Command")]
-    [Parameter("description", "Command Description", true, null)]
-    [Parameter("executable", "Command Executable (use {{tokenName}} for tokens resolved from configuration)", true, null)]
-    [Parameter("folder", "Working Directory", false, null)]
-    [Parameter("shell", "Shell Type", false, "PowerShell|Cmd|Wsl")]
-    [Parameter("path", "Folder hierarchy path (e.g. DevOps/Deploy)", false, null)]
+    [TrunkCommand("commands", "Saved command management")]
+    [BranchCommand("create", "Create a new saved command")]
+    [Parameter("name", "Command name", true, null)]
+    [Parameter("bookmark", "Bookmark hierarchy path (e.g. DevOps/Deploy)", false, null)]
+    [Parameter("executable", "Command executable (use {{tokenName}} for tokens resolved from configuration)", true, null)]
+    [Parameter("shell", "Shell type", false, "PowerShell|Cmd|Wsl")]
+    [Parameter("directory", "Working directory", false, null)]
     internal class CommandCreateHandler : BaseCommandHandler
     {
-        public string? Description { get; set; }
+        public string? Name { get; set; }
         public string? Executable { get; set; }
-        public string? Folder { get; set; }
+        public string? Directory { get; set; }
         public string? Shell { get; set; }
-        public string? Path { get; set; }
+        public string? Bookmark { get; set; }
 
         public override async Task ExecuteAsync()
         {
-            if (string.IsNullOrEmpty(Description))
+            if (string.IsNullOrEmpty(Name))
             {
-                UserInterfaceService.ShowError("Command description is required");
+                UserInterfaceService.ShowError("Command name is required");
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
                 shell = parsedShell;
             }
 
-            CommandService.Create(Description, Executable, Folder, shell, Path);
+            CommandService.Create(Name, Executable, Directory, shell, Bookmark);
 
             UserInterfaceService.ShowGreen("Command added successfully!");
             await Task.CompletedTask;

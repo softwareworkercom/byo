@@ -24,13 +24,13 @@ byo secrets update --key Demo:ApiToken --value public-demo-token
 ### Command 1: Bearer token check
 
 ```bash
-byo commands create --description "Demo API Bearer Check" --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer'" --path "Examples/GettingStarted"
+byo commands create --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer'"
 ```
 
 ### Command 2: Echo users request check
 
 ```bash
-byo commands create --description "Demo API Users" --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/anything/v1/users?limit=5'" --path "Examples/GettingStarted"
+byo commands create --name "Demo API Users" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/anything/v1/users?limit=5'"
 ```
 
 ## 4) Create one workflow using the two commands
@@ -38,7 +38,7 @@ byo commands create --description "Demo API Users" --executable "curl.exe -s -H 
 Run:
 
 ```bash
-byo workflows create --name "Demo API Smoke Test" --description "Runs basic API smoke checks" --path "Examples/GettingStarted"
+byo workflows create --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
 ```
 
 When prompted, add steps in this order:
@@ -77,4 +77,6 @@ Select `Demo API Smoke Test` and let the workflow execute both commands.
 ## Notes
 
 - `{{Demo:ApiBaseUrl}}` and `{{Demo:ApiToken}}` are resolved from settings/secrets at runtime.
+- `commands create` uses `--name` (not `--description`) and `--bookmark` (not `--path`).
+- `workflows create` requires both `--name` and `--bookmark`.
 - If your environment does not have `curl`, replace the command executable with any HTTP command available in your shell.

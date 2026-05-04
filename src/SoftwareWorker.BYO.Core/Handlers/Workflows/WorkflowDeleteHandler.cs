@@ -3,7 +3,7 @@ using SoftwareWorker.BYO.CLI.Core.Service;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 {
-    [TrunkCommand("workflows", "Workflow Management")]
+    [TrunkCommand("workflows", "Workflow management")]
     [BranchCommand("delete", "Delete a workflow")]
     internal class WorkflowDeleteHandler : BaseCommandHandler
     {

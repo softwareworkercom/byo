@@ -3,7 +3,7 @@ using SoftwareWorker.BYO.CLI.Core.Service;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 {
-    [TrunkCommand("commands", "Saved Commands")]
+    [TrunkCommand("commands", "Saved command management")]
     [BranchCommand("delete", "Delete a saved command")]
     internal class CommandDeleteHandler : BaseCommandHandler
     {

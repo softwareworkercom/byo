@@ -9,19 +9,19 @@ namespace SoftwareWorker.BYO.CLI.Abstractions.Attributes
         /// <summary>
         /// Trunk command name (e.g., "git", "jira", "export")
         /// </summary>
-        public string CommandName { get; }
+        public string Name { get; }
 
         /// <summary>
         /// Description of the trunk command
         /// </summary>
-        public string CommandDescription { get; }
+        public string Description { get; }
 
         public TrunkCommandAttribute(
-            string commandName,
-            string commandDescription)
+            string Name,
+            string Description)
         {
-            CommandName = commandName;
-            CommandDescription = commandDescription;
+            this.Name = Name;
+            this.Description = Description;
         }
     }
 }
