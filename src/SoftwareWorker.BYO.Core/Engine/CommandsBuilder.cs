@@ -324,7 +324,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             }
 
             var toolName = NormalizeContextSegment(GetToolCommandName());
-            commandSegments.Insert(0, string.IsNullOrWhiteSpace(toolName) ? "sw" : toolName);
+            commandSegments.Insert(0, string.IsNullOrWhiteSpace(toolName) ? "byo" : toolName);
 
             return string.Join("-", commandSegments);
         }
@@ -683,7 +683,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             }
 
             var toolName = GetToolCommandName();
-            var replayTokens = new List<string> { string.IsNullOrWhiteSpace(toolName) ? "sw" : toolName };
+            var replayTokens = new List<string> { string.IsNullOrWhiteSpace(toolName) ? "byo" : toolName };
             replayTokens.AddRange(commandTokens);
 
             foreach (var (key, rawValue) in options)

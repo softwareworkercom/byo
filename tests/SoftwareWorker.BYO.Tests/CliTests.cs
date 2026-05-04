@@ -116,7 +116,7 @@ public class CliTests
     {
         var context = InvokeInferContextValue(["command", "sub", "run", "--name", "value"]);
 
-        Assert.Equal("sw-command-sub-run", context);
+        Assert.Equal("byo-command-sub-run", context);
     }
 
     [Fact]
@@ -131,7 +131,7 @@ public class CliTests
 
         var replay = InvokeBuildReplayCommand(rawTokens, options);
 
-        Assert.StartsWith("sw commands run", replay, StringComparison.Ordinal);
+        Assert.StartsWith("byo commands run", replay, StringComparison.Ordinal);
         Assert.Contains("--name 'demo'", replay, StringComparison.Ordinal);
         Assert.Contains("--schedule '5m'", replay, StringComparison.Ordinal);
         Assert.DoesNotContain("--unknown", replay, StringComparison.Ordinal);
