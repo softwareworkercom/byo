@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -16,7 +16,7 @@
 		<Authors>Leandro Monaco</Authors>
 		<Company>Software Worker</Company>
        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://byocli.com</PackageProjectUrl>
+		<PackageProjectUrl>https://www.byocli.com</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/softwareworkercom/byo</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>cli;productivity;software-worker;developer;devex;devops</PackageTags>
