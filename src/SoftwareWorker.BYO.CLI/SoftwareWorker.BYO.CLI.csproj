@@ -15,7 +15,6 @@
 		<Description>A powerful and flexible CLI tool for developer productivity.</Description>
 		<Authors>Leandro Monaco</Authors>
 		<Company>Software Worker</Company>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
        <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://byocli.com</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/softwareworkercom/byo</RepositoryUrl>
@@ -24,7 +23,9 @@
 	</PropertyGroup>
 
  <ItemGroup>
-		<None Include="Icons\byo-logo.png" Pack="true" PackagePath="Icons\" />
+		<None Include="Icons\byo-logo.png" Pack="true" PackagePath="Icons\">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
