@@ -7,6 +7,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
     public static class FolderNavigationService
     {
         private const string BackOption = "Back";
+        private const string SelectCurrentOption = "Select this bookmark";
         private const string FolderPrefix = "/";
 
         /// <summary>
@@ -127,6 +128,91 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             return [.. paths.OrderBy(p => p)];
+        }
+
+        /// <summary>
+        /// Interactively navigates a bookmark hierarchy and returns the selected bookmark path.
+        /// Returns null if there are no bookmark folders available.
+        /// </summary>
+        /// <param name="folderPaths">All bookmark folder paths.</param>
+        /// <param name="selectionTitle">Title shown in the selection prompt.</param>
+        /// <returns>The selected bookmark path, or null if selection is not possible.</returns>
+        public static string? NavigateAndSelectFolder(
+            List<string?> folderPaths,
+            string selectionTitle = "bookmark")
+        {
+            if (folderPaths == null || folderPaths.Count == 0)
+            {
+                return null;
+            }
+
+            var allFolders = folderPaths
+                .Select(NormalizePath)
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (allFolders.Count == 0)
+            {
+                return null;
+            }
+
+            var currentPath = string.Empty;
+
+            while (true)
+            {
+                var subFolders = allFolders
+                    .Select(path => GetImmediateSubFolder(path, currentPath))
+                    .Where(folder => !string.IsNullOrEmpty(folder))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(folder => folder, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                var options = new List<string>();
+
+                if (!string.IsNullOrEmpty(currentPath))
+                {
+                    options.Add(BackOption);
+                }
+
+                options.AddRange(subFolders.Select(folder => $"{FolderPrefix}{folder}/"));
+
+                if (!string.IsNullOrEmpty(currentPath) && allFolders.Contains(currentPath))
+                {
+                    options.Add(SelectCurrentOption);
+                }
+
+                if (options.Count == 0)
+                {
+                    return null;
+                }
+
+                var pathDisplay = string.IsNullOrEmpty(currentPath) ? "/" : $"/{currentPath}";
+                var selected = UserInterfaceService.SelectSingleItem($"{selectionTitle} {pathDisplay}", options);
+
+                if (selected == BackOption)
+                {
+                    var lastSlash = currentPath.LastIndexOf('/');
+                    currentPath = lastSlash >= 0 ? currentPath[..lastSlash] : string.Empty;
+                    continue;
+                }
+
+                if (selected == SelectCurrentOption)
+                {
+                    return currentPath;
+                }
+
+                if (selected.StartsWith(FolderPrefix, StringComparison.Ordinal) && selected.EndsWith("/", StringComparison.Ordinal))
+                {
+                    var folderName = selected[FolderPrefix.Length..^1];
+                    currentPath = string.IsNullOrEmpty(currentPath)
+                        ? folderName
+                        : $"{currentPath}/{folderName}";
+                    continue;
+                }
+
+                return null;
+            }
         }
 
         /// <summary>

@@ -10,10 +10,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Model
         /// </summary>
         public string Name { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Optional description of what the workflow does
-        /// </summary>
-        public string? Description { get; set; }
 
         /// <summary>
         /// List of steps to execute in sequence
@@ -24,7 +20,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Model
         /// Optional hierarchical folder path for organising workflows (e.g. "DevOps/Deploy").
         /// Use "/" as the separator between folder levels.
         /// </summary>
-        public string? FolderPath { get; set; }
+        public string? Bookmark { get; set; }
 
         /// <summary>
         /// Date and time when the workflow was created

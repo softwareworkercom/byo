@@ -83,7 +83,7 @@ namespace SoftwareWorker.BYO.CLI.Core
 
                     if (string.IsNullOrEmpty(currentValue))
                     {
-                        var promptedValue = PromptForParameter(param);
+                        var promptedValue = PromptForParameter(param, handlerType, interactive);
                         if (!string.IsNullOrEmpty(promptedValue))
                         {
                             updatedOptions[param.Name] = promptedValue;
@@ -126,7 +126,7 @@ namespace SoftwareWorker.BYO.CLI.Core
         /// </summary>
         /// <param name="param">The parameter attribute containing metadata</param>
         /// <returns>The user-provided value or null if skipped</returns>
-        private static string? PromptForParameter(ParameterAttribute param)
+        private static string? PromptForParameter(ParameterAttribute param, Type handlerType, bool interactive)
         {
             var defaultValueStr = param.DefaultValue?.ToString();
             var hasEnumeratedOptions = !string.IsNullOrEmpty(defaultValueStr) && defaultValueStr.Contains('|');

@@ -7,8 +7,8 @@ using Spectre.Console;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 {
     [TrunkCommand("workflows", "Workflow management")]
-    [BranchCommand("read", "List all workflows")]
-    internal class WorkflowReadHandler : BaseCommandHandler
+    [BranchCommand("list", "List all workflows")]
+    internal class WorkflowListHandler : BaseCommandHandler
     {
         public override async Task ExecuteAsync()
         {
@@ -22,9 +22,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 
             // Group workflows by folder path (null/empty = root)
             var grouped = workflows
-                .OrderBy(w => w.FolderPath ?? string.Empty)
+                .OrderBy(w => w.Bookmark ?? string.Empty)
                 .ThenBy(w => w.Name)
-                .GroupBy(w => FolderNavigationService.NormalizePath(w.FolderPath))
+                .GroupBy(w => FolderNavigationService.NormalizePath(w.Bookmark))
                 .OrderBy(g => g.Key);
 
             foreach (var group in grouped)
@@ -54,10 +54,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
         {
             var lines = new List<string>();
 
-            var description = string.IsNullOrEmpty(workflow.Description)
-                ? "[grey]No description[/]"
-                : Markup.Escape(workflow.Description);
-            lines.Add($"[yellow]Description:[/] {description}");
+            lines.Add($"[yellow]Name:[/] {workflow.Name}");
+            lines.Add($"[yellow]Bookmark:[/] {workflow.Bookmark}");
             lines.Add($"[yellow]Created:[/] {workflow.CreatedAt:yyyy-MM-dd HH:mm}");
             lines.Add(string.Empty);
             lines.Add($"[yellow]Steps ({workflow.Steps.Count}):[/]");

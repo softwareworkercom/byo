@@ -5,8 +5,8 @@ using Spectre.Console;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
 {
     [TrunkCommand("secrets", "Encrypted secrets operations")]
-    [BranchCommand("read", "Read secrets")]
-    public class SecretsReadHandler : BaseCommandHandler
+    [BranchCommand("list", "Read secrets")]
+    public class SecretsListHandler : BaseCommandHandler
     {
         public override async Task ExecuteAsync()
         {

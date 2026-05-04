@@ -64,7 +64,7 @@ public sealed class SecretsCommandTests : IDisposable
         SecretsService.Update(keyA, "value-a");
         SecretsService.Update(keyB, "value-b");
 
-        var command = new SecretsReadHandler();
+        var command = new SecretsListHandler();
         await command.ExecuteAsync();
 
         var secrets = SecretsService.GetList();

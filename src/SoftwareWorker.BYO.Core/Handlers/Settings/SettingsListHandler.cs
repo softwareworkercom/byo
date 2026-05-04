@@ -5,8 +5,8 @@ using Spectre.Console;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Settings
 {
     [TrunkCommand("settings", "Settings operations")]
-    [BranchCommand("read", "Read settings")]
-    public class SettingsReadHandler : BaseCommandHandler
+    [BranchCommand("list", "Read settings")]
+    public class SettingsListHandler : BaseCommandHandler
     {
         public override async Task ExecuteAsync()
         {

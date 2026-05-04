@@ -98,7 +98,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 
             try
             {
-                WorkflowService.Create(Name, null, workflowSteps, Bookmark);
+                WorkflowService.Create(Name, workflowSteps, Bookmark);
                 UserInterfaceService.ShowGreen($"Workflow '{Name}' created successfully with {workflowSteps.Count} step(s).");
             }
             catch (InvalidOperationException ex)

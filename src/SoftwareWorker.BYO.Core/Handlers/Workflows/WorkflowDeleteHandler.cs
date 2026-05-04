@@ -19,7 +19,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 
             var selectedWorkflow = FolderNavigationService.NavigateAndSelect(
                 workflows,
-                w => w.FolderPath,
+                w => w.Bookmark,
                 w => w.Name,
                 "workflow to delete");
 

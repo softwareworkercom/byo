@@ -15,7 +15,7 @@ This guide creates a simple but realistic API smoke-test flow using a public tes
 Quick check:
 
 ```bash
-byo help
+byo --help
 ```
 
 ## 1) Add one setting
@@ -69,16 +69,16 @@ When prompted, add steps in this order:
 ## 5) Validate what was created
 
 ```bash
-byo settings read
-byo secrets read
-byo commands read
-byo workflows read
+byo settings list
+byo secrets list
+byo commands list
+byo workflows list
 ```
 
 ## 6) Run the workflow
 
 ```bash
-byo workflows run --name "Demo API Smoke Test"
+byo workflows run --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
 ```
 
 The workflow runs immediately and executes both commands in sequence.
@@ -90,6 +90,7 @@ The workflow runs immediately and executes both commands in sequence.
 - `{{Demo:ApiBaseUrl}}` and `{{Demo:ApiToken}}` are resolved from settings/secrets at runtime.
 - `commands create` uses `--name` (not `--description`) and `--bookmark` (not `--path`).
 - `workflows create` requires both `--name` and `--bookmark`.
-- `workflows run` expects `--name` to identify which workflow to execute.
+- `workflows run` expects both `--name` and `--bookmark` to identify which workflow to execute.
+- `settings`, `secrets`, `commands`, and `workflows` use `list` to view saved items.
 - In PowerShell, keep single quotes around tokenized values (for example `'{{Demo:ApiToken}}'`) to avoid interpolation issues.
 - If your environment does not have `curl`, replace the command executable with any HTTP command available in your shell.

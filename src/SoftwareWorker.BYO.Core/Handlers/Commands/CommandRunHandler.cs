@@ -45,7 +45,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 
             if (selectedCommand == null)
             {
-                UserInterfaceService.ShowError($"Command '{Name}' not found in bookmark '{normalizedBookmark}'.");
+                UserInterfaceService.ShowError($"Command '{Name}' not found in bookmark '{normalizedBookmark}'. Use 'byo commands list' to see all available commands.");
                 return;
             }
 

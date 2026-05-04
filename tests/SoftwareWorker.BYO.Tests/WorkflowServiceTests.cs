@@ -24,16 +24,14 @@ public sealed class WorkflowServiceTests : IDisposable
     {
         var created = WorkflowService.Create(
             name: "Deploy.Workflow",
-            description: "Deploy pipeline",
             steps: [CreateMessageStep("run")],
-            folderPath: " /DevOps/Deploy/ ");
+            bookmark: " /DevOps/Deploy/ ");
 
         var workflows = WorkflowService.GetList();
 
         Assert.Single(workflows);
         Assert.Equal("Deploy.Workflow", created.Name);
-        Assert.Equal("Deploy pipeline", created.Description);
-        Assert.Equal("DevOps/Deploy", created.FolderPath);
+        Assert.Equal("DevOps/Deploy", created.Bookmark);
         Assert.Single(created.Steps);
         Assert.Equal("Deploy.Workflow", workflows[0].Name);
     }
@@ -41,16 +39,16 @@ public sealed class WorkflowServiceTests : IDisposable
     [Fact]
     public void Create_ShouldThrow_WhenWorkflowNameAlreadyExists()
     {
-        WorkflowService.Create("Duplicate.Workflow", null, [CreateMessageStep("first")], folderPath: "Ops");
+        WorkflowService.Create("Duplicate.Workflow", [CreateMessageStep("first")], bookmark: "Ops");
 
         Assert.Throws<InvalidOperationException>(() =>
-            WorkflowService.Create("Duplicate.Workflow", null, [CreateMessageStep("second")], folderPath: "Ops"));
+            WorkflowService.Create("Duplicate.Workflow", [CreateMessageStep("second")], bookmark: "Ops"));
     }
 
     [Fact]
     public void Update_ShouldChangeOnlyProvidedFields_AndSetUpdatedAt()
     {
-        WorkflowService.Create("Build.Workflow", "old", [CreateMessageStep("old")], folderPath: "Old");
+        WorkflowService.Create("Build.Workflow", [CreateMessageStep("old")], bookmark: "Old");
 
         var updated = WorkflowService.Update(
             name: "Build.Workflow",
@@ -61,8 +59,7 @@ public sealed class WorkflowServiceTests : IDisposable
 
         Assert.NotNull(updated);
         Assert.Equal("Build.Workflow.New", updated.Name);
-        Assert.Equal("new", updated.Description);
-        Assert.Equal("Pipelines/CI", updated.FolderPath);
+        Assert.Equal("Pipelines/CI", updated.Bookmark);
         Assert.Single(updated.Steps);
         Assert.Equal("new", updated.Steps[0].Prompt);
         Assert.NotNull(updated.UpdatedAt);
@@ -79,8 +76,8 @@ public sealed class WorkflowServiceTests : IDisposable
     [Fact]
     public void Delete_ShouldRemoveWorkflowByName()
     {
-        WorkflowService.Create("Delete.A", null, [CreateMessageStep("a")], folderPath: "Ops");
-        WorkflowService.Create("Delete.B", null, [CreateMessageStep("b")], folderPath: "Ops");
+        WorkflowService.Create("Delete.A", [CreateMessageStep("a")], bookmark: "Ops");
+        WorkflowService.Create("Delete.B", [CreateMessageStep("b")], bookmark: "Ops");
 
         var deleted = WorkflowService.Delete("Delete.B");
         var workflows = WorkflowService.GetList();
@@ -93,7 +90,7 @@ public sealed class WorkflowServiceTests : IDisposable
     [Fact]
     public void Delete_ShouldReturnFalse_WhenWorkflowDoesNotExist()
     {
-        WorkflowService.Create("Delete.A", null, [CreateMessageStep("a")], folderPath: "Ops");
+        WorkflowService.Create("Delete.A", [CreateMessageStep("a")], bookmark: "Ops");
 
         var deleted = WorkflowService.Delete("Missing.Workflow");
 
@@ -142,9 +139,8 @@ public sealed class WorkflowCliTests : IDisposable
         var workflowName = $"workflow-run-{Guid.NewGuid():N}";
         WorkflowService.Create(
             workflowName,
-            null,
             [CreateMessageStep("hello")],
-            folderPath: "/DevOps/Deploy/");
+            bookmark: "/DevOps/Deploy/");
 
         var exitCode = CommandsRouter.Route([
             "workflows",

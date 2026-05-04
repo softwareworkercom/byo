@@ -5,8 +5,8 @@ using Spectre.Console;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 {
     [TrunkCommand("commands", "Saved command management")]
-    [BranchCommand("read", "List all saved commands")]
-    internal class CommandReadHandler : BaseCommandHandler
+    [BranchCommand("list", "List all saved commands")]
+    internal class CommandListHandler : BaseCommandHandler
     {
         public override async Task ExecuteAsync()
         {
@@ -33,15 +33,17 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
                 var table = new Table()
                     .Border(TableBorder.Rounded)
                     .BorderColor(Color.Cyan)
-                    .AddColumn("[bold]Description[/]")
+                    .AddColumn("[bold]Name[/]")
+                    .AddColumn("[bold]Bookmark[/]")
                     .AddColumn("[bold]Executable[/]")
-                    .AddColumn("[bold]Working Directory[/]")
+                    .AddColumn("[bold]Directory[/]")
                     .AddColumn("[bold]Created[/]");
 
                 foreach (var command in group)
                 {
                     table.AddRow(
                         command.Name,
+                        command.Bookmark,
                         Markup.Escape(command.Executable),
                         command.Directory ?? "[grey]-[/]",
                         command.CreatedAt.ToString("yyyy-MM-dd HH:mm")

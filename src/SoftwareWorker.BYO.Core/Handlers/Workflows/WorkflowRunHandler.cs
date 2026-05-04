@@ -23,11 +23,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
             var normalizedBookmark = FolderNavigationService.NormalizePath(Bookmark);
             var selectedWorkflow = WorkflowService.GetList().FirstOrDefault(w =>
                 w.Name.Equals(Name!, StringComparison.OrdinalIgnoreCase) &&
-                FolderNavigationService.NormalizePath(w.FolderPath).Equals(normalizedBookmark, StringComparison.OrdinalIgnoreCase));
+                FolderNavigationService.NormalizePath(w.Bookmark).Equals(normalizedBookmark, StringComparison.OrdinalIgnoreCase));
 
             if (selectedWorkflow == null)
             {
-                UserInterfaceService.ShowWarning($"Workflow '{Name}' not found in bookmark '{normalizedBookmark}'. Use 'byo workflows read' to list available workflows.");
+                UserInterfaceService.ShowWarning($"Workflow '{Name}' not found in bookmark '{normalizedBookmark}'. Use 'byo workflows list' to see all available workflows.");
                 return;
             }
 

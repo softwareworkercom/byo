@@ -12,11 +12,10 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// Creates a new workflow and adds it to storage.
         /// </summary>
         /// <param name="name">The name of the workflow.</param>
-        /// <param name="description">Optional description of the workflow.</param>
         /// <param name="steps">The list of steps to include in the workflow.</param>
         /// <param name="folderPath">Optional hierarchical folder path (e.g. "DevOps/Deploy").</param>
         /// <returns>The created workflow.</returns>
-        public static Workflow Create(string name, string? description, List<WorkflowStep> steps, string? folderPath = null)
+        public static Workflow Create(string name, List<WorkflowStep> steps, string? bookmark = null)
         {
             var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
 
@@ -29,9 +28,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             var workflow = new Workflow
             {
                 Name = name,
-                Description = description,
                 Steps = steps,
-                FolderPath = NormalizeFolderPath(folderPath),
+                Bookmark = NormalizeFolderPath(bookmark),
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -89,9 +87,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             // Update only provided values
             if (newName != null) existingWorkflow.Name = newName;
-            if (description != null) existingWorkflow.Description = description;
             if (steps != null) existingWorkflow.Steps = steps;
-            if (folderPath != null) existingWorkflow.FolderPath = NormalizeFolderPath(folderPath);
+            if (folderPath != null) existingWorkflow.Bookmark = NormalizeFolderPath(folderPath);
             existingWorkflow.UpdatedAt = DateTime.UtcNow;
 
             StorageService.SaveList(WorkflowsFilePath, workflows);

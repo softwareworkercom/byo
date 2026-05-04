@@ -1,65 +1,69 @@
 # BYO CLI
 
+⭐ **Give us a star to support the project**
+
 [![.NET](https://img.shields.io/badge/.NET-10-blueviolet)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/softwareworkercom/byo)](https://github.com/softwareworkercom/byo/issues)
 [![Stars](https://img.shields.io/github/stars/softwareworkercom/byo?style=social)](https://github.com/softwareworkercom/byo/stargazers)
 
-**BYO CLI** is a modern, extensible developer productivity CLI built with .NET.
-It helps teams organize commands, run repeatable workflows, and manage local secrets in a single command-line experience.
+**BYO CLI** is a developer productivity tool. It helps developers organize commands, run repeatable workflows, and manage local secrets.
 
 <img width="1571" height="626" alt="WindowsTerminal_NPwKUL7hRV" src="https://github.com/user-attachments/assets/00645042-279a-4f1f-bcc9-558402e932b1" />
 
 ## Why BYO CLI?
 
-- ⚡ **Fast local automation** for day-to-day developer and DevOps tasks
-- 🧩 **Extensible command model** (trunk/branch/leaf command hierarchy)
-- 🔐 **Encrypted secrets support** for local secure workflows
-- 🗂️ **Saved commands & workflows** for consistency across environments
-- 🎛️ **Interactive mode** and optional scheduling/background execution
+⚡ Stay in the Zone
+Run saved commands right away without leaving your terminal.
+
+🧠
+Less Friction, More Focus
+Save the details once so you do not have to remember flags or search old notes.
+
+🔐
+Tailored to Your Stack
+Keep your commands, settings, and secrets organized around the way you work.
+
+🚀
+Your Workflow, Your Rules
+Build custom automations that match how you actually work. BYO adapts to you, not the other way around.
 
 ## Quick Start
 
 ### Prerequisites
 
-- .NET SDK 10+
+- .NET SDK 10 (https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
 ### Install as a global tool
 
 ```bash
-dotnet tool install --global byo --version 0.0.1-gb475e9fe17
+dotnet tool install --global byo
 ```
 
 ### Run
 
 ```bash
-byo help
+byo --help
 ```
 
 > If the package is not published yet, clone this repo and run from source:
 >
 > ```bash
 > dotnet build
-> dotnet run --project src/SoftwareWorker.BYO.CLI -- help
+> dotnet run --project src/SoftwareWorker.BYO.CLI -- --help
 > ```
 
-## Getting Started Guide (Simple Realistic Example)
+## Getting Started Guide
 
-Follow this step-by-step guide to set up:
-- 1 setting
-- 1 secret
-- 2 saved commands
-- 1 workflow that executes those 2 commands
+See [`docs/getting-started.md`](docs/getting-started.md)
 
-➡️ See [`docs/getting-started.md`](docs/getting-started.md)
+## Commands
 
-## Core Command Areas
-
-- `byo help` — show all available commands
-- `byo commands ...` — create/read/update/delete/run saved commands
-- `byo workflows ...` — create/read/delete/run workflows
-- `byo secrets ...` — read/update/delete/reencrypt encrypted secrets
-- `byo settings ...` — read/update/delete configuration settings
+- `byo --help`
+- `byo commands --help`
+- `byo settings --help`
+- `byo secrets --help`
+- `byo workflows --help`
 
 ## Contributing
 
@@ -74,9 +78,8 @@ Please include a clear description of the problem, your solution, and examples w
 
 ## Community
 
-- ⭐ Star this repo if BYO CLI is useful
 - 🐞 Report bugs and request features in [Issues](https://github.com/softwareworkercom/byo/issues)
-- 💬 Share ideas in Discussions
+- 💬 Share ideas in [Discussions](https://github.com/softwareworkercom/byo/discussions)
 
 ## License
 
