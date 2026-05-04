@@ -28,7 +28,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
             foreach (var group in grouped)
             {
                 var folderHeader = string.IsNullOrEmpty(group.Key) ? "[grey](root)[/]" : $"[cyan]{Markup.Escape(group.Key)}[/]";
-                UserInterfaceService.ShowMarkup($"[bold]📁 {folderHeader}[/]");
+                UserInterfaceService.ShowMarkup($"[bold]{folderHeader}[/]");
 
                 var table = new Table()
                     .Border(TableBorder.Rounded)
@@ -41,11 +41,20 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 
                 foreach (var command in group)
                 {
+                    var name = Markup.Escape(command.Name ?? "(unnamed)");
+                    var bookmark = string.IsNullOrWhiteSpace(command.Bookmark)
+                        ? "[grey](root)[/]"
+                        : Markup.Escape(command.Bookmark);
+                    var executable = Markup.Escape(command.Executable ?? "(missing)");
+                    var directory = string.IsNullOrWhiteSpace(command.Directory)
+                        ? "[grey]-[/]"
+                        : Markup.Escape(command.Directory);
+
                     table.AddRow(
-                        command.Name,
-                        command.Bookmark,
-                        Markup.Escape(command.Executable),
-                        command.Directory ?? "[grey]-[/]",
+                        name,
+                        bookmark,
+                        executable,
+                        directory,
                         command.CreatedAt.ToString("yyyy-MM-dd HH:mm")
                     );
                 }
