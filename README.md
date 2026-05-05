@@ -37,7 +37,7 @@ Build custom automations that match how you actually work. BYO adapts to you, no
 ### Install as a global tool
 
 ```bash
-dotnet tool install --global byo --version 0.0.1-gffadd774f0
+dotnet tool install --global byo --version 0.0.1-g19f405295c
 ```
 
 ### Run
