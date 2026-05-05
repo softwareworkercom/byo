@@ -61,10 +61,33 @@ byo --help
 ## Commands
 
 - `byo --help`
+- `byo run --help`
 - `byo commands --help`
 - `byo settings --help`
 - `byo secrets --help`
 - `byo workflows --help`
+
+### Interactive runner
+
+Use `run` to select and execute saved commands/workflows interactively.
+
+- Run and choose target interactively:
+
+```bash
+byo run --interactive
+```
+
+- Run commands only:
+
+```bash
+byo run --target command
+```
+
+- Run workflows only:
+
+```bash
+byo run --target workflow
+```
 
 ## Contributing
 

@@ -83,6 +83,21 @@ byo workflows run --name "Demo API Smoke Test" --bookmark "Examples/GettingStart
 
 The workflow runs immediately and executes both commands in sequence.
 
+## 7) Run interactively (optional)
+
+You can also use the interactive runner and choose a saved command/workflow from the bookmark hierarchy:
+
+```bash
+byo run --interactive
+```
+
+Or preselect target type:
+
+```bash
+byo run --target command
+byo run --target workflow
+```
+
 ---
 
 ## Token Replacement
@@ -95,6 +110,7 @@ See [`docs/token-replacement.md`](token-replacement.md) for token syntax, resolu
 - `commands create` uses `--name` (not `--description`) and `--bookmark` (not `--path`).
 - `workflows create` requires both `--name` and `--bookmark`.
 - `workflows run` expects both `--name` and `--bookmark` to identify which workflow to execute.
+- `run` supports `--target` with values `command` or `workflow`, and `--interactive` to prompt for missing parameters.
 - `settings`, `secrets`, `commands`, and `workflows` use `list` to view saved items.
 - In PowerShell, keep single quotes around tokenized values (for example `'{{Demo:ApiToken}}'`) to avoid interpolation issues.
 - If your environment does not have `curl`, replace the command executable with any HTTP command available in your shell.

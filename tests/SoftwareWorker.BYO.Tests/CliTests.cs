@@ -58,6 +58,33 @@ public class CliTests
         Assert.NotEmpty(parseResult.Errors);
     }
 
+    [Fact]
+    public void BuildFromReflection_ShouldExposeRunTargetParameter()
+    {
+        var trunkCommands = CommandsScanner.BuildFromReflection();
+        var runCommand = trunkCommands.SingleOrDefault(command => command.Name == "run");
+
+        Assert.NotNull(runCommand);
+        Assert.NotNull(runCommand!.Parameters);
+
+        var targetParameter = runCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "target");
+        Assert.NotNull(targetParameter);
+        Assert.Equal("command|workflow", targetParameter!.DefaultValue?.ToString());
+    }
+
+    [Theory]
+    [InlineData("command")]
+    [InlineData("workflow")]
+    public void RunCommand_ShouldParseTargetValues(string target)
+    {
+        var trunkCommands = CommandsScanner.BuildFromReflection();
+        var rootCommand = BuildRootCommand(trunkCommands);
+
+        var parseResult = rootCommand.Parse(["run", "--target", target]);
+
+        Assert.Empty(parseResult.Errors);
+    }
+
     [Theory]
     [InlineData("00:00:05", true, 5)]
     [InlineData("30s", true, 30)]
