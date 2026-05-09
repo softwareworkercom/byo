@@ -34,6 +34,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             foreach (var step in workflow.Steps)
             {
+                UserInterfaceService.WriteLine();
                 var shouldContinue = await ExecuteStepAsync(step);
 
                 if (!shouldContinue)
@@ -43,7 +44,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                 }
             }
 
-            UserInterfaceService.ShowGreen($"Workflow '{workflow.Name}' completed successfully.");
             return true;
         }
 
@@ -186,17 +186,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             var resolvedExecutable = TokenService.ResolveTokens(command.Executable);
 
-            UserInterfaceService.ShowMarkup($"[cyan]Executing command:[/] [yellow]{Markup.Escape(command.Name)}[/]");
-            UserInterfaceService.ShowMarkup($"[grey]Command: {Markup.Escape(resolvedExecutable)}[/]");
-            UserInterfaceService.ShowInformation("Running...");
-
             TerminalService.Run(
                 resolvedExecutable,
                 command.Directory,
                 shell: command.Shell,
                 runAsync: step.RunAsync);
-
-            UserInterfaceService.ShowSuccess($"Command '{command.Name}' completed.");
 
             await Task.CompletedTask;
         }
