@@ -78,6 +78,11 @@ namespace SoftwareWorker.BYO.CLI.Core
                 // Interactive mode: prompt for every declared parameter that is not already supplied
                 foreach (var param in parameters)
                 {
+                    if (!param.IsPromptable)
+                    {
+                        continue;
+                    }
+
                     var currentValue = updatedOptions.FirstOrDefault(p =>
                         string.Equals(p.Key, param.Name, StringComparison.OrdinalIgnoreCase)).Value?.ToString();
 

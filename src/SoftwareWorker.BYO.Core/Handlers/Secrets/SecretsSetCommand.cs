@@ -1,5 +1,6 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Core.Service;
+using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
 {
@@ -18,6 +19,19 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
             {
                 UserInterfaceService.ShowError("Key and Value are required parameters.");
                 return;
+            }
+
+            var secrets = SecretsService.GetList() ?? new Dictionary<string, string>();
+            if (secrets.TryGetValue(Key, out var currentValue))
+            {
+                var shouldReplace = UserInterfaceService.Confirm(
+                    $"Secret '[cyan]{Markup.Escape(Key)}[/]' already exists with current value '[grey]{Markup.Escape(currentValue)}[/]'. Do you want to replace it?");
+
+                if (!shouldReplace)
+                {
+                    UserInterfaceService.ShowWarning("Secret update cancelled.");
+                    return;
+                }
             }
 
             var result = SecretsService.Update(Key, Value);

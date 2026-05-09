@@ -2,13 +2,14 @@ using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Core.Model;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using SoftwareWorker.BYO.Core.Model.Enums;
+using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Interactive
 {
     [TrunkCommand("run", "Interactive execution")]
     [Parameter("target", "What to run (command or workflow)", true, "command|workflow")]
-    [Parameter("name", "Name of the command/workflow to run", false, null)]
-    [Parameter("bookmark", "Bookmark hierarchy path to locate the command/workflow", false, null)]
+    [Parameter("name", "Name of the command/workflow to run", false, null, false)]
+    [Parameter("bookmark", "Bookmark hierarchy path to locate the command/workflow", false, null, false)]
     internal class RunHandler : BaseCommandHandler
     {
         public RunTargetEnum? Target { get; set; }
@@ -17,7 +18,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Interactive
 
         public override async Task ExecuteAsync()
         {
-            switch (Target)
+            switch (ResolveTarget(Target))
             {
                 case RunTargetEnum.Command:
                     var commands = CommandService.GetList().ToList();
@@ -38,6 +39,21 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Interactive
                     await RunWorkflowAsync(workflows, Name, Bookmark);
                     break;
             }
+        }
+
+        private static RunTargetEnum ResolveTarget(RunTargetEnum? target)
+        {
+            if (target.HasValue)
+            {
+                return target.Value;
+            }
+
+            return UserInterfaceService.Prompt(
+                new SelectionPrompt<RunTargetEnum>()
+                    .Title("[cyan]Select what to run:[/]")
+                    .PageSize(10)
+                    .UseConverter(value => value.ToString().ToLowerInvariant())
+                    .AddChoices(Enum.GetValues<RunTargetEnum>()));
         }
 
         private static Task RunCommandAsync(List<ShellCommand> commands, string? name, string? bookmark)
@@ -84,11 +100,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Interactive
                 return Task.CompletedTask;
             }
 
-            UserInterfaceService.ShowGreen("Executing command...");
+            var resolvedExecutable = TokenService.ResolveTokens(selectedCommand.Executable);
+            var resolvedDirectory = string.IsNullOrWhiteSpace(selectedCommand.Directory)
+                ? null
+                : TokenService.ResolveTokens(selectedCommand.Directory);
 
             TerminalService.Run(
-                selectedCommand.Executable,
-                selectedCommand.Directory,
+                resolvedExecutable,
+                resolvedDirectory,
                 shell: selectedCommand.Shell);
 
             return Task.CompletedTask;

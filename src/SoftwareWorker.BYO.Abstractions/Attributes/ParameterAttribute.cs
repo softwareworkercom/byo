@@ -26,12 +26,18 @@ namespace SoftwareWorker.BYO.CLI.Abstractions.Attributes
         /// </summary>
         public object? DefaultValue { get; }
 
-        public ParameterAttribute(string name, string description, bool isRequired, object? defaultValue)
+        /// <summary>
+        /// Whether the parameter can be prompted when running with --interactive
+        /// </summary>
+        public bool IsPromptable { get; }
+
+        public ParameterAttribute(string name, string description, bool isRequired, object? defaultValue, bool isPromptable = true)
         {
             Name = name;
             Description = description;
             IsRequired = isRequired;
             DefaultValue = defaultValue;
+            IsPromptable = isPromptable;
         }
     }
 }

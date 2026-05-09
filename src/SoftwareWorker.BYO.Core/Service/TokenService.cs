@@ -27,7 +27,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                 if (value != null)
                 {
                     text = Regex.Replace(text, $@"\{{\{{{token}\}}\}}", value, RegexOptions.IgnoreCase);
-                    UserInterfaceService.ShowInformation($"Token {{{{{token}}}}} resolved with {value}");
+                    UserInterfaceService.ShowGrey($"Token {{{{{token}}}}} resolved with {value}");
                 }
             }
 

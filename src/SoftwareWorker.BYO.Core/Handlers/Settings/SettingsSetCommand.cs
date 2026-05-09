@@ -36,6 +36,18 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Settings
                 Value = UserInterfaceService.Ask<string>($"New value for [cyan]{Key}[/]:");
             }
 
+            if (settings.TryGetValue(Key!, out var currentValue))
+            {
+                var shouldReplace = UserInterfaceService.Confirm(
+                    $"Setting '[cyan]{Markup.Escape(Key!)}[/]' already exists with current value '[grey]{Markup.Escape(currentValue)}[/]'. Do you want to replace it?");
+
+                if (!shouldReplace)
+                {
+                    UserInterfaceService.ShowWarning("Setting update cancelled.");
+                    return;
+                }
+            }
+
             var result = SettingsService.Update(Key, Value);
 
             if (result is not null)

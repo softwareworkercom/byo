@@ -33,38 +33,16 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                 {
                     string output = string.Empty;
                     string error = string.Empty;
-                    StringBuilder? outputBuilder = null;
-                    StringBuilder? errorBuilder = null;
+                    Task<string>? outputTask = null;
+                    Task<string>? errorTask = null;
+
+                    process.Start();
 
                     if (processStartInfo.RedirectStandardOutput)
                     {
-                        outputBuilder = new StringBuilder();
-                        errorBuilder = new StringBuilder();
-
-                        process.OutputDataReceived += (_, e) =>
-                        {
-                            if (e.Data == null)
-                            {
-                                return;
-                            }
-
-                            outputBuilder.AppendLine(e.Data);
-                            UserInterfaceService.WriteLine(e.Data);
-                        };
-
-                        process.ErrorDataReceived += (_, e) =>
-                        {
-                            if (e.Data == null)
-                            {
-                                return;
-                            }
-
-                            errorBuilder.AppendLine(e.Data);
-                            UserInterfaceService.ShowError(e.Data);
-                        };
+                        outputTask = process.StandardOutput.ReadToEndAsync();
+                        errorTask = process.StandardError.ReadToEndAsync();
                     }
-
-                    process.Start();
 
                     if (runAsync)
                     {
@@ -72,18 +50,30 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                         return process.Id;
                     }
 
-                    if (processStartInfo.RedirectStandardOutput)
-                    {
-                        process.BeginOutputReadLine();
-                        process.BeginErrorReadLine();
-                    }
-
                     process.WaitForExit();
 
                     if (processStartInfo.RedirectStandardOutput)
                     {
-                        output = outputBuilder?.ToString() ?? string.Empty;
-                        error = errorBuilder?.ToString() ?? string.Empty;
+                        output = outputTask?.GetAwaiter().GetResult() ?? string.Empty;
+                        error = errorTask?.GetAwaiter().GetResult() ?? string.Empty;
+
+                        using (var outputReader = new StringReader(output))
+                        {
+                            string? line;
+                            while ((line = outputReader.ReadLine()) != null)
+                            {
+                                UserInterfaceService.WriteLine(line);
+                            }
+                        }
+
+                        using (var errorReader = new StringReader(error))
+                        {
+                            string? line;
+                            while ((line = errorReader.ReadLine()) != null)
+                            {
+                                UserInterfaceService.ShowError(line);
+                            }
+                        }
                     }
 
                     AppendToLogFile(command, output, error);
@@ -137,7 +127,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         {
             if (OperatingSystem.IsWindows())
             {
-                return ("powershell.exe", $"-noprofile -nologo -c {command}");
+                var encodedPowerShellCommand = Convert.ToBase64String(Encoding.Unicode.GetBytes(command));
+                return ("powershell.exe", $"-noprofile -nologo -encodedCommand {encodedPowerShellCommand}");
             }
             else if (OperatingSystem.IsMacOS())
             {
@@ -201,22 +192,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             File.AppendAllText(logFilePath, logEntry);
         }
 
-        private static void DisplayCommandOutput(string output, string error)
-        {
-            if (!string.IsNullOrWhiteSpace(output))
-            {
-                UserInterfaceService.WriteLine(output);
-            }
-
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                UserInterfaceService.ShowError(error);
-            }
-        }
-
         private static void DisplayCommandInformation(string command, string? directory)
         {
-            UserInterfaceService.WriteLine();
             UserInterfaceService.ShowBlue($"Command: {command}");
             if (!string.IsNullOrEmpty(directory))
             {
@@ -226,6 +203,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             {
                 UserInterfaceService.ShowBlue($"Directory: {Environment.CurrentDirectory}");
             }
+            UserInterfaceService.WriteLine();
         }
     }
 }
