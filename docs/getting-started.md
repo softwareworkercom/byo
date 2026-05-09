@@ -102,18 +102,7 @@ byo run --target workflow
 
 ## Token Replacement
 
-Use `{{TokenName}}` syntax inside saved command executables. At runtime, BYO resolves token values from your configuration.
-
-Resolution behavior:
-
-- Settings tokens resolve from values saved with `byo settings set`.
-- Secrets tokens resolve from values saved with `byo secrets set`.
-- Tokens are replaced when the command executes.
-
-Examples from this guide:
-
-- `{{Demo:ApiBaseUrl}}`
-- `{{Demo:ApiToken}}`
+Token replacement documentation is maintained in a dedicated file: [token-replacement.md](./token-replacement.md).
 
 ## Notes
 

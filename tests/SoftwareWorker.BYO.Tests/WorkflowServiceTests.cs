@@ -82,7 +82,6 @@ public sealed class WorkflowServiceTests : IDisposable
         var updated = WorkflowService.Update(
             name: "Build.Workflow",
             newName: "Build.Workflow.New",
-            description: "new",
             steps: [CreateMessageStep("new")],
             folderPath: "/Pipelines/CI/");
 
@@ -97,7 +96,7 @@ public sealed class WorkflowServiceTests : IDisposable
     [Fact]
     public void Update_ShouldReturnNull_WhenWorkflowDoesNotExist()
     {
-        var updated = WorkflowService.Update("Missing.Workflow", description: "x");
+        var updated = WorkflowService.Update("Missing.Workflow");
 
         Assert.Null(updated);
     }

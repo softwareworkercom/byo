@@ -14,6 +14,8 @@ Examples:
 - `{{Project.Repository.Name}}`
 - `{{Guid}}`
 
+Token matching is case-insensitive.
+
 ## Resolution order
 
 Tokens are resolved in this order:
@@ -29,6 +31,16 @@ Tokens are resolved in this order:
 
 If a token cannot be resolved, BYO keeps it unchanged.
 
+## Explicit token overrides
+
+You can provide token values directly on the command line. Overrides have the highest priority.
+
+Supported form:
+
+- `--Demo:ApiToken=my-token`
+
+> Note: if the same token is provided multiple times, the last value wins.
+
 ## Settings and secrets tokens
 
 Settings/secrets are commonly referenced with namespaced keys such as `{{Demo:ApiToken}}`.
@@ -42,8 +54,22 @@ Use dot notation for nested object/JSON values:
 - `{{Project.Repository.Name}}`
 - `{{project.repository.name}}` (case-insensitive)
 
+For object traversal, single-segment tokens (for example `{{Name}}`) are not resolved from object payloads.
+
 ## Practical example
 
 ```bash
-byo commands create --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer?correlationId={{Guid}}'"
+byo commands set --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer?correlationId={{Guid}}'"
 ```
+
+Run with an explicit override:
+
+```bash
+byo run --target command --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --Demo:ApiToken=my-temporary-token
+```
+
+## Interactive vs non-interactive behavior
+
+- Interactive: unresolved tokens prompt for a value.
+- Non-interactive: unresolved tokens remain unchanged.
+

@@ -80,14 +80,12 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// </summary>
         /// <param name="name">The name of the workflow to update.</param>
         /// <param name="newName">Optional new name.</param>
-        /// <param name="description">Optional new description.</param>
         /// <param name="steps">Optional new list of steps.</param>
         /// <param name="folderPath">Optional new folder path.</param>
         /// <returns>The updated workflow if found, null otherwise.</returns>
         public static Workflow? Update(
             string name,
             string? newName = null,
-            string? description = null,
             List<WorkflowStep>? steps = null,
             string? folderPath = null)
         {

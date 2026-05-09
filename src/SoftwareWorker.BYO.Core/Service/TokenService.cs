@@ -78,31 +78,13 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                 string value;
                 var eqIndex = optionText.IndexOf('=');
 
-                if (eqIndex >= 0)
+                if (eqIndex <= 0)
                 {
-                    key = optionText[..eqIndex].Trim();
-                    value = optionText[(eqIndex + 1)..].Trim();
+                    continue;
                 }
-                else
-                {
-                    key = optionText;
-                    value = string.Empty;
 
-                    if (index + 2 < args.Count &&
-                        !args[index + 1].StartsWith("--", StringComparison.Ordinal) &&
-                        !args[index + 2].StartsWith("--", StringComparison.Ordinal) &&
-                        LooksLikeTokenSegment(args[index + 1]))
-                    {
-                        key = $"{optionText}:{args[index + 1].Trim()}";
-                        value = args[index + 2];
-                        index += 2;
-                    }
-                    else if (index + 1 < args.Count && !args[index + 1].StartsWith("--", StringComparison.Ordinal))
-                    {
-                        value = args[index + 1];
-                        index++;
-                    }
-                }
+                key = optionText[..eqIndex].Trim();
+                value = optionText[(eqIndex + 1)..].Trim();
 
                 key = NormalizeTokenName(key);
                 if (!string.IsNullOrWhiteSpace(key))
@@ -113,18 +95,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             return overrides;
         }
-
-        private static bool LooksLikeTokenSegment(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return false;
-            }
-
-            var trimmed = value.Trim();
-            return !trimmed.Contains(' ') && !trimmed.Contains('=');
-        }
-
         private static string? ResolveToken(string token, object obj, IReadOnlyDictionary<string, string>? tokenOverrides)
         {
             string? value = null;

@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/getting-started.md" />
+    <File Path="docs/token-replacement.md" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/docs/Images/">
