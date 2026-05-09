@@ -1,4 +1,5 @@
 ﻿using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
+using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Engine;
 using System.CommandLine;
 using System.Reflection;
@@ -76,6 +77,60 @@ public class CliTests
 
         var bookmarkParameter = runCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "bookmark");
         Assert.NotNull(bookmarkParameter);
+    }
+
+    [Fact]
+    public void BuildFromReflection_ShouldExposeExtensionsInstallCommand()
+    {
+        var trunkCommands = CommandsScanner.BuildFromReflection();
+        var extensionsCommand = trunkCommands.SingleOrDefault(command => command.Name == "extensions");
+
+        Assert.NotNull(extensionsCommand);
+        Assert.NotNull(extensionsCommand!.BranchCommands);
+
+        var installCommand = extensionsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "install");
+        Assert.NotNull(installCommand);
+        Assert.NotNull(installCommand!.Parameters);
+
+        var packageParameter = installCommand.Parameters!.SingleOrDefault(parameter => parameter.Name == "package");
+        Assert.NotNull(packageParameter);
+        Assert.True(packageParameter!.IsRequired);
+
+        var versionParameter = installCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "version");
+        Assert.NotNull(versionParameter);
+        Assert.False(versionParameter!.IsRequired);
+    }
+
+    [Fact]
+    public void BuildFromReflection_ShouldIncludeHandlersFromExtensionsDirectory()
+    {
+        var originalExtensionsDirectory = SystemConstants.EXTENSIONS_BINARIES_DIRECTORY;
+        var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
+        var extensionDirectory = Path.Combine(tempRoot, "extensions");
+
+        Directory.CreateDirectory(extensionDirectory);
+
+        try
+        {
+            SystemConstants.EXTENSIONS_BINARIES_DIRECTORY = extensionDirectory;
+
+            var sourceAssemblyPath = typeof(CommandsScanner).Assembly.Location;
+            var destinationAssemblyPath = Path.Combine(extensionDirectory, Path.GetFileName(sourceAssemblyPath));
+            File.Copy(sourceAssemblyPath, destinationAssemblyPath, overwrite: true);
+
+            var trunkCommands = CommandsScanner.BuildFromReflection();
+
+            Assert.Contains(trunkCommands, command => command.Name == "extensions");
+        }
+        finally
+        {
+            SystemConstants.EXTENSIONS_BINARIES_DIRECTORY = originalExtensionsDirectory;
+
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, true);
+            }
+        }
     }
 
     [Theory]

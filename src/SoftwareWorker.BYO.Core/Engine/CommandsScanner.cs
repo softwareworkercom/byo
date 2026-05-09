@@ -1,4 +1,5 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
+using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using System.Reflection;
 
@@ -131,11 +132,22 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             var handlerTypes = new List<Type>();
             var processedAssemblies = new HashSet<string>();
-            string assemblyDirectory = AppContext.BaseDirectory;
+            var assemblyDirectories = new List<string> { AppContext.BaseDirectory };
 
-            //Scan all DLL files in the output directory
-            // This catches any assemblies that haven't been loaded yet
-            var dllFiles = Directory.GetFiles(assemblyDirectory, "*.dll");
+            if (Directory.Exists(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY))
+            {
+                assemblyDirectories.AddRange(Directory
+                    .GetDirectories(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY, "*", SearchOption.AllDirectories)
+                    .Prepend(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY));
+            }
+
+            // Scan all DLL files from app output and installed extension folders
+            var dllFiles = assemblyDirectories
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(Directory.Exists)
+                .SelectMany(directory => Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
             foreach (var dllFile in dllFiles)
             {
