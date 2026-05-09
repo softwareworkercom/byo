@@ -7,11 +7,7 @@
 [![Issues](https://img.shields.io/github/issues/softwareworkercom/byo)](https://github.com/softwareworkercom/byo/issues)
 [![Stars](https://img.shields.io/github/stars/softwareworkercom/byo?style=social)](https://github.com/softwareworkercom/byo/stargazers)
 
-Automate the commands you run every day, without breaking your flow.
-
 **BYO CLI** helps developers save repeatable workflows, organize local secrets and settings, and turn messy terminal habits into reliable automation.
-
-Stop retyping. Start shipping.
 
 ## Built for Developers Who Live in the Terminal
 
@@ -47,7 +43,7 @@ Turn repetitive setup, deployment, and debugging steps into reusable workflows i
 ### Install as a global tool
 
 ```bash
-dotnet tool install --global byo --version 0.0.1-g19f405295c
+dotnet tool install --global byo --version 0.0.2-gff85c0aba4
 ```
 
 ### Run
