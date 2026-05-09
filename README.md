@@ -9,7 +9,7 @@
 
 Automate the commands you run every day, without breaking your flow.
 
-**BYO CLI** helps developers save repeatable workflows, organize local secrets, and turn messy terminal habits into reliable automation.
+**BYO CLI** helps developers save repeatable workflows, organize local secrets and settings, and turn messy terminal habits into reliable automation.
 
 Stop retyping. Start shipping.
 
