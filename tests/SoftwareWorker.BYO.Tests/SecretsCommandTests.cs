@@ -41,7 +41,7 @@ public sealed class SecretsCommandTests : IDisposable
         var key = NewKey("update");
         const string value = "top-secret-value";
 
-        var command = new SecretsUpdateCommand
+        var command = new SecretsSetCommand
         {
             Key = key,
             Value = value

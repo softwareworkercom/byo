@@ -126,13 +126,13 @@ public sealed class CommandCliTests : IDisposable
     }
 
     [Fact]
-    public void Route_Create_ShouldPersistCommand()
+    public void Route_Set_ShouldPersistCommand()
     {
         var commandName = $"cli-create-{Guid.NewGuid():N}";
 
         var exitCode = CommandsRouter.Route([
             "commands",
-            "create",
+            "set",
             "--name", commandName,
             "--executable", "dotnet --version",
             "--bookmark", "/DevOps/Build/",
@@ -150,40 +150,37 @@ public sealed class CommandCliTests : IDisposable
     }
 
     [Fact]
-    public void Route_Update_ShouldModifyExistingCommand()
+    public void Route_Set_ShouldPersistCommandWithProvidedShell()
     {
-        var originalName = $"cli-update-original-{Guid.NewGuid():N}";
-        var newName = $"cli-update-new-{Guid.NewGuid():N}";
-        CommandService.Create(originalName, "dotnet build", folderPath: "Old");
+        var commandName = $"cli-set-{Guid.NewGuid():N}";
 
         var exitCode = CommandsRouter.Route([
             "commands",
-            "update",
-            "--name", originalName,
-            "--newname", newName,
+            "set",
+            "--name", commandName,
             "--executable", "dotnet test",
             "--bookmark", "/Pipelines/CI/",
             "--shell", "Cmd"
         ]);
 
         var commands = CommandService.GetList();
-        var updated = commands.SingleOrDefault(c => c.Name == newName);
+        var created = commands.SingleOrDefault(c => c.Name == commandName);
 
         Assert.Equal(0, exitCode);
-        Assert.NotNull(updated);
-        Assert.Equal("dotnet test", updated.Executable);
-        Assert.Equal("Pipelines/CI", updated.Bookmark);
-        Assert.Equal(ShellTypeEnum.Cmd, updated.Shell);
+        Assert.NotNull(created);
+        Assert.Equal("dotnet test", created.Executable);
+        Assert.Equal("Pipelines/CI", created.Bookmark);
+        Assert.Equal(ShellTypeEnum.Cmd, created.Shell);
     }
 
     [Fact]
-    public void Route_Create_ShouldNotPersist_WhenRequiredParameterIsMissing()
+    public void Route_Set_ShouldNotPersist_WhenRequiredParameterIsMissing()
     {
         var commandName = $"cli-missing-{Guid.NewGuid():N}";
 
         var exitCode = CommandsRouter.Route([
             "commands",
-            "create",
+            "set",
             "--name", commandName
         ]);
 

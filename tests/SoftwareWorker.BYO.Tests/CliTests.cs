@@ -70,6 +70,12 @@ public class CliTests
         var targetParameter = runCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "target");
         Assert.NotNull(targetParameter);
         Assert.Equal("command|workflow", targetParameter!.DefaultValue?.ToString());
+
+        var nameParameter = runCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "name");
+        Assert.NotNull(nameParameter);
+
+        var bookmarkParameter = runCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "bookmark");
+        Assert.NotNull(bookmarkParameter);
     }
 
     [Theory]
@@ -81,6 +87,19 @@ public class CliTests
         var rootCommand = BuildRootCommand(trunkCommands);
 
         var parseResult = rootCommand.Parse(["run", "--target", target]);
+
+        Assert.Empty(parseResult.Errors);
+    }
+
+    [Theory]
+    [InlineData("command")]
+    [InlineData("workflow")]
+    public void RunCommand_ShouldParseNameAndBookmarkValues(string target)
+    {
+        var trunkCommands = CommandsScanner.BuildFromReflection();
+        var rootCommand = BuildRootCommand(trunkCommands);
+
+        var parseResult = rootCommand.Parse(["run", "--target", target, "--name", "deploy", "--bookmark", "DevOps/Prod"]);
 
         Assert.Empty(parseResult.Errors);
     }

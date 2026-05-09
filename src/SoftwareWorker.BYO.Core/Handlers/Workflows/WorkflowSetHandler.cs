@@ -7,10 +7,10 @@ using Spectre.Console;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
 {
     [TrunkCommand("workflows", "Workflow management")]
-    [BranchCommand("create", "Create a new workflow with interactive steps")]
+    [BranchCommand("set", "Create a new workflow with interactive steps")]
     [Parameter("name", "Workflow name", true, null)]
     [Parameter("bookmark", "Bookmark hierarchy path (e.g. DevOps/Deploy)", true, null)]
-    public class WorkflowCreateHandler : BaseCommandHandler
+    public class WorkflowSetHandler : BaseCommandHandler
     {
         public string? Name { get; set; }
         public string? Bookmark { get; set; }
@@ -103,7 +103,16 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
             }
             catch (InvalidOperationException ex)
             {
-                UserInterfaceService.ShowError(ex.Message);
+                var wantsOverride = UserInterfaceService.AskYesNo($"{ex.Message} Do you want to override it?");
+
+                if (!wantsOverride)
+                {
+                    UserInterfaceService.ShowWarning("Workflow creation cancelled.");
+                    return;
+                }
+
+                WorkflowService.Create(Name, workflowSteps, Bookmark, overrideExisting: true);
+                UserInterfaceService.ShowGreen($"Workflow '{Name}' overridden successfully with {workflowSteps.Count} step(s).");
             }
 
             await Task.CompletedTask;

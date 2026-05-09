@@ -4,10 +4,10 @@ using SoftwareWorker.BYO.CLI.Core.Service;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
 {
     [TrunkCommand("secrets", "Encrypted secrets operations")]
-    [BranchCommand("update", "Update an encrypted secret")]
+    [BranchCommand("set", "Set a secret")]
     [Parameter("key", "The key to update", true, null)]
     [Parameter("value", "The new value", true, null)]
-    public class SecretsUpdateCommand : BaseCommandHandler
+    public class SecretsSetCommand : BaseCommandHandler
     {
         public string? Key { get; set; }
         public string? Value { get; set; }

@@ -5,10 +5,10 @@ using Spectre.Console;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Settings
 {
     [TrunkCommand("settings", "Settings operations")]
-    [BranchCommand("update", "Update a setting")]
+    [BranchCommand("set", "Set a setting")]
     [Parameter("key", "The key to update", true, null)]
     [Parameter("value", "The new value", true, null)]
-    public class SettingsUpdateCommand : BaseCommandHandler
+    public class SettingsSetCommand : BaseCommandHandler
     {
         public string? Key { get; set; }
         public string? Value { get; set; }

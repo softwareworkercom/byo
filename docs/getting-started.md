@@ -21,13 +21,13 @@ byo --help
 ## 1) Add one setting
 
 ```bash
-byo settings update --key Demo:ApiBaseUrl --value https://httpbin.org
+byo settings set --key Demo:ApiBaseUrl --value https://httpbin.org
 ```
 
 ## 2) Add one secret
 
 ```bash
-byo secrets update --key Demo:ApiToken --value public-demo-token
+byo secrets set --key Demo:ApiToken --value public-demo-token
 ```
 
 ## 3) Create two saved commands
@@ -35,13 +35,13 @@ byo secrets update --key Demo:ApiToken --value public-demo-token
 ### Command 1: Bearer token check
 
 ```bash
-byo commands create --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer'"
+byo commands set --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer'"
 ```
 
 ### Command 2: Echo users request
 
 ```bash
-byo commands create --name "Demo API Users" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/anything/v1/users?limit=5'"
+byo commands set --name "Demo API Users" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/anything/v1/users?limit=5'"
 ```
 
 ## 4) Create one workflow using the two commands
@@ -49,7 +49,7 @@ byo commands create --name "Demo API Users" --bookmark "Examples/GettingStarted"
 Run:
 
 ```bash
-byo workflows create --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
+byo workflows set --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
 ```
 
 When prompted, add steps in this order:
@@ -78,7 +78,7 @@ byo workflows list
 ## 6) Run the workflow
 
 ```bash
-byo workflows run --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
+byo run --target workflow --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
 ```
 
 The workflow runs immediately and executes both commands in sequence.
@@ -102,14 +102,25 @@ byo run --target workflow
 
 ## Token Replacement
 
-See [`docs/token-replacement.md`](token-replacement.md) for token syntax, resolution order, and examples.
+Use `{{TokenName}}` syntax inside saved command executables. At runtime, BYO resolves token values from your configuration.
+
+Resolution behavior:
+
+- Settings tokens resolve from values saved with `byo settings set`.
+- Secrets tokens resolve from values saved with `byo secrets set`.
+- Tokens are replaced when the command executes.
+
+Examples from this guide:
+
+- `{{Demo:ApiBaseUrl}}`
+- `{{Demo:ApiToken}}`
 
 ## Notes
 
 - `{{Demo:ApiBaseUrl}}` and `{{Demo:ApiToken}}` are resolved from settings/secrets at runtime.
-- `commands create` uses `--name` (not `--description`) and `--bookmark` (not `--path`).
-- `workflows create` requires both `--name` and `--bookmark`.
-- `workflows run` expects both `--name` and `--bookmark` to identify which workflow to execute.
+- `commands set` uses `--name` (not `--description`) and `--bookmark` (not `--path`).
+- `workflows set` requires both `--name` and `--bookmark`.
+- Use `run --target workflow` with `--name` and `--bookmark` to execute a specific workflow.
 - `run` supports `--target` with values `command` or `workflow`, and `--interactive` to prompt for missing parameters.
 - `settings`, `secrets`, `commands`, and `workflows` use `list` to view saved items.
 - In PowerShell, keep single quotes around tokenized values (for example `'{{Demo:ApiToken}}'`) to avoid interpolation issues.

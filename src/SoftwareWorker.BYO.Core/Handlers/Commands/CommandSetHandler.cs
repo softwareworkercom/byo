@@ -5,13 +5,13 @@ using SoftwareWorker.BYO.Core.Model.Enums;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
 {
     [TrunkCommand("commands", "Saved command management")]
-    [BranchCommand("create", "Create a new saved command")]
+    [BranchCommand("set", "Create a new saved command")]
     [Parameter("name", "Command name", true, null)]
     [Parameter("bookmark", "Bookmark hierarchy path (e.g. DevOps/Deploy)", false, null)]
     [Parameter("executable", "Command executable (use {{tokenName}} for tokens resolved from configuration)", true, null)]
     [Parameter("shell", "Shell type", false, "PowerShell|Cmd|Wsl")]
     [Parameter("directory", "Working directory", false, null)]
-    internal class CommandCreateHandler : BaseCommandHandler
+    internal class CommandSetHandler : BaseCommandHandler
     {
         public string? Name { get; set; }
         public string? Executable { get; set; }
@@ -40,8 +40,28 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Commands
                 shell = parsedShell;
             }
 
-            CommandService.Create(Name, Executable, Directory, shell, Bookmark);
+            var existingCommand = CommandService.GetList().FirstOrDefault(c =>
+                c.Name.Equals(Name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(
+                    FolderNavigationService.NormalizePath(c.Bookmark),
+                    FolderNavigationService.NormalizePath(Bookmark),
+                    StringComparison.OrdinalIgnoreCase));
 
+            if (existingCommand != null)
+            {
+                if (!UserInterfaceService.Confirm($"A command named '{Name}' already exists in bookmark '{(string.IsNullOrWhiteSpace(Bookmark) ? "/" : Bookmark)}'. Do you want to update all other properties?"))
+                {
+                    UserInterfaceService.ShowWarning("Command update cancelled.");
+                    return;
+                }
+
+                CommandService.UpdateByNameAndBookmark(Name, Bookmark, Executable, Directory, shell);
+                UserInterfaceService.ShowGreen("Command updated successfully!");
+                await Task.CompletedTask;
+                return;
+            }
+
+            CommandService.Create(Name, Executable, Directory, shell, Bookmark);
             UserInterfaceService.ShowGreen("Command added successfully!");
             await Task.CompletedTask;
         }

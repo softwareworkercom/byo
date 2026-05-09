@@ -2,6 +2,8 @@ using SoftwareWorker.BYO.CLI.Core.Service;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace SoftwareWorker.BYO.Tests;
 
 public class TokenServiceTests

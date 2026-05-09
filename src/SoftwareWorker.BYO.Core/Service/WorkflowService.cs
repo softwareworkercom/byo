@@ -14,22 +14,36 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         /// <param name="name">The name of the workflow.</param>
         /// <param name="steps">The list of steps to include in the workflow.</param>
         /// <param name="folderPath">Optional hierarchical folder path (e.g. "DevOps/Deploy").</param>
+        /// <param name="overrideExisting">Whether to replace an existing workflow with the same name and bookmark.</param>
         /// <returns>The created workflow.</returns>
-        public static Workflow Create(string name, List<WorkflowStep> steps, string? bookmark = null)
+        public static Workflow Create(string name, List<WorkflowStep> steps, string? bookmark = null, bool overrideExisting = false)
         {
             var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
+            var normalizedBookmark = NormalizeFolderPath(bookmark);
 
-            // Check for duplicate names
-            if (workflows.Any(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+            var existingWorkflow = workflows.FirstOrDefault(r =>
+                r.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(
+                    NormalizeFolderPath(r.Bookmark),
+                    normalizedBookmark,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (existingWorkflow != null && !overrideExisting)
             {
-                throw new InvalidOperationException($"A workflow with the name '{name}' already exists.");
+                var bookmarkLabel = string.IsNullOrWhiteSpace(normalizedBookmark) ? "/" : normalizedBookmark;
+                throw new InvalidOperationException($"A workflow with the name '{name}' already exists in bookmark '{bookmarkLabel}'.");
+            }
+
+            if (existingWorkflow != null)
+            {
+                workflows.Remove(existingWorkflow);
             }
 
             var workflow = new Workflow
             {
                 Name = name,
                 Steps = steps,
-                Bookmark = NormalizeFolderPath(bookmark),
+                Bookmark = normalizedBookmark,
                 CreatedAt = DateTime.UtcNow
             };
 

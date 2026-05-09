@@ -46,6 +46,35 @@ public sealed class WorkflowServiceTests : IDisposable
     }
 
     [Fact]
+    public void Create_ShouldAllowSameName_WhenBookmarkIsDifferent()
+    {
+        WorkflowService.Create("Duplicate.Workflow", [CreateMessageStep("first")], bookmark: "Ops");
+
+        WorkflowService.Create("Duplicate.Workflow", [CreateMessageStep("second")], bookmark: "DevOps");
+
+        var workflows = WorkflowService.GetList();
+        Assert.Equal(2, workflows.Count);
+    }
+
+    [Fact]
+    public void Create_ShouldOverrideExistingWorkflow_WhenOverrideRequested()
+    {
+        WorkflowService.Create("Duplicate.Workflow", [CreateMessageStep("first")], bookmark: "Ops");
+
+        var created = WorkflowService.Create(
+            "Duplicate.Workflow",
+            [CreateMessageStep("second")],
+            bookmark: "Ops",
+            overrideExisting: true);
+
+        var workflows = WorkflowService.GetList();
+
+        Assert.Single(workflows);
+        Assert.Equal("Duplicate.Workflow", created.Name);
+        Assert.Equal("second", workflows[0].Steps[0].Prompt);
+    }
+
+    [Fact]
     public void Update_ShouldChangeOnlyProvidedFields_AndSetUpdatedAt()
     {
         WorkflowService.Create("Build.Workflow", [CreateMessageStep("old")], bookmark: "Old");
@@ -143,8 +172,8 @@ public sealed class WorkflowCliTests : IDisposable
             bookmark: "/DevOps/Deploy/");
 
         var exitCode = CommandsRouter.Route([
-            "workflows",
             "run",
+            "--target", "workflow",
             "--name", workflowName,
             "--bookmark", "DevOps/Deploy"
         ]);
@@ -156,8 +185,8 @@ public sealed class WorkflowCliTests : IDisposable
     public void Route_Run_ShouldNotFailWhenWorkflowIsMissing()
     {
         var exitCode = CommandsRouter.Route([
-            "workflows",
             "run",
+            "--target", "workflow",
             "--name", "missing-workflow",
             "--bookmark", "DevOps/Deploy"
         ]);
@@ -169,8 +198,8 @@ public sealed class WorkflowCliTests : IDisposable
     public void Route_Run_ShouldNotFailWhenRequiredParameterIsMissing()
     {
         var exitCode = CommandsRouter.Route([
-            "workflows",
             "run",
+            "--target", "workflow",
             "--name", "any-workflow"
         ]);
 

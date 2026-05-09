@@ -82,6 +82,49 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         }
 
         /// <summary>
+        /// Updates an existing command by matching name and bookmark.
+        /// </summary>
+        /// <param name="name">The command name to match.</param>
+        /// <param name="folderPath">The bookmark path to match.</param>
+        /// <param name="executable">The new executable value.</param>
+        /// <param name="workingDirectory">The new working directory value.</param>
+        /// <param name="shell">The new shell value.</param>
+        /// <returns>The updated command if found, null otherwise.</returns>
+        public static ShellCommand? UpdateByNameAndBookmark(
+            string name,
+            string? folderPath,
+            string executable,
+            string? workingDirectory = null,
+            ShellTypeEnum? shell = null)
+        {
+            var commands = StorageService.LoadList<ShellCommand>(CommandsFilePath);
+            var normalizedFolderPath = NormalizeFolderPath(folderPath) ?? string.Empty;
+
+            var existingCommand = commands.FirstOrDefault(c =>
+                c.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(
+                    NormalizeFolderPath(c.Bookmark) ?? string.Empty,
+                    normalizedFolderPath,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (existingCommand == null)
+            {
+                return null;
+            }
+
+            existingCommand.Executable = executable;
+            existingCommand.Directory = workingDirectory;
+            existingCommand.Shell = shell;
+            existingCommand.UpdatedAt = DateTime.UtcNow;
+
+            commands = commands.OrderBy(c => c.Name).ToList();
+
+            StorageService.SaveList<ShellCommand>(CommandsFilePath, commands);
+
+            return existingCommand;
+        }
+
+        /// <summary>
         /// Gets all commands.
         /// </summary>
         /// <returns>A list of all commands.</returns>

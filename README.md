@@ -7,26 +7,36 @@
 [![Issues](https://img.shields.io/github/issues/softwareworkercom/byo)](https://github.com/softwareworkercom/byo/issues)
 [![Stars](https://img.shields.io/github/stars/softwareworkercom/byo?style=social)](https://github.com/softwareworkercom/byo/stargazers)
 
-**BYO CLI** is a developer productivity tool. It helps developers organize commands, run repeatable workflows, and manage local secrets.
+Automate the commands you run every day, without breaking your flow.
 
-<img width="1113" height="626" alt="WindowsTerminal_aI8IWCqW4q" src="https://github.com/user-attachments/assets/0cb79010-16e7-4d17-a103-70d8dc1332fe" />
+**BYO CLI** helps developers save repeatable workflows, organize local secrets, and turn messy terminal habits into reliable automation.
 
-## Why BYO CLI?
+Stop retyping. Start shipping.
 
-⚡ Stay in the Zone
-Run saved commands right away without leaving your terminal.
+## Built for Developers Who Live in the Terminal
 
-🧠
-Less Friction, More Focus
-Save the details once so you do not have to remember flags or search old notes.
+### ⚡ Never Lose a Command Again
 
-🔐
-Tailored to Your Stack
-Keep your commands, settings, and secrets organized around the way you work.
+Save the exact commands that worked, and run them instantly whenever you need them.
 
-🚀
-Your Workflow, Your Rules
-Build custom automations that match how you actually work. BYO adapts to you, not the other way around.
+### 🧠 Less Context Switching
+
+No more digging through notes, Slack messages, or shell history to remember flags and scripts.
+
+### 🔐 Secrets Stay Local
+
+Manage environment variables and credentials safely without scattering them across files.
+
+### 🚀 Automate the Boring Stuff
+
+Turn repetitive setup, deployment, and debugging steps into reusable workflows in seconds.
+
+## Benefits
+
+1. Spend less time remembering commands
+2. Reduce onboarding friction for teams
+3. Standardize workflows without heavy tooling
+4. Keep your terminal fast, clean, and predictable
 
 ## Quick Start
 
@@ -56,7 +66,17 @@ byo --help
 ## Documentation
 
 - [`docs/getting-started.md`](docs/getting-started.md)
-- [`docs/token-replacement.md`](docs/token-replacement.md)
+- [Token replacement section](docs/getting-started.md#token-replacement)
+
+## Run tests
+
+From the repository root:
+
+```bash
+dotnet test tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj
+```
+
+> Note: tests are configured to run sequentially to avoid conflicts with shared static file-path settings used by core services.
 
 ## Commands
 
@@ -87,6 +107,12 @@ byo run --target command
 
 ```bash
 byo run --target workflow
+```
+
+Use `--name` and `--bookmark` to run a specific saved workflow directly:
+
+```bash
+byo run --target workflow --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
 ```
 
 ## Contributing
