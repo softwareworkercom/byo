@@ -258,6 +258,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     }
 
                     stopwatch.Stop();
+
+                    UserInterfaceService.WriteLine();
                     if (isSuccessful)
                     {
                         UserInterfaceService.ShowGreen($"Completed in {stopwatch.ElapsedMilliseconds} ms.");

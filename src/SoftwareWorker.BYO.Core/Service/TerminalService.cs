@@ -203,7 +203,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             {
                 UserInterfaceService.ShowBlue($"Directory: {Environment.CurrentDirectory}");
             }
-            UserInterfaceService.WriteLine();
         }
     }
 }
