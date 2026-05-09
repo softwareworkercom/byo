@@ -2,6 +2,7 @@ using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using System.Reflection;
+using SoftwareWorker.BYO.CLI.Core.Service;
 
 namespace SoftwareWorker.BYO.CLI.Core.Engine
 {
@@ -189,13 +190,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
 
                 handlerTypes.AddRange(types);
             }
-            catch (ReflectionTypeLoadException)
-            {
-                // Skip assemblies that have loading issues
-            }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Error getting types from assembly {assembly.GetName().Name}: {ex.Message}");
+                UserInterfaceService.ShowError($"Warning: Error getting types from assembly {assembly.GetName().Name}: {ex.Message}");
             }
 
             return handlerTypes;
