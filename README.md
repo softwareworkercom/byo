@@ -34,7 +34,7 @@ Turn repetitive setup, deployment, and debugging steps into reusable workflows i
 ## Benefits
 
 1. Spend less time remembering commands
-2. Reduce onboarding friction for teams
+2. Reduce onboarding friction
 3. Standardize workflows without heavy tooling
 4. Keep your terminal fast, clean, and predictable
 
@@ -65,8 +65,8 @@ byo --help
 
 ## Documentation
 
-- [`docs/getting-started.md`](docs/getting-started.md)
-- [Token replacement section](docs/getting-started.md#token-replacement)
+- [Getting Started](docs/getting-started.md)
+- [Token System](docs/token-replacement)
 
 ## Run tests
 
@@ -76,8 +76,6 @@ From the repository root:
 dotnet test tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj
 ```
 
-> Note: tests are configured to run sequentially to avoid conflicts with shared static file-path settings used by core services.
-
 ## Commands
 
 - `byo --help`
@@ -86,45 +84,6 @@ dotnet test tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj
 - `byo settings --help`
 - `byo secrets --help`
 - `byo workflows --help`
-
-### Interactive runner
-
-Use `run` to select and execute saved commands/workflows interactively.
-
-- Run and choose target interactively:
-
-```bash
-byo run --interactive
-```
-
-- Run commands only:
-
-```bash
-byo run --target command
-```
-
-- Run workflows only:
-
-```bash
-byo run --target workflow
-```
-
-Use `--name` and `--bookmark` to run a specific saved workflow directly:
-
-```bash
-byo run --target workflow --name "Demo API Smoke Test" --bookmark "Examples/GettingStarted"
-```
-
-## Contributing
-
-We welcome contributions from developers, platform engineers, and DevOps practitioners.
-
-1. Fork the repo
-2. Create a branch (`feature/your-idea`)
-3. Make your changes
-4. Open a pull request
-
-Please include a clear description of the problem, your solution, and examples when applicable.
 
 ## Community
 
