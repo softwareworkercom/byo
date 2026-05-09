@@ -43,7 +43,7 @@ Turn repetitive setup, deployment, and debugging steps into reusable workflows i
 ### Install as a global tool
 
 ```bash
-dotnet tool install --global byo --version 0.0.1-g19f405295c
+dotnet tool install --global byo --version 0.0.2-gff85c0aba4
 ```
 
 ### Run
