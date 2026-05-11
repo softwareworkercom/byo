@@ -7,6 +7,19 @@ This guide creates a simple but realistic API smoke-test flow using the public [
 - 2 saved commands
 - 1 workflow that runs the 2 commands in sequence
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [1) Add one setting](#1-add-one-setting)
+- [2) Add one secret](#2-add-one-secret)
+- [3) Create two saved commands](#3-create-two-saved-commands)
+  - [Command 1: Search datasets (package_search)](#command-1-search-datasets-package_search)
+  - [Command 2: List organizations (organization_list)](#command-2-list-organizations-organization_list)
+- [4) Create one workflow using the two commands](#4-create-one-workflow-using-the-two-commands)
+- [5) Validate what was created](#5-validate-what-was-created)
+- [6) Run the workflow](#6-run-the-workflow)
+- [7) Run interactively (optional)](#7-run-interactively-optional)
+
 ## Prerequisites
 
 - .NET SDK 10+

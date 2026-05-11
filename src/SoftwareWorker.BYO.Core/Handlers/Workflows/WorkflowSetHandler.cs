@@ -122,11 +122,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
         {
             return stepType switch
             {
-                WorkflowStepTypeEnum.Message => "Message - Display a message",
-                WorkflowStepTypeEnum.YesNoQuestion => "Yes/No Question - Ask for confirmation",
-                WorkflowStepTypeEnum.InputAsSetting => "Input as Setting - Prompt for input and save as setting",
-                WorkflowStepTypeEnum.InputAsSecret => "Input as Secret - Prompt for input and save as secret",
-                WorkflowStepTypeEnum.ExecuteCommand => "Execute Command - Run a saved command",
+                WorkflowStepTypeEnum.Message => "Display a message",
+                WorkflowStepTypeEnum.YesNoQuestion => "Ask for confirmation",
+                WorkflowStepTypeEnum.InputAsSetting => "Input as Setting",
+                WorkflowStepTypeEnum.InputAsSecret => "Input as Secret",
+                WorkflowStepTypeEnum.ExecuteCommand => "Execute Command",
                 _ => stepType.ToString()
             };
         }

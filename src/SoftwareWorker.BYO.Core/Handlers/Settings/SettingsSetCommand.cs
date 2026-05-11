@@ -52,7 +52,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Settings
 
             if (result is not null)
             {
-                UserInterfaceService.ShowGreen($"Setting Saved: Key={Key}, Value={result}");
+                UserInterfaceService.ShowGreen($"Key={Key}, Value={result}");
             }
 
             await Task.CompletedTask;

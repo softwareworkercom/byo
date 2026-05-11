@@ -38,7 +38,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
 
             if (result is not null)
             {
-                Console.WriteLine($"Secret Saved: Key={Key}, Value={result}");
+                UserInterfaceService.ShowGreen($"Key={Key}, Value={result}");
             }
         }
     }

@@ -52,34 +52,39 @@ dotnet tool install --global byo --version 0.0.2-gff85c0aba4
 byo --help
 ```
 
-> If the package is not published yet, clone this repo and run from source:
->
-> ```bash
-> dotnet build
-> dotnet run --project src/SoftwareWorker.BYO.CLI -- --help
-> ```
-
 ## Documentation
 
-- [Getting Started](docs/getting-started.md)
-- [Token System](docs/token-replacement)
-
-## Run tests
-
-From the repository root:
-
-```bash
-dotnet test tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj
-```
+- [Getting Started](docs/getting-started.md) - Complete walkthrough with practical examples
+- [Commands Reference](docs/commands-reference.md) - Command docs index
+- [run command](docs/command-run.md)
+- [commands command group](docs/command-commands.md)
+- [settings command group](docs/command-settings.md)
+- [secrets command group](docs/command-secrets.md)
+- [workflows command group](docs/command-workflows.md)
+- [Token System](docs/token-replacement.md) - Token replacement and resolution details
 
 ## Commands
 
-- `byo --help`
-- `byo run --help`
-- `byo commands --help`
-- `byo settings --help`
-- `byo secrets --help`
-- `byo workflows --help`
+BYO provides five main command groups for managing your development workflows:
+
+- **`byo run`** - Execute saved commands or workflows
+- **`byo commands`** - Manage saved shell commands (set, list, delete)
+- **`byo settings`** - Manage configuration key-value pairs (set, list, delete)
+- **`byo secrets`** - Manage encrypted sensitive data (set, list, delete, reencrypt)
+- **`byo workflows`** - Manage multi-step automation workflows (set, list, delete)
+
+For detailed usage and examples of each command, see the command docs listed in [Commands Reference](docs/commands-reference.md).
+
+### Quick Command Reference
+
+```bash
+byo --help                    # Show general help
+byo run --help                # Show help for run command
+byo commands --help           # Show help for commands management
+byo settings --help           # Show help for settings management
+byo secrets --help            # Show help for secrets management
+byo workflows --help          # Show help for workflows management
+```
 
 ## Community
 

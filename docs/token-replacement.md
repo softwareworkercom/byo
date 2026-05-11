@@ -2,6 +2,16 @@
 
 BYO replaces `{{...}}` tokens at runtime when commands/workflows are executed.
 
+## Table of Contents
+
+- [Token format](#token-format)
+- [Resolution order](#resolution-order)
+- [Explicit token overrides](#explicit-token-overrides)
+- [Settings and secrets tokens](#settings-and-secrets-tokens)
+- [Dot notation tokens](#dot-notation-tokens)
+- [Practical example](#practical-example)
+- [Interactive vs non-interactive behavior](#interactive-vs-non-interactive-behavior)
+
 ## Token format
 
 - Use double curly braces: `{{TokenName}}`
