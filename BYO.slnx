@@ -3,8 +3,13 @@
     <File Path=".github/workflows/publish.yml" />
   </Folder>
   <Folder Name="/docs/">
+    <File Path="docs/commands.md" />
     <File Path="docs/getting-started.md" />
+    <File Path="docs/run.md" />
+    <File Path="docs/secrets.md" />
+    <File Path="docs/settings.md" />
     <File Path="docs/token-replacement.md" />
+    <File Path="docs/workflows.md" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/docs/Images/">
