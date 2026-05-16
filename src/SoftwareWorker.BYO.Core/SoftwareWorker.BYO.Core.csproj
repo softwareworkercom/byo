@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\SoftwareWorker.BYO.Abstractions\SoftwareWorker.BYO.Abstractions.csproj" />
+		<ProjectReference Include="..\SoftwareWorker.BYO.Integrations\SoftwareWorker.BYO.Integrations.csproj" />
        <None Include="..\SoftwareWorker.BYO.Integrations\Icons\sw-logo.png" Link="Icons/sw-logo.png" Pack="true" PackagePath="Icons/">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

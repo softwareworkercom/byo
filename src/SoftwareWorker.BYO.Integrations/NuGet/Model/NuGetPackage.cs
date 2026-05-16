@@ -16,6 +16,9 @@ namespace SoftwareWorker.BYO.Integrations.NuGet.Model
         [JsonPropertyName("authors")]
         public string[] Authors { get; set; } = Array.Empty<string>();
 
+        [JsonPropertyName("owners")]
+        public string[] Owners { get; set; } = Array.Empty<string>();
+
         [JsonPropertyName("iconUrl")]
         public string IconUrl { get; set; } = string.Empty;
 

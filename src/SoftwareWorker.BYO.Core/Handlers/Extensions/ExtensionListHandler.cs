@@ -1,7 +1,7 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Core.Service;
+using SoftwareWorker.BYO.Integrations.NuGet;
 using Spectre.Console;
-using System.Text.Json;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 {
@@ -11,13 +11,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
     {
         private const string PackageIdPrefix = "SoftwareWorker.BYO.Extensions.";
         private const string Owner = "softwareworkercom";
-        private const string NuGetServiceIndexUrl = "https://api.nuget.org/v3/index.json";
-        private const string SearchQueryServiceType = "SearchQueryService";
-
-        private static readonly HttpClient HttpClient = new()
-        {
-            Timeout = TimeSpan.FromMinutes(1)
-        };
 
         public override async Task ExecuteAsync()
         {
@@ -52,43 +45,16 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
         {
             try
             {
-                var searchServiceUrl = await ResolveSearchServiceUrlAsync();
-                if (string.IsNullOrWhiteSpace(searchServiceUrl))
-                {
-                    return [];
-                }
+                var connector = new NuGetConnector(isVerbose: false);
+                var packages = await connector.ListPackagesAsync(PackageIdPrefix);
 
-                var queryUrl = $"{searchServiceUrl}?q={Uri.EscapeDataString(PackageIdPrefix)}&prerelease=false&take=100&semVerLevel=2.0.0";
-                using var stream = await HttpClient.GetStreamAsync(queryUrl);
-                using var document = await JsonDocument.ParseAsync(stream);
-
-                if (!document.RootElement.TryGetProperty("data", out var dataElement) ||
-                    dataElement.ValueKind != JsonValueKind.Array)
-                {
-                    return [];
-                }
-
-                var extensions = new List<ExtensionPackage>();
-
-                foreach (var package in dataElement.EnumerateArray())
-                {
-                    var id = package.TryGetProperty("id", out var idElement) ? idElement.GetString() : null;
-                    var version = package.TryGetProperty("version", out var versionElement) ? versionElement.GetString() : null;
-                    var description = package.TryGetProperty("description", out var descriptionElement) ? descriptionElement.GetString() : string.Empty;
-                    var owners = package.TryGetProperty("owners", out var ownersElement) ? ownersElement.GetString() : null;
-
-                    if (string.IsNullOrWhiteSpace(id) ||
-                        string.IsNullOrWhiteSpace(version) ||
-                        !id.StartsWith(PackageIdPrefix, StringComparison.OrdinalIgnoreCase) ||
-                        !IsOwnedBySoftwareWorker(owners))
-                    {
-                        continue;
-                    }
-
-                    extensions.Add(new ExtensionPackage(id, version, description ?? string.Empty));
-                }
-
-                return extensions
+                return packages
+                    .Where(package =>
+                        !string.IsNullOrWhiteSpace(package.Id) &&
+                        !string.IsNullOrWhiteSpace(package.Version) &&
+                        package.Id.StartsWith(PackageIdPrefix, StringComparison.OrdinalIgnoreCase) &&
+                        IsOwnedBySoftwareWorker(package.Owners.FirstOrDefault()))
+                    .Select(package => new ExtensionPackage(package.Id, package.Version, package.Description ?? string.Empty))
                     .OrderBy(extension => extension.Id, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
@@ -98,42 +64,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
             }
         }
 
-        private static async Task<string?> ResolveSearchServiceUrlAsync()
-        {
-            using var stream = await HttpClient.GetStreamAsync(NuGetServiceIndexUrl);
-            using var document = await JsonDocument.ParseAsync(stream);
-
-            if (!document.RootElement.TryGetProperty("resources", out var resourcesElement) ||
-                resourcesElement.ValueKind != JsonValueKind.Array)
-            {
-                return null;
-            }
-
-            foreach (var resource in resourcesElement.EnumerateArray())
-            {
-                if (!resource.TryGetProperty("@type", out var typeElement) ||
-                    !resource.TryGetProperty("@id", out var idElement))
-                {
-                    continue;
-                }
-
-                var type = typeElement.GetString();
-                var id = idElement.GetString();
-
-                if (string.IsNullOrWhiteSpace(type) ||
-                    string.IsNullOrWhiteSpace(id) ||
-                    !type.StartsWith(SearchQueryServiceType, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                return id.TrimEnd('/').TrimEnd('?');
-            }
-
-            return null;
-        }
-
-        private static bool IsOwnedBySoftwareWorker(string? owners)
+        private static bool IsOwnedBySoftwareWorker(string owners)
         {
             if (string.IsNullOrWhiteSpace(owners))
             {

@@ -16,15 +16,18 @@ namespace SoftwareWorker.BYO.Integrations.NuGet
             _registrationApi = RestService.For<INuGetAPI>("https://api.nuget.org/v3/registration5-gz-semver2", settings);
         }
 
-        public async Task<NuGetSearchResult> SearchPackagesAsync(string query, int skip = 0, int take = 20, bool prerelease = false)
+        public async Task<List<NuGetPackage>?> ListPackagesAsync(string query, int skip = 0, int take = int.MaxValue, bool prerelease = true)
         {
             try
             {
-                return await _searchApi.SearchPackagesAsync(query, skip, take, prerelease);
+                var allPackages = new List<NuGetPackage>();
+                var result =  await _searchApi.SearchPackagesAsync(query, skip, take, prerelease);
+                allPackages.AddRange(result.Data);
+                return allPackages;
             }
             catch (Exception)
             {
-                return new NuGetSearchResult { TotalHits = 0, Data = Array.Empty<NuGetPackage>() };
+                return null;
             }
         }
 
@@ -40,37 +43,11 @@ namespace SoftwareWorker.BYO.Integrations.NuGet
             }
         }
 
-        public async Task<List<NuGetPackage>> ListPackagesAsync(string query, int maxResults = 100)
-        {
-            var allPackages = new List<NuGetPackage>();
-            var skip = 0;
-            var take = 20;
-
-            while (allPackages.Count < maxResults)
-            {
-                var result = await SearchPackagesAsync(query, skip, take);
-                if (result.Data.Length == 0)
-                {
-                    break;
-                }
-
-                allPackages.AddRange(result.Data);
-
-                if (allPackages.Count >= result.TotalHits)
-                {
-                    break;
-                }
-
-                skip += take;
-            }
-
-            return allPackages.Take(maxResults).ToList();
-        }
 
         public async Task<NuGetPackage?> GetPackageAsync(string packageId)
         {
-            var result = await SearchPackagesAsync(packageId, 0, 1);
-            return result.Data.FirstOrDefault(p => p.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase));
+            var result = await ListPackagesAsync(packageId, 0, 1);
+            return result?.FirstOrDefault(p => p.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
