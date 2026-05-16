@@ -102,6 +102,42 @@ public class CliTests
     }
 
     [Fact]
+    public void BuildFromReflection_ShouldExposeExtensionsListCommand()
+    {
+        var trunkCommands = CommandsScanner.BuildFromReflection();
+        var extensionsCommand = trunkCommands.SingleOrDefault(command => command.Name == "extensions");
+
+        Assert.NotNull(extensionsCommand);
+        Assert.NotNull(extensionsCommand!.BranchCommands);
+
+        var listCommand = extensionsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "list");
+        Assert.NotNull(listCommand);
+        Assert.True(listCommand!.Parameters == null || !listCommand.Parameters.Any());
+    }
+
+    [Fact]
+    public void BuildFromReflection_ShouldExposeExtensionsUninstallCommand()
+    {
+        var trunkCommands = CommandsScanner.BuildFromReflection();
+        var extensionsCommand = trunkCommands.SingleOrDefault(command => command.Name == "extensions");
+
+        Assert.NotNull(extensionsCommand);
+        Assert.NotNull(extensionsCommand!.BranchCommands);
+
+        var uninstallCommand = extensionsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "uninstall");
+        Assert.NotNull(uninstallCommand);
+        Assert.NotNull(uninstallCommand!.Parameters);
+
+        var packageParameter = uninstallCommand.Parameters!.SingleOrDefault(parameter => parameter.Name == "package");
+        Assert.NotNull(packageParameter);
+        Assert.True(packageParameter!.IsRequired);
+
+        var versionParameter = uninstallCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "version");
+        Assert.NotNull(versionParameter);
+        Assert.False(versionParameter!.IsRequired);
+    }
+
+    [Fact]
     public void BuildFromReflection_ShouldIncludeHandlersFromExtensionsDirectory()
     {
         var originalExtensionsDirectory = SystemConstants.EXTENSIONS_BINARIES_DIRECTORY;
