@@ -46,6 +46,22 @@ Turn repetitive setup, deployment, and debugging steps into reusable workflows i
 dotnet tool install --global byo --version 0.0.2-gff85c0aba4
 ```
 
+### Install without the .NET SDK (self-contained)
+
+**macOS / Linux**
+
+```bash
+curl -fsSL https://github.com/softwareworkercom/byo/releases/latest/download/install.sh | bash
+```
+
+**Windows (PowerShell)**
+
+```powershell
+iwr -useb https://github.com/softwareworkercom/byo/releases/latest/download/install.ps1 | iex
+```
+
+See [docs/release-and-distribution.md](docs/release-and-distribution.md) for upgrade, rollback, pinning a version, supported platforms (Windows, macOS Intel + Apple Silicon, Linux x64 + arm64), and the full release process.
+
 ### Run
 
 ```bash
