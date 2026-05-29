@@ -2,7 +2,6 @@
   <Folder Name="/build/">
     <File Path=".github/workflows/ci.yml" />
     <File Path=".github/workflows/publish.yml" />
-    <File Path=".github/workflows/release.yml" />
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/commands.md" />
@@ -16,6 +15,10 @@
   </Folder>
   <Folder Name="/docs/Images/">
     <File Path="docs/Images/byo-logo.png" />
+  </Folder>
+  <Folder Name="/release/">
+    <File Path=".github/RELEASE_TEMPLATE.md" />
+    <File Path=".github/workflows/release.yml" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/SoftwareWorker.BYO.Abstractions/SoftwareWorker.BYO.Abstractions.csproj" />

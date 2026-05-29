@@ -37,10 +37,6 @@ jobs:
             os: ubuntu-latest
             ext: ''
             archive: tar.gz
-          - rid: osx-x64
-            os: macos-13      # Intel runner
-            ext: ''
-            archive: tar.gz
           - rid: osx-arm64
             os: macos-latest  # Apple Silicon
             ext: ''
