@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
+		<AssemblyName>byo</AssemblyName>
 		<PackageId>byo</PackageId>
 		<!-- This makes it a .NET tool -->
 		<PackAsTool>true</PackAsTool>

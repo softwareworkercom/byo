@@ -86,7 +86,6 @@ jobs:
             -p:PublishTrimmed=true \
             -p:TrimMode=partial \
             -p:DebugType=embedded \
-            -p:AssemblyName=${BIN_NAME} \
             -p:Version=${VERSION} \
             -p:InformationalVersion=${VERSION}+sha.${GITHUB_SHA} \
             -p:PackAsTool=false \
