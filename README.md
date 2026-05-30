@@ -36,17 +36,7 @@ Turn repetitive setup, deployment, and debugging steps into reusable workflows i
 
 ## Quick Start
 
-### Prerequisites
-
-- .NET SDK 10 (https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-
-### Install as a global tool
-
-```bash
-dotnet tool install --global byo --version 0.0.2-gff85c0aba4
-```
-
-### Install without the .NET SDK (self-contained)
+### Instalation
 
 **macOS / Linux**
 
@@ -60,7 +50,7 @@ curl -fsSL https://github.com/softwareworkercom/byo/releases/latest/download/ins
 iwr -useb https://github.com/softwareworkercom/byo/releases/latest/download/install.ps1 | iex
 ```
 
-See [docs/release-and-distribution.md](docs/release-and-distribution.md) for upgrade, rollback, pinning a version, supported platforms (Windows, macOS Intel + Apple Silicon, Linux x64 + arm64), and the full release process.
+> The installers detect your OS/architecture, download the matching binary, verify its SHA256 checksum, and add it to your PATH.
 
 ### Run
 

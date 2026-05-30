@@ -18,12 +18,6 @@ iwr -useb https://github.com/softwareworkercom/byo/releases/latest/download/inst
 
 > The installers detect your OS/architecture, download the matching binary, verify its SHA256 checksum, and add it to your PATH.
 
-### Install as a .NET global tool
-
-```bash
-dotnet tool install --global byo
-```
-
 ### Manual install
 
 1. Download the archive for your platform from the **Assets** below:
