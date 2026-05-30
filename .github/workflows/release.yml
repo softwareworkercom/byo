@@ -38,6 +38,10 @@ jobs:
             os: ubuntu-latest
             ext: ''
             archive: tar.gz
+          - rid: osx-x64
+            os: macos-13  # Intel
+            ext: ''
+            archive: tar.gz
           - rid: osx-arm64
             os: macos-latest  # Apple Silicon
             ext: ''
@@ -85,7 +89,7 @@ jobs:
             --output "publish/${RID}"
 
       - name: Smoke test (same-arch runners only)
-        if: matrix.rid == 'win-x64' || matrix.rid == 'linux-x64' || matrix.rid == 'osx-arm64'
+        if: matrix.rid == 'win-x64' || matrix.rid == 'linux-x64' || matrix.rid == 'osx-x64' || matrix.rid == 'osx-arm64'
         shell: bash
         env:
           RID: ${{ matrix.rid }}

@@ -24,6 +24,7 @@ iwr -useb https://github.com/softwareworkercom/byo/releases/latest/download/inst
    - `byo-<version>-win-x64.zip`
    - `byo-<version>-linux-x64.tar.gz`
    - `byo-<version>-linux-arm64.tar.gz`
+   - `byo-<version>-osx-x64.tar.gz`
    - `byo-<version>-osx-arm64.tar.gz`
 2. Extract it and place the `byo` (or `byo.exe`) binary on your `PATH`.
 3. (Optional) Verify the download against `SHA256SUMS.txt`.
@@ -40,7 +41,7 @@ byo --version
 | OS | Architectures |
 | --- | --- |
 | Windows | x64 |
-| macOS | arm64 (Apple Silicon) |
+| macOS | x64 (Intel), arm64 (Apple Silicon) |
 | Linux | x64, arm64 |
 
 See [docs/release-and-distribution.md](https://github.com/softwareworkercom/byo/blob/main/docs/release-and-distribution.md) for upgrade, rollback, and version pinning details.
