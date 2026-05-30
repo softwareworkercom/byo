@@ -5,6 +5,8 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<AssemblyName>byo</AssemblyName>
 		<PackageId>byo</PackageId>
+		<!-- Keep reflection-based System.Text.Json working in trimmed/self-contained publish builds -->
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
 		<!-- This makes it a .NET tool -->
 		<PackAsTool>true</PackAsTool>
 		<!-- The command users will run -->
