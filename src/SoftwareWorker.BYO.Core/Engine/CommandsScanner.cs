@@ -133,6 +133,30 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             var handlerTypes = new List<Type>();
             var processedAssemblies = new HashSet<string>();
+
+            // 1) Inspect assemblies already loaded into the current AppDomain first.
+            //    This is essential for single-file publishes, where the managed
+            //    assemblies (including the built-in handlers) are embedded in the host
+            //    and do NOT exist as standalone *.dll files on disk, so the directory
+            //    scan below cannot find them.
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.IsDynamic)
+                {
+                    continue;
+                }
+
+                var name = assembly.GetName().Name;
+                if (name == null || !processedAssemblies.Add(name))
+                {
+                    continue;
+                }
+
+                handlerTypes.AddRange(GetHandlerTypesFromAssembly(assembly));
+            }
+
+            // 2) Scan DLL files from the app output and installed extension folders to
+            //    discover handlers in assemblies that are not yet loaded (e.g. extensions).
             var assemblyDirectories = new List<string> { AppContext.BaseDirectory };
 
             if (Directory.Exists(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY))
@@ -142,7 +166,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     .Prepend(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY));
             }
 
-            // Scan all DLL files from app output and installed extension folders
             var dllFiles = assemblyDirectories
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Where(Directory.Exists)
@@ -155,9 +178,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 try
                 {
                     var assemblyName = AssemblyName.GetAssemblyName(dllFile);
-                    if (assemblyName.Name != null && !processedAssemblies.Contains(assemblyName.Name))
+                    if (assemblyName.Name != null && processedAssemblies.Add(assemblyName.Name))
                     {
-                        processedAssemblies.Add(assemblyName.Name);
                         Assembly assembly = Assembly.LoadFrom(dllFile);
                         var types = GetHandlerTypesFromAssembly(assembly);
                         handlerTypes.AddRange(types);
