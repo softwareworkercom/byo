@@ -180,9 +180,33 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             var handlerTypes = new List<Type>();
 
+            Type[] assemblyTypes;
             try
             {
-                var types = assembly.GetTypes()
+                assemblyTypes = assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                // Some types failed to load (e.g. a transitive dependency could not be resolved).
+                // Keep the types that did load instead of dropping every handler in this assembly.
+                assemblyTypes = ex.Types.Where(t => t != null).ToArray()!;
+
+                var loaderMessages = ex.LoaderExceptions
+                    .Where(e => e != null)
+                    .Select(e => e!.Message)
+                    .Distinct();
+                UserInterfaceService.ShowError(
+                    $"Warning: Some types in assembly {assembly.GetName().Name} could not be loaded: {string.Join("; ", loaderMessages)}");
+            }
+            catch (Exception ex)
+            {
+                UserInterfaceService.ShowError($"Warning: Error getting types from assembly {assembly.GetName().Name}: {ex.Message}");
+                return handlerTypes;
+            }
+
+            try
+            {
+                var types = assemblyTypes
                     .Where(t => t.IsClass
                              && !t.IsAbstract
                              && typeof(BaseCommandHandler).IsAssignableFrom(t)
@@ -192,7 +216,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             }
             catch (Exception ex)
             {
-                UserInterfaceService.ShowError($"Warning: Error getting types from assembly {assembly.GetName().Name}: {ex.Message}");
+                UserInterfaceService.ShowError($"Warning: Error inspecting types from assembly {assembly.GetName().Name}: {ex.Message}");
             }
 
             return handlerTypes;
