@@ -98,7 +98,7 @@ main() {
   log "Target   : ${INSTALL_DIR}"
 
   tmp=$(mktemp -d)
-  trap 'rm -rf "${tmp}"' EXIT
+  trap 'rm -rf "${tmp:-}"' EXIT
 
   log "Downloading archive"
   curl -fsSL --retry 3 --retry-delay 2 -o "${tmp}/${asset}"        "${url}"
