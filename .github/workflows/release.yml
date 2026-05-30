@@ -1,15 +1,16 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g. 1.2.3). Used only for manual dry-runs; tag-driven runs derive version from the tag.'
+        description: 'Version to publish (e.g. 1.2.3).'
+        required: true
+      publish:
+        description: 'Publish a GitHub Release. Set to false for a build-only dry-run.'
+        type: boolean
         required: false
-        default: '0.0.0-manual'
+        default: true
 
 permissions:
   contents: write # required to create GitHub Releases and upload assets
@@ -57,11 +58,7 @@ jobs:
         id: ver
         shell: bash
         run: |
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            VERSION="${GITHUB_REF_NAME#v}"
-          else
-            VERSION="${{ inputs.version }}"
-          fi
+          VERSION="${{ inputs.version }}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Publishing version: ${VERSION}"
 
@@ -147,7 +144,7 @@ jobs:
   release:
     name: Publish GitHub Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: inputs.publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -177,9 +174,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
           files: artifacts/*
           generate_release_notes: true
           draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          prerelease: ${{ contains(inputs.version, '-') }}
           body_path: .github/RELEASE_TEMPLATE.md
           fail_on_unmatched_files: true
