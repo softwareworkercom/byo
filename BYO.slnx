@@ -16,6 +16,10 @@
   <Folder Name="/docs/Images/">
     <File Path="docs/Images/byo-logo.png" />
   </Folder>
+  <Folder Name="/installers/">
+    <File Path="installers/install.ps1" />
+    <File Path="installers/install.sh" />
+  </Folder>
   <Folder Name="/release/">
     <File Path=".github/RELEASE_TEMPLATE.md" />
     <File Path=".github/workflows/release.yml" />

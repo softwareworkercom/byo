@@ -9,6 +9,7 @@
 #   BYO_VERSION       Specific version to install (e.g. "1.2.3"). Defaults to latest.
 #   BYO_INSTALL_DIR   Install directory. Defaults to "$HOME/.local/bin".
 #   BYO_RID           Override the detected runtime identifier (e.g. linux-arm64).
+#   BYO_NO_MODIFY_PATH Set to any value to skip updating your shell profile's PATH.
 #
 set -euo pipefail
 
@@ -71,13 +72,72 @@ resolve_version() {
   echo "${effective_url##*/tag/v}"
 }
 
-add_to_path_hint() {
-  case ":${PATH}:" in
-    *":${INSTALL_DIR}:"*) return ;;
-  esac
+manual_path_hint() {
   warn "${INSTALL_DIR} is not on your PATH."
   echo "    Add this to your shell profile (e.g. ~/.bashrc, ~/.zshrc):"
   echo "        export PATH=\"${INSTALL_DIR}:\$PATH\""
+}
+
+# Pick the profile file for the user's login shell.
+profile_for_shell() {
+  local shell_name
+  shell_name=$(basename "${SHELL:-}")
+  case "${shell_name}" in
+    zsh)  echo "${ZDOTDIR:-${HOME}}/.zshrc" ;;
+    bash)
+      # macOS login shells read .bash_profile; Linux typically reads .bashrc.
+      if [[ "$(uname -s)" == "Darwin" ]]; then
+        echo "${HOME}/.bash_profile"
+      else
+        echo "${HOME}/.bashrc"
+      fi
+      ;;
+    fish) echo "${HOME}/.config/fish/config.fish" ;;
+    *)    echo "" ;;
+  esac
+}
+
+ensure_on_path() {
+  case ":${PATH}:" in
+    *":${INSTALL_DIR}:"*) return ;;
+  esac
+
+  # Allow users to opt out of profile modification.
+  if [[ -n "${BYO_NO_MODIFY_PATH:-}" ]]; then
+    manual_path_hint
+    return
+  fi
+
+  local profile shell_name export_line
+  profile=$(profile_for_shell)
+  shell_name=$(basename "${SHELL:-}")
+
+  if [[ -z "${profile}" ]]; then
+    manual_path_hint
+    return
+  fi
+
+  if [[ "${shell_name}" == "fish" ]]; then
+    export_line="set -gx PATH \"${INSTALL_DIR}\" \$PATH"
+  else
+    export_line="export PATH=\"${INSTALL_DIR}:\$PATH\""
+  fi
+
+  # Skip if the profile already references the install dir.
+  if [[ -f "${profile}" ]] && grep -qF "${INSTALL_DIR}" "${profile}"; then
+    warn "${INSTALL_DIR} is configured in ${profile} but not in the current shell."
+    echo "    Restart your shell or run: source \"${profile}\""
+    return
+  fi
+
+  mkdir -p "$(dirname "${profile}")"
+  {
+    printf '\n# Added by byo installer\n'
+    printf '%s\n' "${export_line}"
+  } >> "${profile}" || { manual_path_hint; return; }
+
+  log "Added ${INSTALL_DIR} to PATH in ${profile}"
+  echo "    Restart your shell or run: source \"${profile}\""
 }
 
 main() {
@@ -118,7 +178,7 @@ main() {
   mkdir -p "${INSTALL_DIR}"
   install -m 0755 "${tmp}/${BIN_NAME}" "${INSTALL_DIR}/${BIN_NAME}"
 
-  add_to_path_hint
+  ensure_on_path
 
   log "Verifying installation"
   if ! "${INSTALL_DIR}/${BIN_NAME}" --help >/dev/null 2>&1; then

@@ -31,10 +31,15 @@ function Write-Log  ([string]$Message) { Write-Host "==> $Message" }
 function Write-Warn ([string]$Message) { Write-Host "warn: $Message" -ForegroundColor Yellow }
 
 function Get-Rid {
-    $arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
-    switch ($arch) {
-        'X64'   { return 'win-x64' }
-        default { throw "Unsupported architecture: $arch. Only win-x64 is published today." }
+    # OSArchitecture is a [System.Runtime.InteropServices.Architecture] enum; normalize to a
+    # string so comparisons are reliable across PowerShell versions. Fall back to the
+    # PROCESSOR_ARCHITECTURE environment variable if the runtime value is unavailable.
+    $arch = [string][System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
+    if (-not $arch) { $arch = $env:PROCESSOR_ARCHITECTURE }
+
+    switch -Regex ($arch) {
+        '^(X64|AMD64)$' { return 'win-x64' }
+        default { throw "Unsupported architecture: '$arch'. Only win-x64 is published today." }
     }
 }
 
