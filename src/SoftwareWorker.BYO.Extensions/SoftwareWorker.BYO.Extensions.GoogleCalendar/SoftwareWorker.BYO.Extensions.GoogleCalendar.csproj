@@ -11,9 +11,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SoftwareWorker.BYO.Abstractions" />
-    <PackageReference Include="SoftwareWorker.BYO.Core" />
-    <PackageReference Include="SoftwareWorker.BYO.Integrations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../SoftwareWorker.BYO.Abstractions/SoftwareWorker.BYO.Abstractions.csproj" />
+    <ProjectReference Include="../../SoftwareWorker.BYO.Core/SoftwareWorker.BYO.Core.csproj" />
+    <ProjectReference Include="../../SoftwareWorker.BYO.Integrations/SoftwareWorker.BYO.Integrations.csproj" />
   </ItemGroup>
 
 </Project>
