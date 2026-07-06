@@ -6,6 +6,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 {
     public class EncryptionService
     {
+        private const string Pkcs8Prefix = "pkcs8:";
+
         // AES-GCM constants
         private const int SaltSize = 32;        // 256-bit salt for PBKDF2
         private const int NonceSize = 12;       // 96-bit nonce for AES-GCM (recommended size)
@@ -52,13 +54,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             if (string.IsNullOrEmpty(vaultEntryValue))
                 throw new ArgumentNullException(nameof(vaultEntryValue));
 
-            var rsaKeyPair = newRSAKeyPair ?? KeyManagementService.Get();
+            var rsaKeyPair = newRSAKeyPair ?? KeyManagementService.Get()
+                ?? throw new CryptographicException("RSA private key not found.");
 
             byte[] plaintext = Encoding.UTF8.GetBytes(vaultEntryValue);
 
             using (RSA rsa = RSA.Create())
             {
-                rsa.FromXmlString(rsaKeyPair);
+                ImportPrivateKey(rsa, rsaKeyPair);
 
                 // RSA-OAEP with SHA-256 has a maximum payload size of: KeySize/8 - 2*HashSize - 2
                 // For 4096-bit key with SHA-256: 512 - 64 - 2 = 446 bytes
@@ -134,7 +137,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             if (string.IsNullOrEmpty(vaultEntryValue))
                 throw new ArgumentNullException(nameof(vaultEntryValue));
 
-            var rsaKeyPair = KeyManagementService.Get();
+            var rsaKeyPair = KeyManagementService.Get()
+                ?? throw new CryptographicException("RSA private key not found.");
 
             byte[] encryptedData = Convert.FromBase64String(vaultEntryValue);
 
@@ -143,7 +147,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             using (RSA rsa = RSA.Create())
             {
-                rsa.FromXmlString(rsaKeyPair);
+                ImportPrivateKey(rsa, rsaKeyPair);
 
                 byte encryptionType = encryptedData[0];
 
@@ -233,6 +237,23 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             return new string(result);
+        }
+
+        private static void ImportPrivateKey(RSA rsa, string privateKey)
+        {
+            if (string.IsNullOrWhiteSpace(privateKey))
+                throw new CryptographicException("RSA private key is empty.");
+
+            if (privateKey.StartsWith(Pkcs8Prefix, StringComparison.Ordinal))
+            {
+                var payload = privateKey[Pkcs8Prefix.Length..];
+                var keyBytes = Convert.FromBase64String(payload);
+                rsa.ImportPkcs8PrivateKey(keyBytes, out _);
+                return;
+            }
+
+            // Backward compatibility with legacy XML keys.
+            rsa.FromXmlString(privateKey);
         }
     }
 }

@@ -16,6 +16,7 @@
        <PackageReference Include="Spectre.Console" />
 		<PackageReference Include="SpreadCheetah" />
 			<PackageReference Include="System.CommandLine" />
+			<PackageReference Include="System.Security.Cryptography.ProtectedData" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,3 +1,7 @@
+# 🚨 Testers Needed: Linux and macOS
+
+We are currently looking for testers on **Linux** and **macOS**. If you can help validate the CLI behavior on these platforms, please open an issue or share feedback.
+
 # BYO CLI
 
 ⭐ **Give us a star to support the project**

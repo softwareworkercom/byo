@@ -23,7 +23,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
             }
 
             //Generate new encryption key
-            var newRSAKeyPair = KeyManagementService.Generate();
+            var newRSAKeyPair = KeyManagementService.CreateEncryptionKey();
 
             // Update RSA key FIRST so it's available for the new encryptions
             KeyManagementService.Save(newRSAKeyPair);

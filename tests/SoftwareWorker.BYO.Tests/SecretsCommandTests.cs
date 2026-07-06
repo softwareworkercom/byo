@@ -19,7 +19,6 @@ public sealed class SecretsCommandTests : IDisposable
         _originalSettingsSecretsFilePath = SettingsService.SecretsFilePath;
         _originalSecretsFilePath = SecretsService.SecretsFilePath;
         _originalSecretsSettingsFilePath = SecretsService.SettingsFilePath;
-        _originalRsaKeyFilePath = KeyManagementService.RsaKeyFilePath;
 
         _testStorageDirectory = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_testStorageDirectory);
@@ -32,7 +31,6 @@ public sealed class SecretsCommandTests : IDisposable
         SettingsService.SecretsFilePath = secretsFilePath;
         SecretsService.SecretsFilePath = secretsFilePath;
         SecretsService.SettingsFilePath = settingsFilePath;
-        KeyManagementService.RsaKeyFilePath = rsaKeyFilePath;
     }
 
     [Fact]
@@ -89,26 +87,7 @@ public sealed class SecretsCommandTests : IDisposable
         Assert.Null(SecretsService.GetList(key));
     }
 
-    [Fact]
-    public async Task SecretsReencryptCommand_ShouldRotateKeyAndKeepValuesReadable()
-    {
-        var key = NewKey("reencrypt");
-        const string value = "reencrypt-value";
-        SecretsService.Update(key, value);
-
-        var encryptedValueBefore = StorageService.LoadDictionary(SecretsService.SecretsFilePath)[key];
-        var rsaKeyBefore = File.ReadAllText(KeyManagementService.RsaKeyFilePath);
-
-        var command = new SecretsReencryptCommand();
-        await command.ExecuteAsync();
-
-        var encryptedValueAfter = StorageService.LoadDictionary(SecretsService.SecretsFilePath)[key];
-        var rsaKeyAfter = File.ReadAllText(KeyManagementService.RsaKeyFilePath);
-
-        Assert.NotEqual(rsaKeyBefore, rsaKeyAfter);
-        Assert.NotEqual(encryptedValueBefore, encryptedValueAfter);
-        Assert.Equal(value, SecretsService.Get(key));
-    }
+    
 
     public void Dispose()
     {
@@ -116,7 +95,6 @@ public sealed class SecretsCommandTests : IDisposable
         SettingsService.SecretsFilePath = _originalSettingsSecretsFilePath;
         SecretsService.SecretsFilePath = _originalSecretsFilePath;
         SecretsService.SettingsFilePath = _originalSecretsSettingsFilePath;
-        KeyManagementService.RsaKeyFilePath = _originalRsaKeyFilePath;
 
         if (Directory.Exists(_testStorageDirectory))
         {

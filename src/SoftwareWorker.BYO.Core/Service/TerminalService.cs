@@ -187,8 +187,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
             logEntry += new string('-', 80) + Environment.NewLine;
 
-            var logFilePath = Path.Combine(SystemConstants.STORAGE_DIRECTORY, "logs.txt");
-            Directory.CreateDirectory(SystemConstants.STORAGE_DIRECTORY);
+            var logFilePath = Path.Combine(SystemConstants.USER_PROFILE_FOLDER, "logs.txt");
+            Directory.CreateDirectory(SystemConstants.USER_PROFILE_FOLDER);
             File.AppendAllText(logFilePath, logEntry);
         }
 
