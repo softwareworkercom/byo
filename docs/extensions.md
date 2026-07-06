@@ -1,31 +1,31 @@
-# extensions command group
+# plugins command group
 
-Manage BYO CLI extensions distributed as NuGet packages.
+Manage BYO CLI plugins distributed as NuGet packages.
 
 ## Table of Contents
 
-- [extensions list](#extensions-list)
+- [plugins list](#plugins-list)
   - [Syntax](#syntax)
   - [Behavior](#behavior)
-- [extensions install](#extensions-install)
+- [plugins install](#plugins-install)
   - [Syntax](#syntax-1)
   - [Options](#options)
   - [Examples](#examples)
   - [Behavior](#behavior-1)
-- [extensions uninstall](#extensions-uninstall)
+- [plugins uninstall](#plugins-uninstall)
   - [Syntax](#syntax-2)
   - [Options](#options-1)
   - [Examples](#examples-1)
   - [Behavior](#behavior-2)
 
-## extensions list
+## plugins list
 
-List available SoftwareWorker extension packages from NuGet.org.
+List available SoftwareWorker plugin packages from NuGet.org.
 
 ### Syntax
 
 ```bash
-byo extensions list
+byo plugins list
 ```
 
 ### Behavior
@@ -34,14 +34,14 @@ byo extensions list
 - Filters results to owner `softwareworkercom`
 - Displays package id, latest version, and description
 
-## extensions install
+## plugins install
 
-Install a BYO extension package from NuGet.org.
+Install a BYO plugin package from NuGet.org.
 
 ### Syntax
 
 ```bash
-byo extensions install --package <packageId> [--version <version>]
+byo plugins install --package <packageId> [--version <version>]
 ```
 
 ### Options
@@ -54,8 +54,8 @@ byo extensions install --package <packageId> [--version <version>]
 ### Examples
 
 ```bash
-byo extensions install --package SoftwareWorker.BYO.Extensions.GoogleCalendar
-byo extensions install --package SoftwareWorker.BYO.Extensions.GoogleCalendar --version 1.0.0
+byo plugins install --package SoftwareWorker.BYO.Extensions.GoogleCalendar
+byo plugins install --package SoftwareWorker.BYO.Extensions.GoogleCalendar --version 1.0.0
 ```
 
 ### Behavior
@@ -63,17 +63,17 @@ byo extensions install --package SoftwareWorker.BYO.Extensions.GoogleCalendar --
 - Downloads the package from NuGet.org
 - Extracts assemblies and selects the best target framework automatically
 - Validates that the package contains BYO command handlers
-- Copies extension binaries into local BYO extension storage
+- Copies plugin binaries into local BYO plugin storage
 - Shows detected handlers and suggests running `byo --help`
 
-## extensions uninstall
+## plugins uninstall
 
-Uninstall an installed extension package.
+Uninstall an installed plugin package.
 
 ### Syntax
 
 ```bash
-byo extensions uninstall --package <packageId> [--version <version>]
+byo plugins uninstall --package <packageId> [--version <version>]
 ```
 
 ### Options
@@ -86,12 +86,12 @@ byo extensions uninstall --package <packageId> [--version <version>]
 ### Examples
 
 ```bash
-byo extensions uninstall --package SoftwareWorker.BYO.Extensions.GoogleCalendar
-byo extensions uninstall --package SoftwareWorker.BYO.Extensions.GoogleCalendar --version 1.0.0
+byo plugins uninstall --package SoftwareWorker.BYO.Extensions.GoogleCalendar
+byo plugins uninstall --package SoftwareWorker.BYO.Extensions.GoogleCalendar --version 1.0.0
 ```
 
 ### Behavior
 
-- Removes package and binary directories for the selected extension
+- Removes package and binary directories for the selected plugin
 - If `--version` is omitted, removes all installed versions for that package
 - Cleans up empty package folders after version-specific uninstall

@@ -80,15 +80,15 @@ public class CliTests
     }
 
     [Fact]
-    public void BuildFromReflection_ShouldExposeExtensionsInstallCommand()
+    public void BuildFromReflection_ShouldExposePluginsInstallCommand()
     {
         var trunkCommands = CommandsScanner.BuildFromReflection();
-        var extensionsCommand = trunkCommands.SingleOrDefault(command => command.Name == "extensions");
+        var pluginsCommand = trunkCommands.SingleOrDefault(command => command.Name == "plugins");
 
-        Assert.NotNull(extensionsCommand);
-        Assert.NotNull(extensionsCommand!.BranchCommands);
+        Assert.NotNull(pluginsCommand);
+        Assert.NotNull(pluginsCommand!.BranchCommands);
 
-        var installCommand = extensionsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "install");
+        var installCommand = pluginsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "install");
         Assert.NotNull(installCommand);
         Assert.NotNull(installCommand!.Parameters);
 
@@ -102,29 +102,29 @@ public class CliTests
     }
 
     [Fact]
-    public void BuildFromReflection_ShouldExposeExtensionsListCommand()
+    public void BuildFromReflection_ShouldExposePluginsListCommand()
     {
         var trunkCommands = CommandsScanner.BuildFromReflection();
-        var extensionsCommand = trunkCommands.SingleOrDefault(command => command.Name == "extensions");
+        var pluginsCommand = trunkCommands.SingleOrDefault(command => command.Name == "plugins");
 
-        Assert.NotNull(extensionsCommand);
-        Assert.NotNull(extensionsCommand!.BranchCommands);
+        Assert.NotNull(pluginsCommand);
+        Assert.NotNull(pluginsCommand!.BranchCommands);
 
-        var listCommand = extensionsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "list");
+        var listCommand = pluginsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "list");
         Assert.NotNull(listCommand);
         Assert.True(listCommand!.Parameters == null || !listCommand.Parameters.Any());
     }
 
     [Fact]
-    public void BuildFromReflection_ShouldExposeExtensionsUninstallCommand()
+    public void BuildFromReflection_ShouldExposePluginsUninstallCommand()
     {
         var trunkCommands = CommandsScanner.BuildFromReflection();
-        var extensionsCommand = trunkCommands.SingleOrDefault(command => command.Name == "extensions");
+        var pluginsCommand = trunkCommands.SingleOrDefault(command => command.Name == "plugins");
 
-        Assert.NotNull(extensionsCommand);
-        Assert.NotNull(extensionsCommand!.BranchCommands);
+        Assert.NotNull(pluginsCommand);
+        Assert.NotNull(pluginsCommand!.BranchCommands);
 
-        var uninstallCommand = extensionsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "uninstall");
+        var uninstallCommand = pluginsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "uninstall");
         Assert.NotNull(uninstallCommand);
         Assert.NotNull(uninstallCommand!.Parameters);
 
@@ -156,7 +156,7 @@ public class CliTests
 
             var trunkCommands = CommandsScanner.BuildFromReflection();
 
-            Assert.Contains(trunkCommands, command => command.Name == "extensions");
+            Assert.Contains(trunkCommands, command => command.Name == "plugins");
         }
         finally
         {

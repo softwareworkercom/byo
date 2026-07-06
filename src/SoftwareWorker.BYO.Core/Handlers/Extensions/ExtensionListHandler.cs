@@ -5,7 +5,7 @@ using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 {
-    [TrunkCommand("extensions", "Custom extension management")]
+    [TrunkCommand("plugins", "Custom plugin management")]
     [BranchCommand("list", "List available SoftwareWorker extensions")]
     internal sealed class ExtensionListHandler : BaseCommandHandler
     {

@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 {
-    [TrunkCommand("extensions", "Custom extension management")]
+    [TrunkCommand("plugins", "Custom plugin management")]
     [BranchCommand("install", "Install extension package from NuGet.org")]
     [Parameter("package", "NuGet package id to install", true, null)]
     [Parameter("version", "NuGet package version (latest stable when omitted)", false, null)]

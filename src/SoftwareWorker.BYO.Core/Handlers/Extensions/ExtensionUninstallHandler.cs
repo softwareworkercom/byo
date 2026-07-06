@@ -4,7 +4,7 @@ using SoftwareWorker.BYO.CLI.Core.Service;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 {
-    [TrunkCommand("extensions", "Custom extension management")]
+    [TrunkCommand("plugins", "Custom plugin management")]
     [BranchCommand("uninstall", "Uninstall an extension package")]
     [Parameter("package", "NuGet package id to uninstall", true, null)]
     [Parameter("version", "NuGet package version to uninstall (all versions when omitted)", false, null)]
