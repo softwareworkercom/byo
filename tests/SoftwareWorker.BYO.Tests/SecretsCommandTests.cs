@@ -10,7 +10,7 @@ public sealed class SecretsCommandTests : IDisposable
     private readonly string _originalSettingsSecretsFilePath;
     private readonly string _originalSecretsFilePath;
     private readonly string _originalSecretsSettingsFilePath;
-    private readonly string _originalRsaKeyFilePath;
+    private readonly string _originalSecretKeyName;
     private readonly string _testStorageDirectory;
 
     public SecretsCommandTests()
@@ -19,18 +19,18 @@ public sealed class SecretsCommandTests : IDisposable
         _originalSettingsSecretsFilePath = SettingsService.SecretsFilePath;
         _originalSecretsFilePath = SecretsService.SecretsFilePath;
         _originalSecretsSettingsFilePath = SecretsService.SettingsFilePath;
+        _originalSecretKeyName = KeyManagementService.SecretKeyName;
 
         _testStorageDirectory = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_testStorageDirectory);
 
         var settingsFilePath = Path.Combine(_testStorageDirectory, "settings.json");
         var secretsFilePath = Path.Combine(_testStorageDirectory, "secrets.json");
-        var rsaKeyFilePath = Path.Combine(_testStorageDirectory, "rsa.key");
-
         SettingsService.SettingsFilePath = settingsFilePath;
         SettingsService.SecretsFilePath = secretsFilePath;
         SecretsService.SecretsFilePath = secretsFilePath;
         SecretsService.SettingsFilePath = settingsFilePath;
+        KeyManagementService.SecretKeyName = $"byo-key-tests-{Guid.NewGuid():N}";
     }
 
     [Fact]
@@ -95,6 +95,7 @@ public sealed class SecretsCommandTests : IDisposable
         SettingsService.SecretsFilePath = _originalSettingsSecretsFilePath;
         SecretsService.SecretsFilePath = _originalSecretsFilePath;
         SecretsService.SettingsFilePath = _originalSecretsSettingsFilePath;
+        KeyManagementService.SecretKeyName = _originalSecretKeyName;
 
         if (Directory.Exists(_testStorageDirectory))
         {

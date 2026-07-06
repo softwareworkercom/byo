@@ -7,8 +7,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
     {
         private const int RsaKeySize = 4096;
         private const string Pkcs8Prefix = "pkcs8:";
-        private const string SecretKeyName = "byo-key";
-        private const string FallbackKeyFileName = "byo-key";
+        private const string DefaultSecretKeyName = "byo-key";
+
+        public static string SecretKeyName { get; set; } = DefaultSecretKeyName;
 
         public static string CreateEncryptionKey()
         {
@@ -122,7 +123,32 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                 directory = AppContext.BaseDirectory;
             }
 
-            return Path.Combine(directory, FallbackKeyFileName);
+            return Path.Combine(directory, GetFallbackKeyFileName());
+        }
+
+        private static string GetFallbackKeyFileName()
+        {
+            var keyName = SecretKeyName;
+            if (string.IsNullOrWhiteSpace(keyName))
+            {
+                keyName = DefaultSecretKeyName;
+            }
+
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var sanitizedChars = new char[keyName.Length];
+            for (var i = 0; i < keyName.Length; i++)
+            {
+                var currentChar = keyName[i];
+                sanitizedChars[i] = Array.IndexOf(invalidChars, currentChar) >= 0 ? '_' : currentChar;
+            }
+
+            var sanitized = new string(sanitizedChars);
+            if (string.IsNullOrWhiteSpace(sanitized))
+            {
+                sanitized = DefaultSecretKeyName;
+            }
+
+            return $"{sanitized}.key";
         }
     }
 }
