@@ -20,6 +20,10 @@
     <File Path="installers/install.ps1" />
     <File Path="installers/install.sh" />
   </Folder>
+  <Folder Name="/plugins/">
+    <Project Path="plugins/byo-plugin-google-calendar/BYO.Plugin.GoogleCalendar.csproj" />
+    <Project Path="plugins/byo-plugin-jira/BYO.Plugin.Jira.csproj" />
+  </Folder>
   <Folder Name="/release/">
     <File Path=".github/RELEASE_TEMPLATE.md" />
     <File Path=".github/workflows/release.yml" />
@@ -29,9 +33,6 @@
     <Project Path="src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj" />
     <Project Path="src/SoftwareWorker.BYO.Core/SoftwareWorker.BYO.Core.csproj" />
     <Project Path="src/SoftwareWorker.BYO.Integrations/SoftwareWorker.BYO.Integrations.csproj" />
-  </Folder>
-  <Folder Name="/src/Extensions/">
-    <Project Path="src/SoftwareWorker.BYO.Extensions/SoftwareWorker.BYO.Extensions.GoogleCalendar/SoftwareWorker.BYO.Extensions.GoogleCalendar.csproj" Id="dfbe2367-7773-48da-8adc-5a375d43a002" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj" Id="82d7b6c5-1669-4edc-8180-2b2f01f5aaa1" />
