@@ -1,3 +1,15 @@
 [submodule "plugins/jira/byo-plugin-jira"]
 	path = plugins/jira/byo-plugin-jira
 	url = git@github.com:softwareworkercom/byo-plugin-jira.git
+[submodule "plugins/byo-plugin-jira"]
+	path = plugins/byo-plugin-jira
+	url = git@github.com:softwareworkercom/byo-plugin-jira.git
+[submodule "plugins/byo-plugin-confluence"]
+	path = plugins/byo-plugin-confluence
+	url = git@github.com:softwareworkercom/byo-plugin-confluence.git
+[submodule "plugins/byo-plugin-google-calendar"]
+	path = plugins/byo-plugin-google-calendar
+	url = git@github.com:softwareworkercom/byo-plugin-google-calendar.git
+[submodule "plugins/byo-plugin-softwareworker"]
+	path = plugins/byo-plugin-softwareworker
+	url = git@github.com:softwareworkercom/byo-plugin-softwareworker.git
