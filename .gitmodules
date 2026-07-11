@@ -1,0 +1,3 @@
+[submodule "plugins/jira/byo-plugin-jira"]
+	path = plugins/jira/byo-plugin-jira
+	url = git@github.com:softwareworkercom/byo-plugin-jira.git
