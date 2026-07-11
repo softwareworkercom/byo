@@ -1,5 +1,6 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Core.Constants;
+using SoftwareWorker.BYO.CLI.Core.Helpers;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using System.IO.Compression;
 using System.Reflection;
@@ -8,10 +9,11 @@ using System.Text.Json;
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 {
     [TrunkCommand("plugins", "Custom plugin management")]
-    [BranchCommand("install", "Install extension package from NuGet.org")]
+    [BranchCommand("install", "Install BYO CLI Plugin from a local feed or NuGet.org")]
     [Parameter("package", "NuGet package id to install", true, null)]
     [Parameter("version", "NuGet package version (latest stable when omitted)", false, null)]
-    internal sealed class ExtensionInstallHandler : BaseCommandHandler
+    [Parameter("source", "Local folder (NuGet feed) to install from before falling back to NuGet.org", false, null)]
+    internal sealed class PluginInstallHandler : BaseCommandHandler
     {
         private static readonly HttpClient HttpClient = new()
         {
@@ -20,6 +22,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 
         public string? Package { get; set; }
         public string? Version { get; set; }
+        public string? Source { get; set; }
 
         public override async Task ExecuteAsync()
         {
@@ -31,9 +34,13 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 
             var packageId = Package.Trim();
             var packageIdLower = packageId.ToLowerInvariant();
-            var version = string.IsNullOrWhiteSpace(Version)
-                ? await ResolveLatestVersionAsync(packageIdLower)
-                : Version.Trim();
+
+            var localPackage = TryResolveLocalPackage(packageId);
+
+            var version = localPackage?.Version
+                ?? (string.IsNullOrWhiteSpace(Version)
+                    ? await ResolveLatestVersionAsync(packageIdLower)
+                    : Version.Trim());
 
             if (string.IsNullOrWhiteSpace(version))
             {
@@ -48,13 +55,26 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 
             Directory.CreateDirectory(packageRootDirectory);
 
-            var packageUrl = $"https://api.nuget.org/v3-flatcontainer/{packageIdLower}/{packageVersion}/{packageIdLower}.{packageVersion}.nupkg";
-            UserInterfaceService.ShowGrey($"Downloading {packageId} {packageVersion} from NuGet.org...");
-
-            if (!await DownloadPackageAsync(packageUrl, packageFilePath))
+            if (localPackage != null)
             {
-                UserInterfaceService.ShowError($"Failed to download package '{packageId}' version '{packageVersion}'.");
-                return;
+                UserInterfaceService.ShowGrey($"Installing {packageId} {packageVersion} from local source '{localPackage.FilePath}'...");
+
+                if (!CopyLocalPackage(localPackage.FilePath, packageFilePath))
+                {
+                    UserInterfaceService.ShowError($"Failed to copy local package '{localPackage.FilePath}'.");
+                    return;
+                }
+            }
+            else
+            {
+                var packageUrl = $"https://api.nuget.org/v3-flatcontainer/{packageIdLower}/{packageVersion}/{packageIdLower}.{packageVersion}.nupkg";
+                UserInterfaceService.ShowGrey($"Downloading {packageId} {packageVersion} from NuGet.org...");
+
+                if (!await DownloadPackageAsync(packageUrl, packageFilePath))
+                {
+                    UserInterfaceService.ShowError($"Failed to download package '{packageId}' version '{packageVersion}'.");
+                    return;
+                }
             }
 
             if (!ExtractPackage(packageFilePath, extractedDirectory))
@@ -156,6 +176,44 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
                 await using var sourceStream = await response.Content.ReadAsStreamAsync();
                 await using var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None);
                 await sourceStream.CopyToAsync(fileStream);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private LocalPackageHelper.LocalPackageInfo? TryResolveLocalPackage(string packageId)
+        {
+            if (string.IsNullOrWhiteSpace(Source))
+            {
+                return null;
+            }
+
+            var sourceDirectory = Source.Trim();
+
+            if (!Directory.Exists(sourceDirectory))
+            {
+                UserInterfaceService.ShowWarning($"Local source '{sourceDirectory}' does not exist. Falling back to NuGet.org.");
+                return null;
+            }
+
+            var localPackage = LocalPackageHelper.ResolvePackage(sourceDirectory, packageId, Version);
+
+            if (localPackage == null)
+            {
+                UserInterfaceService.ShowWarning($"Package '{packageId}' was not found in local source '{sourceDirectory}'. Falling back to NuGet.org.");
+            }
+
+            return localPackage;
+        }
+
+        private static bool CopyLocalPackage(string sourcePath, string targetPath)
+        {
+            try
+            {
+                File.Copy(sourcePath, targetPath, overwrite: true);
                 return true;
             }
             catch

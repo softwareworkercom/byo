@@ -99,6 +99,10 @@ public class CliTests
         var versionParameter = installCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "version");
         Assert.NotNull(versionParameter);
         Assert.False(versionParameter!.IsRequired);
+
+        var sourceParameter = installCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "source");
+        Assert.NotNull(sourceParameter);
+        Assert.False(sourceParameter!.IsRequired);
     }
 
     [Fact]
@@ -112,7 +116,11 @@ public class CliTests
 
         var listCommand = pluginsCommand.BranchCommands!.SingleOrDefault(command => command.Name == "list");
         Assert.NotNull(listCommand);
-        Assert.True(listCommand!.Parameters == null || !listCommand.Parameters.Any());
+        Assert.NotNull(listCommand!.Parameters);
+
+        var sourceParameter = listCommand.Parameters!.SingleOrDefault(parameter => parameter.Name == "source");
+        Assert.NotNull(sourceParameter);
+        Assert.False(sourceParameter!.IsRequired);
     }
 
     [Fact]
