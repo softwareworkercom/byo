@@ -12,7 +12,7 @@
     <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageVersion Include="Refit" Version="13.1.0" />
     <PackageVersion Include="SoftwareWorker.BYO.Abstractions" Version="0.0.1-gffadd774f0" />
-    <PackageVersion Include="SoftwareWorker.BYO.Core" Version="0.0.2-gff85c0aba4" />
+    <PackageVersion Include="SoftwareWorker.BYO.Core" Version="0.0.6-gecb279ddc2" />
     <PackageVersion Include="SoftwareWorker.BYO.Integrations" Version="0.0.1-gffadd774f0" />
     <PackageVersion Include="Spectre.Console" Version="0.57.2" />
     <PackageVersion Include="SpreadCheetah" Version="1.28.0" />
