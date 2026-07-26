@@ -9,11 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\plugins\byo-plugin-confluence\BYO.Plugin.Confluence.csproj" />
-    <ProjectReference Include="..\..\plugins\byo-plugin-google-calendar\BYO.Plugin.GoogleCalendar.csproj" />
-    <ProjectReference Include="..\..\plugins\byo-plugin-jira\BYO.Plugin.Jira.csproj" />
-    <ProjectReference Include="..\..\plugins\byo-plugin-msteams\BYO.Plugin.MsTeams.csproj" />
-    <ProjectReference Include="..\..\plugins\byo-plugin-softwareworker\BYO.Plugin.SW.csproj" />
     <ProjectReference Include="..\..\src\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.Core.csproj" />
     <ProjectReference Include="..\..\src\SoftwareWorker.BYO.Integrations\SoftwareWorker.BYO.Integrations.csproj" />
   </ItemGroup>
