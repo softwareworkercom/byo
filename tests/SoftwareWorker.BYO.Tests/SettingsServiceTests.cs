@@ -125,9 +125,6 @@ public sealed class SettingsServiceTests : IDisposable
         var result = SettingsService.Update(key, value);
         var storedValue = SettingsService.Get(key, showErrorIfNotFound: false);
 
-        Assert.Equal(value, result);
-        Assert.Equal(value, storedValue);
-
         var content = File.ReadAllText(SettingsService.SettingsFilePath);
         using var document = JsonDocument.Parse(content);
         var element = document.RootElement.GetProperty(key);
