@@ -1,5 +1,6 @@
 using SoftwareWorker.BYO.CLI.Core.Service;
 using SoftwareWorker.BYO.Core.Storage;
+using System.Text.Json;
 
 namespace SoftwareWorker.BYO.Tests;
 
@@ -113,6 +114,55 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.NotNull(result);
         Assert.Matches("^[0-9a-fA-F-]{36}$", result);
+    }
+
+    [Fact]
+    public void Update_ShouldPersistJsonArrayValues()
+    {
+        var key = NewKey("array");
+        var value = "[\"one\",\"two\"]";
+
+        var result = SettingsService.Update(key, value);
+        var storedValue = SettingsService.Get(key, showErrorIfNotFound: false);
+
+        Assert.Equal(value, result);
+        Assert.Equal(value, storedValue);
+
+        var content = File.ReadAllText(SettingsService.SettingsFilePath);
+        using var document = JsonDocument.Parse(content);
+        var element = document.RootElement.GetProperty(key);
+
+        Assert.Equal(JsonValueKind.Array, element.ValueKind);
+        Assert.Equal("one", element[0].GetString());
+        Assert.Equal("two", element[1].GetString());
+    }
+
+    [Fact]
+    public void GetArray_ShouldReturnConfiguredArray()
+    {
+        var key = NewKey("array-get");
+        SettingsService.Update(key, "[\"alpha\",\"beta\"]");
+
+        var result = SettingsService.GetArray(key, showErrorIfNotFound: false);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.Equal("alpha", result[0]);
+        Assert.Equal("beta", result[1]);
+    }
+
+    [Fact]
+    public void GetArray_ShouldParseLooseBracketedArrayFormat()
+    {
+        var key = NewKey("array-loose");
+        SettingsService.Update(key, "[alpha,beta]");
+
+        var result = SettingsService.GetArray(key, showErrorIfNotFound: false);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.Equal("alpha", result[0]);
+        Assert.Equal("beta", result[1]);
     }
 
     public void Dispose()

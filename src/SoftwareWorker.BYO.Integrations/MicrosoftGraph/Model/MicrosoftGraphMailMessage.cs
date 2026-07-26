@@ -33,5 +33,11 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph.Model
 
         [JsonPropertyName("isRead")]
         public bool? IsRead { get; set; }
+
+        [JsonPropertyName("webLink")]
+        public string? WebLink { get; set; }
+
+        [JsonPropertyName("internetMessageId")]
+        public string? InternetMessageId { get; set; }
     }
 }

@@ -7,6 +7,9 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph.Model
         [JsonPropertyName("@odata.context")]
         public string? ODataContext { get; set; }
 
+        [JsonPropertyName("@odata.nextLink")]
+        public string? ODataNextLink { get; set; }
+
         [JsonPropertyName("value")]
         public List<MicrosoftGraphMessage>? Value { get; set; }
     }

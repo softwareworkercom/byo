@@ -46,7 +46,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
         public static string? Update(string key, string value)
         {
-            var settings = StorageService.LoadDictionary(SettingsFilePath);
+            var settings = SettingsService.GetList() ?? new Dictionary<string, string>();
 
             // Validate mutual exclusivity between Settings and Secrets
             if (settings.ContainsKey(key))

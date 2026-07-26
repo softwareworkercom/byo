@@ -28,6 +28,19 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
         [Get("/v1.0/teams/{teamId}/channels/{channelId}/messages")]
         Task<MicrosoftGraphMessagesResponse> ListChannelMessages([HeaderCollection] IDictionary<string, string> headers, string teamId, string channelId);
 
+        [Get("/v1.0/teams/{teamId}/channels/{channelId}/messages/{messageId}/replies")]
+        Task<MicrosoftGraphMessagesResponse> ListChannelMessageReplies([HeaderCollection] IDictionary<string, string> headers, string teamId, string channelId, string messageId);
+
+        [Get("/v1.0/chats/{chatId}/messages")]
+        Task<MicrosoftGraphMessagesResponse> ListChatMessages(
+            [HeaderCollection] IDictionary<string, string> headers,
+            string chatId,
+            [AliasAs("$top")] int? top = null,
+            [AliasAs("$skiptoken")] string? skipToken = null);
+
+        [Get("/v1.0/chats/{chatId}")]
+        Task<MicrosoftGraphChat> GetChat([HeaderCollection] IDictionary<string, string> headers, string chatId);
+
         [Get("/v1.0/teams/{teamId}/members")]
         Task<MicrosoftGraphMembersResponse> ListTeamMembers([HeaderCollection] IDictionary<string, string> headers, string teamId);
 
@@ -50,6 +63,14 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
         // Calendar Operations
         [Get("/v1.0/me/events")]
         Task<MicrosoftGraphEventsResponse> ListEvents([HeaderCollection] IDictionary<string, string> headers, [AliasAs("$top")] int? top = null, [AliasAs("$skip")] int? skip = null);
+
+        [Get("/v1.0/me/calendarView")]
+        Task<MicrosoftGraphEventsResponse> ListCalendarView(
+            [HeaderCollection] IDictionary<string, string> headers,
+            [AliasAs("startDateTime")] string startDateTime,
+            [AliasAs("endDateTime")] string endDateTime,
+            [AliasAs("$top")] int? top = null,
+            [AliasAs("$skip")] int? skip = null);
 
         [Get("/v1.0/me/events/{eventId}")]
         Task<MicrosoftGraphEvent> GetEvent([HeaderCollection] IDictionary<string, string> headers, string eventId);

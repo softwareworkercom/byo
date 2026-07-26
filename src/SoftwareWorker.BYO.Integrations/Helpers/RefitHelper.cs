@@ -1,7 +1,7 @@
+using Refit;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Refit;
 
 namespace SoftwareWorker.BYO.Integrations.Helpers
 {

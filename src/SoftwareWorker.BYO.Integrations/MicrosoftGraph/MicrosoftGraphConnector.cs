@@ -74,6 +74,76 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
             return result?.Value;
         }
 
+        public async Task<List<MicrosoftGraphMessage>?> ListChannelMessageRepliesAsync(string teamId, string channelId, string messageId)
+        {
+            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                async () => await _api.ListChannelMessageReplies(GetHeaders(), teamId, channelId, messageId));
+            return result?.Value;
+        }
+
+        public async Task<List<MicrosoftGraphMessage>?> ListChatMessagesAsync(string chatId)
+        {
+            var allMessages = new List<MicrosoftGraphMessage>();
+            const int maxPages = 200;
+            const int top = 50;
+
+            string? skipToken = null;
+
+            for (var page = 0; page < maxPages; page++)
+            {
+                var pageResult = await ResilienceHelper.ExecuteWithResilienceAsync(
+                    async () => await _api.ListChatMessages(GetHeaders(), chatId, top, skipToken));
+
+                if (pageResult?.Value is { Count: > 0 })
+                {
+                    allMessages.AddRange(pageResult.Value);
+                }
+                else
+                {
+                    break;
+                }
+
+                skipToken = ExtractSkipToken(pageResult?.ODataNextLink);
+                if (string.IsNullOrWhiteSpace(skipToken))
+                {
+                    break;
+                }
+            }
+
+            return allMessages;
+        }
+
+        private static string? ExtractSkipToken(string? oDataNextLink)
+        {
+            if (string.IsNullOrWhiteSpace(oDataNextLink))
+            {
+                return null;
+            }
+
+            const string tokenPrefix = "$skiptoken=";
+            var startIndex = oDataNextLink.IndexOf(tokenPrefix, StringComparison.OrdinalIgnoreCase);
+            if (startIndex < 0)
+            {
+                return null;
+            }
+
+            startIndex += tokenPrefix.Length;
+            var endIndex = oDataNextLink.IndexOf('&', startIndex);
+            var encodedToken = endIndex >= 0
+                ? oDataNextLink[startIndex..endIndex]
+                : oDataNextLink[startIndex..];
+
+            return string.IsNullOrWhiteSpace(encodedToken)
+                ? null
+                : Uri.UnescapeDataString(encodedToken);
+        }
+
+        public async Task<MicrosoftGraphChat?> GetChatAsync(string chatId)
+        {
+            return await ResilienceHelper.ExecuteWithResilienceAsync(
+                async () => await _api.GetChat(GetHeaders(), chatId));
+        }
+
         public async Task<List<MicrosoftGraphMember>?> ListTeamMembersAsync(string teamId)
         {
             var result = await ResilienceHelper.ExecuteWithResilienceAsync(
@@ -105,6 +175,38 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
             }
 
             return allMessages.Take(maxResults).ToList();
+        }
+
+        public async Task<List<MicrosoftGraphMailMessage>?> ListMessagesSinceAsync(DateTime cutoffDateTimeUtc)
+        {
+            var allMessages = new List<MicrosoftGraphMailMessage>();
+            int skip = 0;
+            const int top = 100;
+            const int maxPages = 500;
+
+            for (var page = 0; page < maxPages; page++)
+            {
+                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                    async () => await _api.ListMessages(GetHeaders(), top, skip));
+
+                if (result?.Value == null || result.Value.Count == 0)
+                {
+                    break;
+                }
+
+                var pageMessages = result.Value;
+                allMessages.AddRange(pageMessages.Where(message => message.ReceivedDateTime >= cutoffDateTimeUtc));
+
+                var reachedCutoff = pageMessages.Any(message => message.ReceivedDateTime < cutoffDateTimeUtc);
+                if (reachedCutoff || pageMessages.Count < top || string.IsNullOrEmpty(result.ODataNextLink))
+                {
+                    break;
+                }
+
+                skip += top;
+            }
+
+            return allMessages;
         }
 
         public async Task<MicrosoftGraphMailMessage?> GetMessageAsync(string messageId)
@@ -185,6 +287,34 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
             {
                 var result = await ResilienceHelper.ExecuteWithResilienceAsync(
                     async () => await _api.ListEvents(GetHeaders(), top, skip));
+
+                if (result?.Value == null || result.Value.Count == 0)
+                    break;
+
+                allEvents.AddRange(result.Value);
+
+                if (result.Value.Count < top || string.IsNullOrEmpty(result.ODataNextLink))
+                    break;
+
+                skip += top;
+            }
+
+            return allEvents.Take(maxResults).ToList();
+        }
+
+        public async Task<List<MicrosoftGraphEvent>?> ListCalendarViewAsync(DateTime startDateTimeUtc, DateTime endDateTimeUtc, int maxResults = 1000)
+        {
+            var allEvents = new List<MicrosoftGraphEvent>();
+            int skip = 0;
+            int top = 100;
+
+            var start = startDateTimeUtc.ToUniversalTime().ToString("o");
+            var end = endDateTimeUtc.ToUniversalTime().ToString("o");
+
+            while (allEvents.Count < maxResults)
+            {
+                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                    async () => await _api.ListCalendarView(GetHeaders(), start, end, top, skip));
 
                 if (result?.Value == null || result.Value.Count == 0)
                     break;

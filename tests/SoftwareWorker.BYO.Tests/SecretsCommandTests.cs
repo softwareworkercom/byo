@@ -54,6 +54,20 @@ public sealed class SecretsCommandTests : IDisposable
     }
 
     [Fact]
+    public void SecretsUpdate_ShouldHandleSettingsWithArrayValues()
+    {
+        var settingsKey = NewKey("settings-array");
+        var secretKey = NewKey("secret-after-array");
+
+        SettingsService.Update(settingsKey, "[\"chat-a\", \"chat-b\"]");
+
+        var encryptedValue = SecretsService.Update(secretKey, "value");
+
+        Assert.NotNull(encryptedValue);
+        Assert.Equal("value", SecretsService.Get(secretKey));
+    }
+
+    [Fact]
     public async Task SecretsReadHandler_ShouldExecuteWhenSecretsExist()
     {
         var keyA = NewKey("read-a");
@@ -87,7 +101,7 @@ public sealed class SecretsCommandTests : IDisposable
         Assert.Null(SecretsService.GetList(key));
     }
 
-    
+
 
     public void Dispose()
     {

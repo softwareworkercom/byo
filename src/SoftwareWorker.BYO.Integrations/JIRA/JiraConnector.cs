@@ -1,9 +1,9 @@
-using System.Text;
 using Refit;
 using SoftwareWorker.BYO.Integrations.Helpers;
 using SoftwareWorker.BYO.Integrations.JIRA.Model;
 using SoftwareWorker.BYO.Integrations.JIRA.Model.Request;
 using SoftwareWorker.BYO.Integrations.JIRA.Model.Response;
+using System.Text;
 
 namespace SoftwareWorker.BYO.Integrations.JIRA
 {
@@ -83,7 +83,7 @@ namespace SoftwareWorker.BYO.Integrations.JIRA
             {
                 var response = await _api.ListSprintsAsync(_headers, boardId, startAt);
                 startAt += increment;
-                finishAt = (int) response.Total - 1;
+                finishAt = (int)response.Total - 1;
                 allJiraSprints.AddRange(response.Values);
             }
 

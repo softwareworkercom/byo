@@ -1,6 +1,6 @@
 # settings command group
 
-Manage non-sensitive configuration key-value pairs.
+Manage non-sensitive configuration key-value pairs, including JSON arrays.
 
 ## Table of Contents
 
@@ -38,12 +38,16 @@ byo settings set --key <key> --value <value>
 byo settings set --key Demo:ApiBaseUrl --value https://api.example.com
 byo settings set --key ProjectName --value MyApplication
 byo settings set --key Environment --value "dev|staging|prod"
+byo settings set --key Jira:Priorities --value ["High","Medium","Low"]
+byo settings set --key Teams:Channels --value ["general","engineering","alerts"]
 ```
 
 ### Behavior
 
 - Prompts before replacing an existing key
 - Stores values in local configuration
+- If `--value` is a valid JSON array, it is saved as a real JSON array in `settings.json`
+- In PowerShell, prefer single quotes around JSON values to avoid escaping double quotes
 
 ## settings list
 
@@ -62,10 +66,9 @@ Delete a setting.
 ### Syntax
 
 ```bash
-byo settings delete
+byo settings delete --key <key>
 ```
 
 ### Behavior
 
-- Uses interactive selection
-- Confirms before delete
+- Deletes the exact key provided by `--key`

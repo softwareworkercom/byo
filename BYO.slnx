@@ -21,8 +21,11 @@
     <File Path="installers/install.sh" />
   </Folder>
   <Folder Name="/plugins/">
+    <Project Path="plugins/byo-plugin-confluence/BYO.Plugin.Confluence.csproj" />
     <Project Path="plugins/byo-plugin-google-calendar/BYO.Plugin.GoogleCalendar.csproj" />
     <Project Path="plugins/byo-plugin-jira/BYO.Plugin.Jira.csproj" />
+    <Project Path="plugins/byo-plugin-msteams/BYO.Plugin.MsTeams.csproj" />
+    <Project Path="plugins/byo-plugin-softwareworker/BYO.Plugin.SW.csproj" />
   </Folder>
   <Folder Name="/release/">
     <File Path=".github/RELEASE_TEMPLATE.md" />
@@ -35,6 +38,7 @@
     <Project Path="src/SoftwareWorker.BYO.Integrations/SoftwareWorker.BYO.Integrations.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/SoftwareWorker.BYO.CliModuleTester/SoftwareWorker.BYO.CliModuleTester.csproj" Id="d06ff33d-73a8-4455-89a9-72f2d7d82bff" />
     <Project Path="tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj" Id="82d7b6c5-1669-4edc-8180-2b2f01f5aaa1" />
   </Folder>
 </Solution>

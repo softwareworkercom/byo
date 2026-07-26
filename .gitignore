@@ -10,3 +10,11 @@
 
 # Local launch profiles
 **/launchSettings.json
+/BYO.Plugin.SW/bin/Debug/net10.0
+/BYO.Plugin.SW/obj
+/plugins/byo-plugin-msteams/BYO.Plugin.MsTeams/bin/Debug/net10.0
+/plugins/byo-plugin-msteams/BYO.Plugin.MsTeams/obj
+/plugins/byo-plugin-msteams/bin/Debug/net10.0
+/plugins/byo-plugin-msteams/obj
+/.local-nuget
+/.plugin-publish

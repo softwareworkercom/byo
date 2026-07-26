@@ -13,3 +13,6 @@
 [submodule "plugins/byo-plugin-softwareworker"]
 	path = plugins/byo-plugin-softwareworker
 	url = git@github.com:softwareworkercom/byo-plugin-softwareworker.git
+[submodule "plugins/byo-plugin-msteams"]
+	path = plugins/byo-plugin-msteams
+	url = git@github.com:softwareworkercom/byo-plugin-msteams.git

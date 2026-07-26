@@ -1,5 +1,4 @@
 using Refit;
-using SoftwareWorker.BYO.Integrations.Raindrop.Model;
 using SoftwareWorker.BYO.Integrations.Raindrop.Model.Request;
 using SoftwareWorker.BYO.Integrations.Raindrop.Model.Response;
 

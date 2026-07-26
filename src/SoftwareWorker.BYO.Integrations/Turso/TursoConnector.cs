@@ -245,7 +245,7 @@ public class TursoConnector : ITursoConnector
             // Handle long to int conversion
             if (underlyingType == typeof(int) && value is long longValue)
             {
-                return (int) longValue;
+                return (int)longValue;
             }
 
             // Handle other type conversions
@@ -542,7 +542,7 @@ public class TursoConnector : ITursoConnector
             int i => new { type = "integer", value = i.ToString() },
             long l => new { type = "integer", value = l.ToString() },
             double d => new { type = "float", value = d },
-            float f => new { type = "float", value = (double) f },
+            float f => new { type = "float", value = (double)f },
             bool b => new { type = "integer", value = b ? "1" : "0" },
             DateOnly date => new { type = "text", value = date.ToString("yyyy-MM-dd") },
             DateTime dt => new { type = "text", value = dt.ToString("yyyy-MM-dd HH:mm:ss") },

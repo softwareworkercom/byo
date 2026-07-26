@@ -21,7 +21,7 @@ namespace SoftwareWorker.BYO.Integrations.NuGet
             try
             {
                 var allPackages = new List<NuGetPackage>();
-                var result =  await _searchApi.SearchPackagesAsync(query, skip, take, prerelease);
+                var result = await _searchApi.SearchPackagesAsync(query, skip, take, prerelease);
                 allPackages.AddRange(result.Data);
                 return allPackages;
             }

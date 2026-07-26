@@ -1,6 +1,5 @@
 using SoftwareWorker.BYO.CLI.Core.Model;
 using SoftwareWorker.BYO.Core.Model.Enums;
-using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Service
 {

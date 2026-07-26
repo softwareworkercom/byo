@@ -1,7 +1,7 @@
-using System.Text;
 using Refit;
 using SoftwareWorker.BYO.Integrations.AzureDevOps.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using System.Text;
 
 namespace SoftwareWorker.BYO.Integrations.AzureDevOps
 {
