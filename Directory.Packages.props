@@ -12,16 +12,16 @@
     </PackageVersion>
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Identity.Client" Version="4.86.1" />
+    <PackageVersion Include="Microsoft.Identity.Client" Version="4.87.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
-    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.85" />
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.11.13-beta" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="Polly" Version="8.7.0" />
     <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageVersion Include="Refit" Version="13.1.0" />
     <PackageVersion Include="SoftwareWorker.BYO.Abstractions" Version="0.0.1-gffadd774f0" />
-    <PackageVersion Include="SoftwareWorker.BYO.Core" Version="0.0.6-gecb279ddc2" />
-    <PackageVersion Include="SoftwareWorker.BYO.Integrations" Version="0.0.1-gffadd774f0" />
+    <PackageVersion Include="SoftwareWorker.BYO.Core" Version="0.0.7-gdc9efe37ce" />
+    <PackageVersion Include="SoftwareWorker.BYO.Integrations" Version="0.0.7-gdc9efe37ce" />
     <PackageVersion Include="Spectre.Console" Version="0.57.2" />
     <PackageVersion Include="SpreadCheetah" Version="1.28.0" />
     <PackageVersion Include="System.CommandLine" Version="3.0.0-preview.3.26207.106" />

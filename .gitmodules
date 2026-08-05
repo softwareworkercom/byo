@@ -16,3 +16,6 @@
 [submodule "plugins/byo-plugin-msteams"]
 	path = plugins/byo-plugin-msteams
 	url = git@github.com:softwareworkercom/byo-plugin-msteams.git
+[submodule "plugins/byo-plugin-tester"]
+	path = plugins/byo-plugin-tester
+	url = git@github.com:softwareworkercom/byo-plugin-tester.git

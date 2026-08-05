@@ -109,5 +109,11 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
         [Get("/v1.0/users/{userId}")]
         Task<MicrosoftGraphUser> GetUser([HeaderCollection] IDictionary<string, string> headers, string userId);
+
+        [Get("/v1.0/users/{userId}/onlineMeetings")]
+        Task<MicrosoftGraphOnlineMeetingsResponse> ListOnlineMeetings([HeaderCollection] IDictionary<string, string> headers, string userId, [AliasAs("$filter")] string? filter = null);
+
+        [Get("/v1.0/users/{userId}/onlineMeetings/{meetingId}/transcripts")]
+        Task<MicrosoftGraphMeetingTranscriptsResponse> ListOnlineMeetingTranscripts([HeaderCollection] IDictionary<string, string> headers, string userId, string meetingId);
     }
 }

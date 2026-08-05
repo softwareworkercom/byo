@@ -423,5 +423,33 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
             return await ResilienceHelper.ExecuteWithResilienceAsync(
                 async () => await _api.GetUser(GetHeaders(), userId));
         }
+
+        public async Task<List<MicrosoftGraphOnlineMeeting>?> ListOnlineMeetingsAsync(string userId, string? filter = null)
+        {
+            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                async () => await _api.ListOnlineMeetings(GetHeaders(), userId, filter));
+
+            return result?.Value;
+        }
+
+        public async Task<MicrosoftGraphOnlineMeeting?> GetOnlineMeetingByJoinWebUrlAsync(string userId, string joinWebUrl)
+        {
+            var escapedJoinWebUrl = joinWebUrl.Replace("'", "''", StringComparison.Ordinal);
+            var filter = $"JoinWebUrl eq '{escapedJoinWebUrl}'";
+
+            var meetings = await ListOnlineMeetingsAsync(userId, filter);
+
+            return meetings?
+                .OrderByDescending(meeting => meeting.StartDateTime ?? meeting.CreatedDateTime ?? DateTimeOffset.MinValue)
+                .FirstOrDefault();
+        }
+
+        public async Task<List<MicrosoftGraphMeetingTranscript>?> ListOnlineMeetingTranscriptsAsync(string userId, string meetingId)
+        {
+            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                async () => await _api.ListOnlineMeetingTranscripts(GetHeaders(), userId, meetingId));
+
+            return result?.Value;
+        }
     }
 }
