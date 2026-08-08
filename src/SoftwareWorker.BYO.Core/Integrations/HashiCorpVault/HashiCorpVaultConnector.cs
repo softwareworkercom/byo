@@ -11,7 +11,7 @@ namespace SoftwareWorker.BYO.Integrations.HashiCorpVault
         public HashiCorpVaultConnector(string vaultAddress, string token, bool isVerbose)
         {
             var settings = RefitHelper.GetSettings(isVerbose, "HashiCorpVault");
-            settings.AuthorizationHeaderValueGetter = (_, __) => Task.FromResult(token);
+            settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult(token);
             _api = RestService.For<IHashiCorpVaultAPI>(vaultAddress, settings);
         }
 

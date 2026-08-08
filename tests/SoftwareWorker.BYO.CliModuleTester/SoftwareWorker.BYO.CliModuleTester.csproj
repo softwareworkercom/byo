@@ -9,8 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.Core.csproj" />
-    <ProjectReference Include="..\..\src\SoftwareWorker.BYO.Integrations\SoftwareWorker.BYO.Integrations.csproj" />
+    <ProjectReference Include="..\..\src\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.SDK.csproj" />
   </ItemGroup>
 
 </Project>

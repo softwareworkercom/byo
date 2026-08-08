@@ -11,7 +11,7 @@ namespace SoftwareWorker.BYO.Integrations.Bitwarden
         public BitwardenConnector(string apiUrl, string accessToken, bool isVerbose = false)
         {
             var settings = RefitHelper.GetSettings(isVerbose, "Bitwarden");
-            settings.AuthorizationHeaderValueGetter = (_, __) => Task.FromResult(accessToken);
+            settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult(accessToken);
             _api = RestService.For<IBitwardenAPI>(apiUrl, settings);
         }
 

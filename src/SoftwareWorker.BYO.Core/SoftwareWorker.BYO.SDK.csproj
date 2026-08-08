@@ -14,6 +14,8 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Polly" />
+		<PackageReference Include="Refit" />
        <PackageReference Include="Spectre.Console" />
 		<PackageReference Include="SpreadCheetah" />
 			<PackageReference Include="System.CommandLine" />
@@ -21,8 +23,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\SoftwareWorker.BYO.Abstractions\SoftwareWorker.BYO.Abstractions.csproj" />
-		<ProjectReference Include="..\SoftwareWorker.BYO.Integrations\SoftwareWorker.BYO.Integrations.csproj" />
        <None Include="..\SoftwareWorker.BYO.Integrations\Icons\sw-logo.png" Link="Icons/sw-logo.png" Pack="true" PackagePath="Icons/">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

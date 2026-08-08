@@ -25,10 +25,8 @@
     <File Path=".github/workflows/release.yml" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/SoftwareWorker.BYO.Abstractions/SoftwareWorker.BYO.Abstractions.csproj" />
     <Project Path="src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj" />
-    <Project Path="src/SoftwareWorker.BYO.Core/SoftwareWorker.BYO.Core.csproj" />
-    <Project Path="src/SoftwareWorker.BYO.Integrations/SoftwareWorker.BYO.Integrations.csproj" />
+    <Project Path="src/SoftwareWorker.BYO.Core/SoftwareWorker.BYO.SDK.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/SoftwareWorker.BYO.CliModuleTester/SoftwareWorker.BYO.CliModuleTester.csproj" Id="d06ff33d-73a8-4455-89a9-72f2d7d82bff" />

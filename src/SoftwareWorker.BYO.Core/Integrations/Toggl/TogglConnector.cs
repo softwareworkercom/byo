@@ -11,7 +11,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
         public TogglConnector(string apiToken, bool isVerbose)
         {
             var settings = RefitHelper.GetSettings(isVerbose, "Toggl");
-            settings.AuthorizationHeaderValueGetter = (_, __) => Task.FromResult($"Basic {Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{apiToken}:api_token"))}");
+            settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult($"Basic {Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{apiToken}:api_token"))}");
             _api = RestService.For<ITogglAPI>("https://api.track.toggl.com", settings);
         }
 

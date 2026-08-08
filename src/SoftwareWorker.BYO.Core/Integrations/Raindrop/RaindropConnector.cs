@@ -12,7 +12,7 @@ namespace SoftwareWorker.BYO.Integrations.Raindrop
         public RaindropConnector(string accessToken, bool isVerbose)
         {
             var settings = RefitHelper.GetSettings(isVerbose, "Raindrop");
-            settings.AuthorizationHeaderValueGetter = (_, __) => Task.FromResult($"Bearer {accessToken}");
+            settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult($"Bearer {accessToken}");
             _api = RestService.For<IRaindropAPI>("https://api.raindrop.io", settings);
         }
 

@@ -43,12 +43,11 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+     <PackageReference Include="SoftwareWorker.BYO.Core" />
        <PackageReference Include="Spectre.Console" />
 	</ItemGroup>
 
 		<ItemGroup>
-			<ProjectReference Include="..\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.Core.csproj" />
-			<ProjectReference Include="..\SoftwareWorker.BYO.Integrations\SoftwareWorker.BYO.Integrations.csproj" />
 			<None Update="version.json">
 				<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			</None>

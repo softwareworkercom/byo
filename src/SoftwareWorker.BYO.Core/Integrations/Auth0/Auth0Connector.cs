@@ -11,7 +11,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
         public Auth0Connector(string domain, string accessToken, bool isVerbose)
         {
             var settings = RefitHelper.GetSettings(isVerbose, "Auth0");
-            settings.AuthorizationHeaderValueGetter = (_, __) => Task.FromResult($"Bearer {accessToken}");
+            settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult($"Bearer {accessToken}");
             _api = RestService.For<IAuth0API>($"https://{domain}", settings);
         }
 

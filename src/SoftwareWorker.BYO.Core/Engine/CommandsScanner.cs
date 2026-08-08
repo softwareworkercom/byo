@@ -3,6 +3,7 @@ using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace SoftwareWorker.BYO.CLI.Core.Engine
 {
@@ -201,6 +202,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         private static List<Type> GetHandlerTypesFromAssembly(Assembly assembly)
         {
             var handlerTypes = new List<Type>();
+            IEnumerable<string>? loaderMessages = null;
+            var incompatibleHandlers = new List<string>();
 
             Type[] assemblyTypes;
             try
@@ -213,12 +216,10 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 // Keep the types that did load instead of dropping every handler in this assembly.
                 assemblyTypes = ex.Types.Where(t => t != null).ToArray()!;
 
-                var loaderMessages = ex.LoaderExceptions
+                loaderMessages = ex.LoaderExceptions
                     .Where(e => e != null)
                     .Select(e => e!.Message)
                     .Distinct();
-                UserInterfaceService.ShowError(
-                    $"Warning: Some types in assembly {assembly.GetName().Name} could not be loaded: {string.Join("; ", loaderMessages)}");
             }
             catch (Exception ex)
             {
@@ -232,9 +233,34 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     .Where(t => t.IsClass
                              && !t.IsAbstract
                              && typeof(BaseCommandHandler).IsAssignableFrom(t)
-                             && t.GetCustomAttribute<TrunkCommandAttribute>() != null);
+                             && t.GetCustomAttribute<TrunkCommandAttribute>() != null)
+                    .ToList();
 
-                handlerTypes.AddRange(types);
+                foreach (var type in types)
+                {
+                    if (IsHandlerCompatible(type, out var compatibilityError))
+                    {
+                        handlerTypes.Add(type);
+                    }
+                    else
+                    {
+                        incompatibleHandlers.Add($"{type.FullName}: {compatibilityError}");
+                    }
+                }
+
+                // ReflectionTypeLoadException can occur for non-command types in plugin assemblies.
+                // If command handlers were discovered successfully, suppress this noisy warning.
+                if (loaderMessages != null && handlerTypes.Count == 0)
+                {
+                    UserInterfaceService.ShowWarning(
+                        $"Warning: Some types in assembly {assembly.GetName().Name} could not be loaded: {string.Join("; ", loaderMessages)}");
+                }
+
+                if (incompatibleHandlers.Count > 0)
+                {
+                    UserInterfaceService.ShowWarning(
+                        $"Warning: Ignored incompatible handler types in assembly {assembly.GetName().Name}: {string.Join("; ", incompatibleHandlers)}");
+                }
             }
             catch (Exception ex)
             {
@@ -242,6 +268,40 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             }
 
             return handlerTypes;
+        }
+
+        private static bool IsHandlerCompatible(Type handlerType, out string? error)
+        {
+            try
+            {
+                var ctor = handlerType.GetConstructor(Type.EmptyTypes);
+                if (ctor == null)
+                {
+                    error = "Missing parameterless constructor.";
+                    return false;
+                }
+
+                RuntimeHelpers.PrepareMethod(ctor.MethodHandle);
+
+                var executeMethod = handlerType.GetMethod(nameof(BaseCommandHandler.ExecuteAsync), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (executeMethod != null && executeMethod.DeclaringType != typeof(BaseCommandHandler))
+                {
+                    RuntimeHelpers.PrepareMethod(executeMethod.MethodHandle);
+                }
+
+                error = null;
+                return true;
+            }
+            catch (Exception ex) when (ex is MissingMethodException || ex is TypeLoadException)
+            {
+                error = ex.Message;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+                return false;
+            }
         }
 
         /// <summary>
