@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\docs\Images\byo-icon.png" Pack="true" PackagePath="Icons\" />
+		<None Include="../../docs/Images/byo-icon.png" Pack="true" PackagePath="Icons/" />
 	</ItemGroup>
 
 	<ItemGroup>
