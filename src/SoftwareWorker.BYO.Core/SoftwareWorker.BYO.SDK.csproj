@@ -22,15 +22,6 @@
 			<PackageReference Include="System.Security.Cryptography.ProtectedData" />
 	</ItemGroup>
 
-	<ItemGroup>
-       <None Include="..\SoftwareWorker.BYO.Integrations\Icons\sw-logo.png" Link="Icons/sw-logo.png" Pack="true" PackagePath="Icons/">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="version.json">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<ProjectExtensions><VisualStudio><UserProperties version_1json__JsonSchema="https://raw.githubusercontent.com/dwp/schemas/main/exchange/publishing-tools/catalogue-entry-schema.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

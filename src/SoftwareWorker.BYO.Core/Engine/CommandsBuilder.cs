@@ -251,7 +251,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     catch (Exception ex)
                     {
                         isSuccessful = false;
-                        UserInterfaceService.ShowError($"{ex.Message}");
+                        UserInterfaceService.ShowError(FormatExceptionMessage(ex));
                     }
 
                     stopwatch.Stop();
@@ -808,6 +808,24 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 .Replace("\n", " ", StringComparison.Ordinal);
 
             return $"'{sanitized.Replace("'", "''", StringComparison.Ordinal)}'";
+        }
+
+        private static string FormatExceptionMessage(Exception ex)
+        {
+            var message = ex.Message?.Trim();
+            var typeName = ex.GetType().Name;
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return $"{typeName}: no additional error details were provided.";
+            }
+
+            if (message.StartsWith(typeName, StringComparison.Ordinal))
+            {
+                return message;
+            }
+
+            return $"{typeName}: {message}";
         }
 
         /// <summary>

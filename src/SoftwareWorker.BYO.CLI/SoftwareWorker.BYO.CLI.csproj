@@ -25,12 +25,6 @@
 		<PackageTags>cli;productivity;software-worker;developer;devex;devops</PackageTags>
 	</PropertyGroup>
 
-    <ItemGroup>
-      <None Include="..\SoftwareWorker.BYO.Integrations\Icons\sw-logo.png" Link="Icons/sw-logo.png" Pack="true" PackagePath="Icons/">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<ItemGroup>
 	<AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
 	<_Parameter1>ToolCommandName</_Parameter1>
