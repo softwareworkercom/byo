@@ -11,7 +11,7 @@
 		<PackAsTool>true</PackAsTool>
 		<!-- The command users will run -->
 		<ToolCommandName>byo</ToolCommandName>
-        <PackageIcon>Icons/sw-logo.png</PackageIcon>
+		<PackageIcon>Icons/byo-icon.png</PackageIcon>
 
 		<!-- NuGet Package Metadata -->
 		<Title>BYO CLI</Title>
@@ -48,6 +48,10 @@
 			<None Update="version.json">
 				<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			</None>
+		</ItemGroup>
+
+		<ItemGroup>
+			<None Include="..\..\docs\Images\byo-icon.png" Pack="true" PackagePath="Icons\" />
 		</ItemGroup>
 
 	</Project>

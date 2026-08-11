@@ -4,8 +4,12 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-        <PackageIcon>Icons/sw-logo.png</PackageIcon>
+		<PackageIcon>Icons/byo-icon.png</PackageIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\docs\Images\byo-icon.png" Pack="true" PackagePath="Icons\" />
+	</ItemGroup>
 
 	<ItemGroup>
        <PackageReference Include="CsvHelper" />

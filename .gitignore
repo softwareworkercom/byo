@@ -18,3 +18,4 @@
 /plugins/byo-plugin-msteams/obj
 /.local-nuget
 /.plugin-publish
+/nupkgs
