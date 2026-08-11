@@ -17,9 +17,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Constants
         public static readonly string STORAGE_COMPONENTS_FILE = Path.Combine(USER_PROFILE_FOLDER, "components.json");
         public static readonly string STORAGE_BOOKMARKS_FILE = Path.Combine(USER_PROFILE_FOLDER, "bookmarks.json");
         public static readonly string STORAGE_LOCAL_DB_FILE = Path.Combine(USER_PROFILE_FOLDER, "softwareworker_local.db");
-        public static string EXTENSIONS_DIRECTORY { get; set; } = Path.Combine(USER_PROFILE_FOLDER, "extensions");
-        public static string EXTENSIONS_PACKAGES_DIRECTORY { get; set; } = Path.Combine(EXTENSIONS_DIRECTORY, "packages");
-        public static string EXTENSIONS_BINARIES_DIRECTORY { get; set; } = Path.Combine(EXTENSIONS_DIRECTORY, "bin");
+        public static string PLUGINS_DIRECTORY { get; set; } = Path.Combine(USER_PROFILE_FOLDER, "plugins");
+        public static string PLUGINS_PACKAGES_DIRECTORY { get; set; } = Path.Combine(PLUGINS_DIRECTORY, "packages");
+        public static string PLUGINS_BINARIES_DIRECTORY { get; set; } = Path.Combine(PLUGINS_DIRECTORY, "bin");
 
 
         public const string SYSTEM_SecretKey = "System:SecretKey";

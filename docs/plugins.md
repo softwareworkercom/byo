@@ -30,7 +30,7 @@ byo plugins list
 
 ### Behavior
 
-- Queries NuGet.org and lists packages matching `SoftwareWorker.BYO.Extensions.*`
+- Queries NuGet.org and lists packages matching `BYO.Plugin.*`
 - Filters results to owner `softwareworkercom`
 - Displays package id, latest version, and description
 
@@ -54,8 +54,8 @@ byo plugins install --package <packageId> [--version <version>]
 ### Examples
 
 ```bash
-byo plugins install --package SoftwareWorker.BYO.Extensions.GoogleCalendar
-byo plugins install --package SoftwareWorker.BYO.Extensions.GoogleCalendar --version 1.0.0
+byo plugins install --package BYO.Plugin.GoogleCalendar
+byo plugins install --package BYO.Plugin.GoogleCalendar --version 1.0.0
 ```
 
 ### Behavior
@@ -86,8 +86,8 @@ byo plugins uninstall --package <packageId> [--version <version>]
 ### Examples
 
 ```bash
-byo plugins uninstall --package SoftwareWorker.BYO.Extensions.GoogleCalendar
-byo plugins uninstall --package SoftwareWorker.BYO.Extensions.GoogleCalendar --version 1.0.0
+byo plugins uninstall --package BYO.Plugin.GoogleCalendar
+byo plugins uninstall --package BYO.Plugin.GoogleCalendar --version 1.0.0
 ```
 
 ### Behavior

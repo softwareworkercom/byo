@@ -72,7 +72,7 @@ BYO CLI is built around six main command groups:
 - **[settings](docs/settings.md)**: Manage configuration key-value pairs
 - **[secrets](docs/secrets.md)**: Manage encrypted sensitive data
 - **[workflows](docs/workflows.md)**: Manage multi-step automation workflows
-- **[extensions](docs/extensions.md)**: Discover, install, and uninstall extensions
+- **[plugins](docs/plugins.md)**: Discover, install, and uninstall plugins
 
 All commands follow a consistent pattern: `byo <group> <action> [options]`
 

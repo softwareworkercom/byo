@@ -4,7 +4,7 @@ using SoftwareWorker.BYO.CLI.Core.Service;
 using SoftwareWorker.BYO.Integrations.NuGet;
 using Spectre.Console;
 
-namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
+namespace SoftwareWorker.BYO.CLI.Core.Handlers.Plugins
 {
     [TrunkCommand("plugins", "Custom plugin management")]
     [BranchCommand("list", "List available BYO CLI Plugins")]
@@ -20,13 +20,13 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 
         public override async Task ExecuteAsync()
         {
-            var extensions = await GetExtensionsAsync();
+            var plugins = await GetPluginsAsync();
 
-            if (extensions.Count == 0)
+            if (plugins.Count == 0)
             {
                 UserInterfaceService.ShowWarning(string.IsNullOrWhiteSpace(Source)
-                    ? "No extensions found on NuGet.org for owner 'softwareworkercom'."
-                    : "No extensions found on NuGet.org or in the provided local source.");
+                    ? "No plugins found on NuGet.org for owner 'softwareworkercom'."
+                    : "No plugins found on NuGet.org or in the provided local source.");
                 return;
             }
 
@@ -38,37 +38,37 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
                 .AddColumn("[bold]Source[/]")
                 .AddColumn("[bold]Description[/]");
 
-            foreach (var extension in extensions)
+            foreach (var plugin in plugins)
             {
                 table.AddRow(
-                    Markup.Escape(extension.Id),
-                    Markup.Escape(extension.Version),
-                    Markup.Escape(extension.Source),
-                    string.IsNullOrWhiteSpace(extension.Description) ? "[grey]-[/]" : Markup.Escape(extension.Description));
+                    Markup.Escape(plugin.Id),
+                    Markup.Escape(plugin.Version),
+                    Markup.Escape(plugin.Source),
+                    string.IsNullOrWhiteSpace(plugin.Description) ? "[grey]-[/]" : Markup.Escape(plugin.Description));
             }
 
             UserInterfaceService.ShowTable(table);
-            UserInterfaceService.ShowGrey($"Total extensions: {extensions.Count}");
+            UserInterfaceService.ShowGrey($"Total plugins: {plugins.Count}");
         }
 
-        private async Task<List<ExtensionPackage>> GetExtensionsAsync()
+        private async Task<List<ExtensionPackage>> GetPluginsAsync()
         {
-            var extensions = new List<ExtensionPackage>();
+            var plugins = new List<ExtensionPackage>();
 
-            extensions.AddRange(await GetNuGetExtensionsAsync());
+            plugins.AddRange(await GetNuGetPluginsAsync());
 
             if (!string.IsNullOrWhiteSpace(Source))
             {
-                extensions.AddRange(GetLocalExtensions(Source.Trim()));
+                plugins.AddRange(GetLocalPlugins(Source.Trim()));
             }
 
-            return extensions
-                .OrderBy(extension => extension.Id, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(extension => extension.Source, StringComparer.OrdinalIgnoreCase)
+            return plugins
+                .OrderBy(plugin => plugin.Id, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(plugin => plugin.Source, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
 
-        private static async Task<List<ExtensionPackage>> GetNuGetExtensionsAsync()
+        private static async Task<List<ExtensionPackage>> GetNuGetPluginsAsync()
         {
             try
             {
@@ -95,7 +95,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
             }
         }
 
-        private static List<ExtensionPackage> GetLocalExtensions(string sourceDirectory)
+        private static List<ExtensionPackage> GetLocalPlugins(string sourceDirectory)
         {
             if (!Directory.Exists(sourceDirectory))
             {

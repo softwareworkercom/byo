@@ -2,7 +2,7 @@ using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Service;
 
-namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
+namespace SoftwareWorker.BYO.CLI.Core.Handlers.Plugins
 {
     [TrunkCommand("plugins", "Custom plugin management")]
     [BranchCommand("uninstall", "Uninstall BYO CLI Plugin")]
@@ -25,8 +25,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
             var packageIdLower = packageId.ToLowerInvariant();
             var version = string.IsNullOrWhiteSpace(Version) ? null : Version.Trim();
 
-            var packagePath = Path.Combine(SystemConstants.EXTENSIONS_PACKAGES_DIRECTORY, packageIdLower);
-            var binariesPath = Path.Combine(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY, packageIdLower);
+            var packagePath = Path.Combine(SystemConstants.PLUGINS_PACKAGES_DIRECTORY, packageIdLower);
+            var binariesPath = Path.Combine(SystemConstants.PLUGINS_BINARIES_DIRECTORY, packageIdLower);
 
             var removedAny = false;
 
@@ -37,11 +37,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 
                 if (!removedAny)
                 {
-                    UserInterfaceService.ShowWarning($"No installed extension files were found for '{packageId}'.");
+                    UserInterfaceService.ShowWarning($"No installed plugin files were found for '{packageId}'.");
                     return Task.CompletedTask;
                 }
 
-                UserInterfaceService.ShowGreen($"Uninstalled extension '{packageId}' (all versions).");
+                UserInterfaceService.ShowGreen($"Uninstalled plugin '{packageId}' (all versions).");
                 return Task.CompletedTask;
             }
 
@@ -56,11 +56,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
 
             if (!removedAny)
             {
-                UserInterfaceService.ShowWarning($"Extension '{packageId}' version '{version}' was not found.");
+                UserInterfaceService.ShowWarning($"Plugin '{packageId}' version '{version}' was not found.");
                 return Task.CompletedTask;
             }
 
-            UserInterfaceService.ShowGreen($"Uninstalled extension '{packageId}' version '{version}'.");
+            UserInterfaceService.ShowGreen($"Uninstalled plugin '{packageId}' version '{version}'.");
             return Task.CompletedTask;
         }
 

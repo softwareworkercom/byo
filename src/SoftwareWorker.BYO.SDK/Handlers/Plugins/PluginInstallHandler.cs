@@ -6,7 +6,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
 
-namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
+namespace SoftwareWorker.BYO.CLI.Core.Handlers.Plugins
 {
     [TrunkCommand("plugins", "Custom plugin management")]
     [BranchCommand("install", "Install BYO CLI Plugin from a local feed or NuGet.org")]
@@ -49,7 +49,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
             }
 
             var packageVersion = version.Trim();
-            var packageRootDirectory = Path.Combine(SystemConstants.EXTENSIONS_PACKAGES_DIRECTORY, packageIdLower, packageVersion);
+            var packageRootDirectory = Path.Combine(SystemConstants.PLUGINS_PACKAGES_DIRECTORY, packageIdLower, packageVersion);
             var packageFilePath = Path.Combine(packageRootDirectory, $"{packageIdLower}.{packageVersion}.nupkg");
             var extractedDirectory = Path.Combine(packageRootDirectory, "extracted");
 
@@ -108,7 +108,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
                 return;
             }
 
-            var installedVersionDirectory = Path.Combine(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY, packageIdLower, packageVersion);
+            var installedVersionDirectory = Path.Combine(SystemConstants.PLUGINS_BINARIES_DIRECTORY, packageIdLower, packageVersion);
             if (Directory.Exists(installedVersionDirectory))
             {
                 Directory.Delete(installedVersionDirectory, true);
@@ -122,9 +122,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Extensions
                 File.Copy(file, destinationPath, overwrite: true);
             }
 
-            UserInterfaceService.ShowGreen($"Installed extension '{packageId}' version '{packageVersion}'.");
+            UserInterfaceService.ShowGreen($"Installed plugin '{packageId}' version '{packageVersion}'.");
             UserInterfaceService.ShowGrey($"Detected handlers: {string.Join(", ", handlers.OrderBy(h => h))}");
-            UserInterfaceService.ShowGrey("Run 'byo --help' to see newly available extension commands.");
+            UserInterfaceService.ShowGrey("Run 'byo --help' to see newly available plugin commands.");
         }
 
         private static async Task<string?> ResolveLatestVersionAsync(string packageIdLower)

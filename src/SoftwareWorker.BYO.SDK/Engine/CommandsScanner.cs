@@ -156,15 +156,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 handlerTypes.AddRange(GetHandlerTypesFromAssembly(assembly));
             }
 
-            // 2) Scan DLL files from the app output and installed extension folders to
-            //    discover handlers in assemblies that are not yet loaded (e.g. extensions).
+            // 2) Scan DLL files from the app output and installed plugin folders to
+            //    discover handlers in assemblies that are not yet loaded (e.g. plugins).
             var assemblyDirectories = new List<string> { AppContext.BaseDirectory };
 
-            if (Directory.Exists(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY))
+            if (Directory.Exists(SystemConstants.PLUGINS_BINARIES_DIRECTORY))
             {
                 assemblyDirectories.AddRange(Directory
-                    .GetDirectories(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY, "*", SearchOption.AllDirectories)
-                    .Prepend(SystemConstants.EXTENSIONS_BINARIES_DIRECTORY));
+                    .GetDirectories(SystemConstants.PLUGINS_BINARIES_DIRECTORY, "*", SearchOption.AllDirectories)
+                    .Prepend(SystemConstants.PLUGINS_BINARIES_DIRECTORY));
             }
 
             var dllFiles = assemblyDirectories

@@ -146,20 +146,20 @@ public class CliTests
     }
 
     [Fact]
-    public void BuildFromReflection_ShouldIncludeHandlersFromExtensionsDirectory()
+    public void BuildFromReflection_ShouldIncludeHandlersFromPluginsDirectory()
     {
-        var originalExtensionsDirectory = SystemConstants.EXTENSIONS_BINARIES_DIRECTORY;
+        var originalPluginsDirectory = SystemConstants.PLUGINS_BINARIES_DIRECTORY;
         var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
-        var extensionDirectory = Path.Combine(tempRoot, "extensions");
+        var pluginsDirectory = Path.Combine(tempRoot, "plugins");
 
-        Directory.CreateDirectory(extensionDirectory);
+        Directory.CreateDirectory(pluginsDirectory);
 
         try
         {
-            SystemConstants.EXTENSIONS_BINARIES_DIRECTORY = extensionDirectory;
+            SystemConstants.PLUGINS_BINARIES_DIRECTORY = pluginsDirectory;
 
             var sourceAssemblyPath = typeof(CommandsScanner).Assembly.Location;
-            var destinationAssemblyPath = Path.Combine(extensionDirectory, Path.GetFileName(sourceAssemblyPath));
+            var destinationAssemblyPath = Path.Combine(pluginsDirectory, Path.GetFileName(sourceAssemblyPath));
             File.Copy(sourceAssemblyPath, destinationAssemblyPath, overwrite: true);
 
             var trunkCommands = CommandsScanner.BuildFromReflection();
@@ -168,7 +168,7 @@ public class CliTests
         }
         finally
         {
-            SystemConstants.EXTENSIONS_BINARIES_DIRECTORY = originalExtensionsDirectory;
+            SystemConstants.PLUGINS_BINARIES_DIRECTORY = originalPluginsDirectory;
 
             if (Directory.Exists(tempRoot))
             {
