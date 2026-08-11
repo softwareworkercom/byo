@@ -70,6 +70,13 @@ Both channels coexist. The NuGet tool path is unchanged.
   command line. The `Version` baked into the binary always matches the tag.
 - Nerdbank.GitVersioning (`version.json`) continues to drive NuGet tool
   versioning. The two pipelines are independent.
+- To keep SDK and CLI version metadata aligned locally, create a symbolic link:
+
+  ```powershell
+  New-Item -ItemType SymbolicLink -Path ".\SoftwareWorker.BYO.SDK\version.json" -Target ".\SoftwareWorker.BYO.CLI\version.json"
+  ```
+
+  Admin access required.
 
 ---
 
