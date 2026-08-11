@@ -26,10 +26,9 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj" />
-    <Project Path="src/SoftwareWorker.BYO.Core/SoftwareWorker.BYO.SDK.csproj" />
+    <Project Path="src/SoftwareWorker.BYO.SDK/SoftwareWorker.BYO.SDK.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/SoftwareWorker.BYO.CliModuleTester/SoftwareWorker.BYO.CliModuleTester.csproj" Id="d06ff33d-73a8-4455-89a9-72f2d7d82bff" />
     <Project Path="tests/SoftwareWorker.BYO.Tests/SoftwareWorker.BYO.Tests.csproj" Id="82d7b6c5-1669-4edc-8180-2b2f01f5aaa1" />
   </Folder>
 </Solution>

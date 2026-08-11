@@ -21,11 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\..\src\SoftwareWorker.BYO.SDK\SoftwareWorker.BYO.SDK.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SoftwareWorker.BYO.Core\SoftwareWorker.BYO.SDK.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
 </Project>
