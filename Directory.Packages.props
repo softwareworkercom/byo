@@ -19,7 +19,7 @@
     <PackageVersion Include="Polly" Version="8.7.0" />
     <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageVersion Include="Refit" Version="15.0.0" />
-    <PackageVersion Include="SoftwareWorker.BYO.SDK" Version="0.0.1-g137d6889ac" />
+    <PackageVersion Include="SoftwareWorker.BYO.SDK" Version="0.0.18-gfa138de6c6" />
     <PackageVersion Include="Spectre.Console" Version="0.57.2" />
     <PackageVersion Include="SpreadCheetah" Version="1.28.0" />
     <PackageVersion Include="System.CommandLine" Version="3.0.0-preview.3.26207.106" />

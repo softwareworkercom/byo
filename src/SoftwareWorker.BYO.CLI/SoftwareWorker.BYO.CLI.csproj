@@ -37,11 +37,8 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+     <PackageReference Include="SoftwareWorker.BYO.SDK" />
        <PackageReference Include="Spectre.Console" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\SoftwareWorker.BYO.SDK\SoftwareWorker.BYO.SDK.csproj" />
 	</ItemGroup>
 
 		<ItemGroup>
