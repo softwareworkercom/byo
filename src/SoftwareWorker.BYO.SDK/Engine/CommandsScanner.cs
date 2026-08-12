@@ -4,6 +4,7 @@ using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 
 namespace SoftwareWorker.BYO.CLI.Core.Engine
 {
@@ -134,6 +135,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             var handlerTypes = new List<Type>();
             var processedAssemblies = new HashSet<string>();
+            var pluginLoadContexts = new Dictionary<string, PluginAssemblyLoadContext>(StringComparer.OrdinalIgnoreCase);
 
             // 1) Inspect assemblies already loaded into the current AppDomain first.
             //    This is essential for single-file publishes, where the managed
@@ -178,10 +180,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             {
                 try
                 {
+                    if (IsPluginDependencyAssemblyToSkip(dllFile))
+                    {
+                        continue;
+                    }
+
                     var assemblyName = AssemblyName.GetAssemblyName(dllFile);
                     if (assemblyName.Name != null && processedAssemblies.Add(assemblyName.Name))
                     {
-                        Assembly assembly = Assembly.LoadFrom(dllFile);
+                        var assembly = LoadAssemblyForScan(dllFile, pluginLoadContexts);
                         var types = GetHandlerTypesFromAssembly(assembly);
                         handlerTypes.AddRange(types);
                     }
@@ -194,6 +201,98 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             }
 
             return handlerTypes;
+        }
+
+        private static Assembly LoadAssemblyForScan(
+            string dllFile,
+            IDictionary<string, PluginAssemblyLoadContext> pluginLoadContexts)
+        {
+            if (!dllFile.StartsWith(SystemConstants.PLUGINS_BINARIES_DIRECTORY, StringComparison.OrdinalIgnoreCase))
+            {
+                return Assembly.LoadFrom(dllFile);
+            }
+
+            var pluginDirectory = Path.GetDirectoryName(dllFile);
+            if (string.IsNullOrWhiteSpace(pluginDirectory))
+            {
+                return Assembly.LoadFrom(dllFile);
+            }
+
+            if (!pluginLoadContexts.TryGetValue(pluginDirectory, out var loadContext))
+            {
+                loadContext = new PluginAssemblyLoadContext(dllFile);
+                pluginLoadContexts[pluginDirectory] = loadContext;
+            }
+
+            return loadContext.LoadPluginAssembly(dllFile);
+        }
+
+        private static bool IsPluginDependencyAssemblyToSkip(string dllFile)
+        {
+            if (!dllFile.StartsWith(SystemConstants.PLUGINS_BINARIES_DIRECTORY, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var fileName = Path.GetFileNameWithoutExtension(dllFile);
+
+            if (fileName.StartsWith("System", StringComparison.OrdinalIgnoreCase) ||
+                fileName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) ||
+                fileName.StartsWith("netstandard", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private sealed class PluginAssemblyLoadContext : AssemblyLoadContext
+        {
+            private readonly AssemblyDependencyResolver _resolver;
+            private readonly string _pluginDirectory;
+
+            public PluginAssemblyLoadContext(string mainAssemblyPath)
+                : base($"plugin:{Path.GetFileNameWithoutExtension(mainAssemblyPath)}", isCollectible: false)
+            {
+                _resolver = new AssemblyDependencyResolver(mainAssemblyPath);
+                _pluginDirectory = Path.GetDirectoryName(mainAssemblyPath) ?? string.Empty;
+            }
+
+            public Assembly LoadPluginAssembly(string assemblyPath)
+            {
+                return LoadFromAssemblyPath(assemblyPath);
+            }
+
+            protected override Assembly? Load(AssemblyName assemblyName)
+            {
+                var assemblySimpleName = assemblyName.Name;
+                if (string.IsNullOrWhiteSpace(assemblySimpleName))
+                {
+                    return null;
+                }
+
+                if (assemblySimpleName.StartsWith("SoftwareWorker.BYO.", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                var resolvedPath = _resolver.ResolveAssemblyToPath(assemblyName);
+                if (resolvedPath == null)
+                {
+                    var candidatePath = Path.Combine(_pluginDirectory, $"{assemblySimpleName}.dll");
+                    if (File.Exists(candidatePath))
+                    {
+                        resolvedPath = candidatePath;
+                    }
+                }
+
+                if (resolvedPath == null)
+                {
+                    return null;
+                }
+
+                return LoadFromAssemblyPath(resolvedPath);
+            }
         }
 
         /// <summary>
