@@ -49,7 +49,7 @@ Both channels coexist. The NuGet tool path is unchanged.
 | ADR-01 | **Self-contained publish** | Users do not need any .NET SDK or runtime installed. |
 | ADR-02 | **Single-file publish** with `IncludeNativeLibrariesForSelfExtract=true` and `EnableCompressionInSingleFile=true` | One file to copy onto `PATH`. Compression keeps download size manageable. |
 | ADR-03 | **ReadyToRun (R2R)** enabled | Faster cold start; the small size cost is worth it for a frequently invoked CLI. |
-| ADR-04 | **Trimming = `partial`** | Smaller binaries while keeping reflection/DI/serializer code paths safe. `full` trimming would require auditing every reflective code path (Spectre.Console, System.CommandLine, Refit). |
+| ADR-04 | **Trimming = disabled** | Plugin handlers execute out-of-process assemblies that may depend on members not statically visible to the linker. Trimming can remove required APIs and cause runtime `MissingMethodException` in plugins. |
 | ADR-05 | **Native AOT = No (for now)** | Several dependencies (Refit, parts of Spectre.Console, JSON reflection) are not AOT-safe. Revisit after dependency surface is audited. |
 | ADR-06 | **GitHub Releases as primary channel** | Free, integrity-checked over HTTPS, no third-party registry overhead. Package managers can be layered on later. |
 | ADR-07 | **Tag-driven release** (`v*.*.*`) | A single source of truth for versions and a clean audit trail. |
@@ -117,8 +117,7 @@ dotnet publish src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj \
   -p:IncludeNativeLibrariesForSelfExtract=true \
   -p:EnableCompressionInSingleFile=true \
   -p:PublishReadyToRun=true \
-  -p:PublishTrimmed=true \
-  -p:TrimMode=partial \
+  -p:PublishTrimmed=false \
   -p:AssemblyName=byo \
   -p:Version=0.0.0-local \
   -p:PackAsTool=false \
@@ -135,7 +134,7 @@ CI):
 for rid in win-x64 linux-x64 linux-arm64 osx-x64 osx-arm64; do
   dotnet publish src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj \
     -c Release -r "$rid" --self-contained true \
-    -p:PublishSingleFile=true -p:PublishTrimmed=true -p:TrimMode=partial \
+    -p:PublishSingleFile=true -p:PublishTrimmed=false \
     -p:AssemblyName=byo -p:PackAsTool=false -p:Version=0.0.0-local \
     -o "out/$rid"
 done

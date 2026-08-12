@@ -80,8 +80,7 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -p:EnableCompressionInSingleFile=true \
             -p:PublishReadyToRun=true \
-            -p:PublishTrimmed=true \
-            -p:TrimMode=partial \
+            -p:PublishTrimmed=false \
             -p:DebugType=embedded \
             -p:Version=${VERSION} \
             -p:InformationalVersion=${VERSION}+sha.${GITHUB_SHA} \
