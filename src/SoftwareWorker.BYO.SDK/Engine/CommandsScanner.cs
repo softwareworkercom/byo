@@ -227,6 +227,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             return loadContext.LoadPluginAssembly(dllFile);
         }
 
+        private const string PluginAssemblyPrefix = "BYO.Plugin.";
+
         private static bool IsPluginDependencyAssemblyToSkip(string dllFile)
         {
             if (!dllFile.StartsWith(SystemConstants.PLUGINS_BINARIES_DIRECTORY, StringComparison.OrdinalIgnoreCase))
@@ -236,9 +238,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
 
             var fileName = Path.GetFileNameWithoutExtension(dllFile);
 
-            if (fileName.StartsWith("System", StringComparison.OrdinalIgnoreCase) ||
-                fileName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) ||
-                fileName.StartsWith("netstandard", StringComparison.OrdinalIgnoreCase))
+            // Only scan the plugin's own entry assembly for handler types. Every other DLL sitting
+            // next to it is a transitive dependency (e.g. Refit, Newtonsoft.Json, Azure/Graph SDKs).
+            // Force-loading those directly - instead of letting the plugin's isolated
+            // AssemblyLoadContext resolve them lazily on demand - can bind to a different copy/version
+            // of a shared dependency than the one the plugin's own code was compiled against, which
+            // manifests as an intermittent MissingMethodException/TypeLoadException even when the
+            // plugin and CLI target the exact same SoftwareWorker.BYO.SDK version.
+            if (!fileName.StartsWith(PluginAssemblyPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
