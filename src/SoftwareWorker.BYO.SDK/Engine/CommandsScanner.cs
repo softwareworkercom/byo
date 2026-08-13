@@ -3,7 +3,6 @@ using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 
 namespace SoftwareWorker.BYO.CLI.Core.Engine
@@ -385,14 +384,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 {
                     error = "Missing parameterless constructor.";
                     return false;
-                }
-
-                RuntimeHelpers.PrepareMethod(ctor.MethodHandle);
-
-                var executeMethod = handlerType.GetMethod(nameof(BaseCommandHandler.ExecuteAsync), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (executeMethod != null && executeMethod.DeclaringType != typeof(BaseCommandHandler))
-                {
-                    RuntimeHelpers.PrepareMethod(executeMethod.MethodHandle);
                 }
 
                 error = null;
