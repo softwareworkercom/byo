@@ -37,8 +37,15 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-     <PackageReference Include="SoftwareWorker.BYO.SDK" />
        <PackageReference Include="Spectre.Console" />
+	</ItemGroup>
+
+	<!-- Debug builds reference the local SDK project so local changes are picked up immediately; Release/publish keeps using the published NuGet package. -->
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<ProjectReference Include="..\SoftwareWorker.BYO.SDK\SoftwareWorker.BYO.SDK.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' != 'Debug'">
+		<PackageReference Include="SoftwareWorker.BYO.SDK" />
 	</ItemGroup>
 
 		<ItemGroup>

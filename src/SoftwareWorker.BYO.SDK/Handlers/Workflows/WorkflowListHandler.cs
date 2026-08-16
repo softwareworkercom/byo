@@ -1,7 +1,7 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
+using SoftwareWorker.BYO.CLI.Core.Helpers;
 using SoftwareWorker.BYO.CLI.Core.Model;
 using SoftwareWorker.BYO.CLI.Core.Service;
-using SoftwareWorker.BYO.Core.Model.Enums;
 using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
@@ -69,26 +69,12 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
                 for (var i = 0; i < workflow.Steps.Count; i++)
                 {
                     var step = workflow.Steps[i];
-                    var stepDescription = GetStepDescription(step);
+                    var stepDescription = WorkflowStepDescriptionHelper.GetStepDescription(step);
                     lines.Add($"  [white]{i + 1}.[/] {stepDescription}");
                 }
             }
 
             return string.Join(Environment.NewLine, lines);
-        }
-
-        private static string GetStepDescription(WorkflowStep step)
-        {
-            return step.StepType switch
-            {
-                WorkflowStepTypeEnum.Message => $"[blue]Message[/]: {Markup.Escape(step.Prompt ?? "(empty)")}",
-                WorkflowStepTypeEnum.YesNoQuestion => $"[green]Yes/No Question[/]: {Markup.Escape(step.Prompt ?? "(empty)")}" +
-                    (step.InterruptOnNo ? " [grey](interrupts on No)[/]" : ""),
-                WorkflowStepTypeEnum.InputAsSetting => $"[magenta]Input as Setting[/]: {Markup.Escape(step.Prompt ?? "(empty)")} → [grey]{Markup.Escape(step.StorageKey ?? "(no key)")}[/]",
-                WorkflowStepTypeEnum.InputAsSecret => $"[red]Input as Secret[/]: {Markup.Escape(step.Prompt ?? "(empty)")} → [grey]{Markup.Escape(step.StorageKey ?? "(no key)")}[/]",
-                WorkflowStepTypeEnum.ExecuteCommand => $"[yellow]Execute Command[/]: [white]{Markup.Escape(step.CommandName ?? "(no command)")}[/]",
-                _ => $"[grey]Unknown step type: {step.StepType}[/]"
-            };
         }
     }
 }

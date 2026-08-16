@@ -1,4 +1,5 @@
 using SoftwareWorker.BYO.CLI.Core.Engine;
+using SoftwareWorker.BYO.CLI.Core.Helpers;
 using SoftwareWorker.BYO.CLI.Core.Model;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using SoftwareWorker.BYO.Core.Model.Enums;
@@ -72,6 +73,68 @@ public sealed class WorkflowServiceTests : IDisposable
         Assert.Single(workflows);
         Assert.Equal("Duplicate.Workflow", created.Name);
         Assert.Equal("second", workflows[0].Steps[0].Prompt);
+    }
+
+    [Fact]
+    public void Create_AndGetList_ShouldPersistCustomExecuteCommandStepFields()
+    {
+        var customStep = new WorkflowStep
+        {
+            StepType = WorkflowStepTypeEnum.ExecuteCommand,
+            CommandExecutable = "echo {{token}}",
+            CommandDirectory = "C:/repo",
+            CommandShell = ShellTypeEnum.Wsl,
+            RunAsync = true
+        };
+
+        WorkflowService.Create("Custom.Command.Workflow", [customStep], bookmark: "Ops");
+
+        var workflow = WorkflowService.GetList().Single(w => w.Name == "Custom.Command.Workflow");
+        var persistedStep = Assert.Single(workflow.Steps);
+
+        Assert.Null(persistedStep.CommandName);
+        Assert.Equal("echo {{token}}", persistedStep.CommandExecutable);
+        Assert.Equal("C:/repo", persistedStep.CommandDirectory);
+        Assert.Equal(ShellTypeEnum.Wsl, persistedStep.CommandShell);
+        Assert.True(persistedStep.RunAsync);
+    }
+
+    [Fact]
+    public void GetStepDescription_ShouldIncludeCustomCommandDetails()
+    {
+        var customStep = new WorkflowStep
+        {
+            StepType = WorkflowStepTypeEnum.ExecuteCommand,
+            CommandExecutable = "echo hi",
+            CommandDirectory = "C:/repo",
+            CommandShell = ShellTypeEnum.Wsl,
+            RunAsync = true
+        };
+
+        var description = WorkflowStepDescriptionHelper.GetStepDescription(customStep);
+
+        Assert.Contains("echo hi", description);
+        Assert.Contains("custom", description);
+        Assert.Contains("C:/repo", description);
+        Assert.Contains("Wsl", description);
+        Assert.Contains("async: Yes", description);
+    }
+
+    [Fact]
+    public void GetStepDescription_ShouldShowSavedCommandName_WhenCommandNameIsSet()
+    {
+        var savedStep = new WorkflowStep
+        {
+            StepType = WorkflowStepTypeEnum.ExecuteCommand,
+            CommandName = "Deploy",
+            RunAsync = false
+        };
+
+        var description = WorkflowStepDescriptionHelper.GetStepDescription(savedStep);
+
+        Assert.Contains("Deploy", description);
+        Assert.Contains("async: No", description);
+        Assert.DoesNotContain("custom", description);
     }
 
     [Fact]

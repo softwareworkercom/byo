@@ -1,4 +1,5 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
+using SoftwareWorker.BYO.CLI.Core.Helpers;
 using SoftwareWorker.BYO.CLI.Core.Model;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using SoftwareWorker.BYO.Core.Model.Enums;
@@ -14,6 +15,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
     {
         public string? Name { get; set; }
         public string? Bookmark { get; set; }
+        private const string CustomCommandOption = "Custom command (not saved)";
         private sealed record StepTypeOption(WorkflowStepTypeEnum? StepType, string Label);
 
         public override async Task ExecuteAsync()
@@ -71,14 +73,28 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
                         break;
                     case WorkflowStepTypeEnum.ExecuteCommand:
                         var commands = CommandService.GetList();
-                        if (commands.Count == 0)
+                        var commandOptions = new List<string> { CustomCommandOption };
+                        commandOptions.AddRange(commands.Select(c => c.Name));
+
+                        var selectedCommandOption = UserInterfaceService.SelectSingleItem("command", commandOptions);
+
+                        if (selectedCommandOption == CustomCommandOption)
                         {
-                            UserInterfaceService.ShowError("No saved commands available. Create a command first.");
-                            continue;
+                            step.CommandExecutable = UserInterfaceService.AskInput("Enter command executable (use {{tokenName}} for tokens resolved from configuration)");
+
+                            var customDirectory = UserInterfaceService.AskInput("Enter working directory (leave empty for default)", allowEmpty: true);
+                            step.CommandDirectory = string.IsNullOrWhiteSpace(customDirectory) ? null : customDirectory;
+
+                            if (UserInterfaceService.AskYesNo("Specify a shell type? (defaults to PowerShell)"))
+                            {
+                                step.CommandShell = UserInterfaceService.SelectEnum<ShellTypeEnum>("Select shell type");
+                            }
+                        }
+                        else
+                        {
+                            step.CommandName = selectedCommandOption;
                         }
 
-                        var commandNames = commands.Select(c => c.Name).ToList();
-                        step.CommandName = UserInterfaceService.SelectSingleItem("command", commandNames);
                         step.RunAsync = UserInterfaceService.AskYesNo("Run this command asynchronously in background?");
                         break;
                     default:
@@ -86,6 +102,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Workflows
                 }
 
                 workflowSteps.Add(step);
+                UserInterfaceService.ShowMarkup($"  [grey]✓ Added:[/] {WorkflowStepDescriptionHelper.GetStepDescription(step)}");
                 stepIndex++;
                 UserInterfaceService.WriteLine();
             }

@@ -167,28 +167,42 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
 
         private static async Task ExecuteCommandStep(WorkflowStep step)
         {
-            if (string.IsNullOrEmpty(step.CommandName))
+            if (!string.IsNullOrEmpty(step.CommandName))
             {
-                UserInterfaceService.ShowError("Execute command step has no command name configured.");
+                var allCommands = CommandService.GetList();
+                var command = allCommands.FirstOrDefault(c =>
+                    c.Name.Equals(step.CommandName, StringComparison.OrdinalIgnoreCase));
+
+                if (command == null)
+                {
+                    UserInterfaceService.ShowError($"Command '{step.CommandName}' not found.");
+                    return;
+                }
+
+                var resolvedSavedExecutable = TokenService.ResolveTokens(command.Executable);
+
+                TerminalService.Run(
+                    resolvedSavedExecutable,
+                    command.Directory,
+                    shell: command.Shell,
+                    runAsync: step.RunAsync);
+
+                await Task.CompletedTask;
                 return;
             }
 
-            var allCommands = CommandService.GetList();
-            var command = allCommands.FirstOrDefault(c =>
-                c.Name.Equals(step.CommandName, StringComparison.OrdinalIgnoreCase));
-
-            if (command == null)
+            if (string.IsNullOrEmpty(step.CommandExecutable))
             {
-                UserInterfaceService.ShowError($"Command '{step.CommandName}' not found.");
+                UserInterfaceService.ShowError("Execute command step has no command configured.");
                 return;
             }
 
-            var resolvedExecutable = TokenService.ResolveTokens(command.Executable);
+            var resolvedExecutable = TokenService.ResolveTokens(step.CommandExecutable);
 
             TerminalService.Run(
                 resolvedExecutable,
-                command.Directory,
-                shell: command.Shell,
+                step.CommandDirectory,
+                shell: step.CommandShell,
                 runAsync: step.RunAsync);
 
             await Task.CompletedTask;

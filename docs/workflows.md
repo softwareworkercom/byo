@@ -163,22 +163,24 @@ Use this step to collect sensitive input and store it as a secret.
 
 #### 5) ExecuteCommand
 
-Use this step to run an existing saved command from the command library.
+Use this step to run a command — either an existing saved command from the
+command library, or a one-off custom command entered inline that is not saved
+with `byo commands set`.
 
 **Interactive prompts:**
 
-- `Select command`
+- `Select command` — the list always shows `Custom command (not saved)` at the top, followed by every saved command.
+- If `Custom command (not saved)` is chosen: `Enter command executable`, `Enter working directory`, and optionally `Select shell type`
 - `Run this command asynchronously in background?`
 
 **Fields captured:**
 
-- `CommandName` (selected saved command)
+- `CommandName` (selected saved command; empty when using a custom command)
+- `CommandExecutable`, `CommandDirectory`, `CommandShell` (used only for custom, unsaved commands)
 - `RunAsync` (`Yes`/`No`)
 
 **Behavior notes:**
 
-- Requires at least one saved command to exist.
-- If no commands exist, BYO shows an error and asks for another step choice.
 - Command execution supports token replacement the same way as `byo run --target command`.
 
 **Good use cases:**

@@ -38,9 +38,24 @@ namespace SoftwareWorker.BYO.CLI.Core.Model
         public string? StorageKey { get; set; }
 
         /// <summary>
-        /// Name of the command to execute (used for ExecuteCommand)
+        /// Name of the saved command to execute (used for ExecuteCommand). Leave null/empty to use an inline custom command instead.
         /// </summary>
         public string? CommandName { get; set; }
+
+        /// <summary>
+        /// Inline command executable to run without a saved command (used for ExecuteCommand when CommandName is not set)
+        /// </summary>
+        public string? CommandExecutable { get; set; }
+
+        /// <summary>
+        /// Working directory for the inline command (used for ExecuteCommand)
+        /// </summary>
+        public string? CommandDirectory { get; set; }
+
+        /// <summary>
+        /// Shell to use for the inline command (used for ExecuteCommand)
+        /// </summary>
+        public ShellTypeEnum? CommandShell { get; set; }
 
         /// <summary>
         /// Whether command execution should run asynchronously in the background (used for ExecuteCommand)
