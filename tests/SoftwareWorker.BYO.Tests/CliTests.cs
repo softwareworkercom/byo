@@ -37,7 +37,6 @@ public class CliTests
             args.AddRange(BuildDeclaredParameterArguments(executableCommand.Parameters));
             args.Add("--schedule");
             args.Add("5m");
-            args.Add("--interactive");
             args.Add("--export");
             args.Add("json");
             args.Add("--async");
@@ -237,7 +236,6 @@ public class CliTests
         {
             "command",
             "--name", "known-value",
-            "--interactive",
             "--schedule", "5m",
             "--export", "json",
             "--async",
@@ -250,7 +248,6 @@ public class CliTests
         Assert.Equal("abc", dynamicParameters["custom"]);
         Assert.Equal("prod", dynamicParameters["context:tenant"]);
         Assert.DoesNotContain("name", dynamicParameters.Keys, StringComparer.OrdinalIgnoreCase);
-        Assert.DoesNotContain("interactive", dynamicParameters.Keys, StringComparer.OrdinalIgnoreCase);
         Assert.DoesNotContain("schedule", dynamicParameters.Keys, StringComparer.OrdinalIgnoreCase);
         Assert.DoesNotContain("export", dynamicParameters.Keys, StringComparer.OrdinalIgnoreCase);
         Assert.DoesNotContain("async", dynamicParameters.Keys, StringComparer.OrdinalIgnoreCase);

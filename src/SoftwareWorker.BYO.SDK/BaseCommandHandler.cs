@@ -45,24 +45,19 @@ namespace SoftwareWorker.BYO.CLI.Core
         }
 
         /// <summary>
-        /// Ensures all parameters are populated according to the selected mode.
-        /// In interactive mode, prompts the user for all declared parameters (required and optional).
-        /// In non-interactive mode, validates that all required parameters are present and throws if any are missing.
+        /// Ensures all parameters are populated.
+        /// Prompts the user interactively when running in an interactive console session.
+        /// In non-interactive mode, validates that all required parameters are present and returns an error if any are missing.
         /// </summary>
         /// <param name="handlerType">The handler type to read parameter attributes from</param>
         /// <param name="options">The options dictionary from command line arguments</param>
-        /// <param name="interactive">
-        /// When <c>true</c>, prompts the user for every declared parameter that has no value.
-        /// When <c>false</c>, validates required parameters and returns an error message for any that are missing.
-        /// </param>
         /// <returns>
         /// A tuple of the updated options dictionary and a (possibly null) validation error message.
         /// The caller must display the error and abort execution when the message is non-null.
         /// </returns>
         public static (Dictionary<string, object> Options, string? ValidationError) EnsureParameters(
             Type handlerType,
-            Dictionary<string, object> options,
-            bool interactive)
+            Dictionary<string, object> options)
         {
             var parameters = handlerType.GetCustomAttributes<ParameterAttribute>().ToList();
 
@@ -73,7 +68,7 @@ namespace SoftwareWorker.BYO.CLI.Core
 
             var updatedOptions = new Dictionary<string, object>(options);
 
-            if (interactive)
+            if (UserInterfaceService.IsInteractive)
             {
                 // Interactive mode: prompt for every declared parameter that is not already supplied
                 foreach (var param in parameters)
@@ -88,7 +83,7 @@ namespace SoftwareWorker.BYO.CLI.Core
 
                     if (string.IsNullOrEmpty(currentValue))
                     {
-                        var promptedValue = PromptForParameter(param, handlerType, interactive);
+                        var promptedValue = PromptForParameter(param, handlerType);
                         if (!string.IsNullOrEmpty(promptedValue))
                         {
                             updatedOptions[param.Name] = promptedValue;
@@ -118,7 +113,7 @@ namespace SoftwareWorker.BYO.CLI.Core
                 if (missingParams.Count > 0)
                 {
                     var missing = string.Join(", ", missingParams);
-                    return (updatedOptions, $"Missing required parameter(s): {missing}. Use --interactive to be prompted for all parameters.");
+                    return (updatedOptions, $"Missing required parameter(s): {missing}.");
                 }
             }
 
@@ -130,8 +125,9 @@ namespace SoftwareWorker.BYO.CLI.Core
         /// Handles enumerated options (pipe-separated DefaultValue) with a selection prompt.
         /// </summary>
         /// <param name="param">The parameter attribute containing metadata</param>
+        /// <param name="handlerType">The handler type</param>
         /// <returns>The user-provided value or null if skipped</returns>
-        private static string? PromptForParameter(ParameterAttribute param, Type handlerType, bool interactive)
+        private static string? PromptForParameter(ParameterAttribute param, Type handlerType)
         {
             var defaultValueStr = param.DefaultValue?.ToString();
             var hasEnumeratedOptions = !string.IsNullOrEmpty(defaultValueStr) && defaultValueStr.Contains('|');

@@ -983,6 +983,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         }
 
         /// <summary>
+        /// Gets a value indicating whether the current console environment is interactive.
+        /// </summary>
+        public static bool IsInteractive => AnsiConsole.Profile.Capabilities.Interactive && !Console.IsInputRedirected;
+
+        /// <summary>
         /// Gets the current console width.
         /// </summary>
         /// <returns>The width of the console in characters</returns>

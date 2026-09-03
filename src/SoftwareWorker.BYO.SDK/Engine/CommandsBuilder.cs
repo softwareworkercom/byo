@@ -13,7 +13,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
     public class CommandsBuilder
     {
         private const string ScheduleOptionName = "schedule";
-        private const string InteractiveOptionName = "interactive";
         private const string ExportOptionName = "export";
         private const string AsyncOptionName = "async";
         private static readonly Regex ScheduleIntervalRegex = new(
@@ -33,11 +32,10 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 {
                     var optionsMap = AddParametersToCommand(systemCommand, trunkCommand.Parameters);
                     var scheduleOption = AddScheduleOption(systemCommand);
-                    var interactiveOption = AddInteractiveOption(systemCommand);
                     var exportOption = AddExportOption(systemCommand);
                     var asyncOption = AddAsyncOption(systemCommand);
                     ConfigureDynamicParameterHandling(systemCommand, trunkCommand.Handler);
-                    SetAction(systemCommand, trunkCommand.Handler, optionsMap, scheduleOption, interactiveOption, exportOption, asyncOption);
+                    SetAction(systemCommand, trunkCommand.Handler, optionsMap, scheduleOption, exportOption, asyncOption);
                 }
 
                 if (hasBranchCommands)
@@ -77,11 +75,10 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             var actionCommand = new Command(action.Name, action.Description);
             var optionsMap = AddParametersToCommand(actionCommand, action.Parameters);
             var scheduleOption = AddScheduleOption(actionCommand);
-            var interactiveOption = AddInteractiveOption(actionCommand);
             var exportOption = AddExportOption(actionCommand);
             var asyncOption = AddAsyncOption(actionCommand);
             ConfigureDynamicParameterHandling(actionCommand, action.Handler);
-            SetAction(actionCommand, action.Handler, optionsMap, scheduleOption, interactiveOption, exportOption, asyncOption);
+            SetAction(actionCommand, action.Handler, optionsMap, scheduleOption, exportOption, asyncOption);
             return actionCommand;
         }
 
@@ -90,11 +87,10 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             var subCommand = new Command(subCmd.Name, subCmd.Description);
             var optionsMap = AddParametersToCommand(subCommand, subCmd.Parameters);
             var scheduleOption = AddScheduleOption(subCommand);
-            var interactiveOption = AddInteractiveOption(subCommand);
             var exportOption = AddExportOption(subCommand);
             var asyncOption = AddAsyncOption(subCommand);
             ConfigureDynamicParameterHandling(subCommand, subCmd.Handler);
-            SetAction(subCommand, subCmd.Handler, optionsMap, scheduleOption, interactiveOption, exportOption, asyncOption);
+            SetAction(subCommand, subCmd.Handler, optionsMap, scheduleOption, exportOption, asyncOption);
             return subCommand;
         }
 
@@ -140,17 +136,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             return scheduleOption;
         }
 
-        private static Option<bool> AddInteractiveOption(Command command)
-        {
-            var interactiveOption = new Option<bool>($"--{InteractiveOptionName}")
-            {
-                Description = "Prompt for all declared parameters interactively.",
-                Required = false
-            };
-            command.Add(interactiveOption);
-            return interactiveOption;
-        }
-
         private static Option<ExportEnum?> AddExportOption(Command command)
         {
             var exportOption = new Option<ExportEnum?>($"--{ExportOptionName}")
@@ -179,7 +164,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             string handlerName,
             Dictionary<string, Option<string>> optionsMap,
             Option<string> scheduleOption,
-            Option<bool> interactiveOption,
             Option<ExportEnum?> exportOption,
             Option<bool> asyncOption)
         {
@@ -195,19 +179,12 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 var optionsDict = ExtractOptionValues(parseResult, optionsMap);
                 var dynamicParameters = ExtractDynamicParameters(rawTokens, optionsMap);
                 var scheduleValue = parseResult.CommandResult.GetValue(scheduleOption);
-                var interactive = parseResult.CommandResult.GetValue(interactiveOption);
                 var exportValue = parseResult.CommandResult.GetValue(exportOption);
                 var runAsync = parseResult.CommandResult.GetValue(asyncOption);
                 var contextValue = InferContextValue(rawTokens);
 
                 if (runAsync)
                 {
-                    if (interactive)
-                    {
-                        UserInterfaceService.ShowError("--async cannot be combined with --interactive.");
-                        return;
-                    }
-
                     var backgroundTokens = RemoveOptionFromTokens(rawTokens, [AsyncOptionName, "async"]);
                     if (!TryStartBackgroundProcess(backgroundTokens, out var backgroundProcessId, out var launchError))
                     {
@@ -224,8 +201,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     optionsDict[ExportOptionName] = exportValue.Value.ToString();
                 }
 
-                // Ensure all parameters are populated (prompt in interactive mode, validate otherwise)
-                var (updatedOptions, validationError) = BaseCommandHandler.EnsureParameters(handlerType, optionsDict, interactive);
+                // Ensure all parameters are populated (prompts interactively by default)
+                var (updatedOptions, validationError) = BaseCommandHandler.EnsureParameters(handlerType, optionsDict);
                 if (validationError != null)
                 {
                     UserInterfaceService.ShowError(validationError);
@@ -404,7 +381,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             var dynamicParameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var knownOptions = optionsMap.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            knownOptions.Add(InteractiveOptionName);
             knownOptions.Add(ScheduleOptionName);
             knownOptions.Add(ExportOptionName);
             knownOptions.Add(AsyncOptionName);
@@ -648,7 +624,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             var knownOptions = new HashSet<string>(options.Keys, StringComparer.OrdinalIgnoreCase)
             {
-                InteractiveOptionName,
                 ScheduleOptionName,
                 ExportOptionName,
                 AsyncOptionName
@@ -676,7 +651,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 }
 
                 if (eqIndex < 0 &&
-                    !string.Equals(optionName, InteractiveOptionName, StringComparison.OrdinalIgnoreCase) &&
                     index + 1 < tokenList.Count &&
                     !tokenList[index + 1].StartsWith("--", StringComparison.Ordinal))
                 {
