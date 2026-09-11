@@ -18,6 +18,7 @@ permissions:
 env:
   CLI_PROJECT: src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj
   BIN_NAME: byo
+  PUBLISHED_BIN_NAME: BYO.CLI
 
 jobs:
   build:
@@ -86,6 +87,22 @@ jobs:
             -p:InformationalVersion=${VERSION}+sha.${GITHUB_SHA} \
             -p:PackAsTool=false \
             --output "publish/${RID}"
+
+      - name: Normalize published binary name
+        shell: bash
+        env:
+          RID: ${{ matrix.rid }}
+          EXT: ${{ matrix.ext }}
+        run: |
+          PUBLISH_DIR="publish/${RID}"
+          EXPECTED_PATH="${PUBLISH_DIR}/${BIN_NAME}${EXT}"
+          SOURCE_PATH="${PUBLISH_DIR}/${PUBLISHED_BIN_NAME}${EXT}"
+
+          if [[ -f "${EXPECTED_PATH}" ]]; then
+            exit 0
+          fi
+
+          cp "${SOURCE_PATH}" "${EXPECTED_PATH}"
 
       - name: Smoke test (same-arch runners only)
         if: matrix.rid == 'win-x64' || matrix.rid == 'linux-x64' || matrix.rid == 'osx-arm64'
