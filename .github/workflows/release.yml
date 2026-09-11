@@ -102,6 +102,11 @@ jobs:
             exit 0
           fi
 
+          if [[ ! -f "${SOURCE_PATH}" ]]; then
+            echo "Expected published binary not found: ${SOURCE_PATH}" >&2
+            exit 1
+          fi
+
           mv "${SOURCE_PATH}" "${EXPECTED_PATH}"
 
       - name: Smoke test (same-arch runners only)
