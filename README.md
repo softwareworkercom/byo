@@ -11,7 +11,7 @@ We are currently looking for testers on **Linux** and **macOS**. If you can help
 [![Issues](https://img.shields.io/github/issues/softwareworkercom/byo)](https://github.com/softwareworkercom/byo/issues)
 [![Stars](https://img.shields.io/github/stars/softwareworkercom/byo?style=social)](https://github.com/softwareworkercom/byo/stargazers)
 
-**BYO CLI** helps developers save repeatable workflows, organize local secrets and settings, and turn messy terminal habits into reliable automation.
+**BYO CLI** helps developers save repeatable workflows, organize local settings, and turn messy terminal habits into reliable automation. Sensitive values can be collected by workflows and stored in the local secrets store.
 
 ## Built for Developers Who Live in the Terminal
 
@@ -65,14 +65,15 @@ byo --help
 ## Documentation
 
 
-BYO CLI is built around six main command groups:
+BYO CLI is built around five command groups:
 
 - **[run](docs/run.md)**: Execute saved commands or workflows
 - **[commands](docs/commands.md)**: Manage saved shell commands
 - **[settings](docs/settings.md)**: Manage configuration key-value pairs
-- **[secrets](docs/secrets.md)**: Manage encrypted sensitive data
 - **[workflows](docs/workflows.md)**: Manage multi-step automation workflows
 - **[plugins](docs/plugins.md)**: Discover, install, and uninstall plugins
+
+There is no standalone `secrets` command group. Use a workflow `InputAsSecret` step to collect and save sensitive values, then reference them with token replacement.
 
 All commands follow a consistent pattern: `byo <group> <action> [options]`
 

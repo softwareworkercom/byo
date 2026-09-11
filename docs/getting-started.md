@@ -3,7 +3,7 @@
 This guide creates a simple but realistic API smoke-test flow using the public [data.gov.au](https://www.data.gov.au/) CKAN API with:
 
 - 1 setting (`Demo:DataGovApiBaseUrl`)
-- 1 secret (`Demo:DataGovApiKey`)
+- 1 secret (`Demo:DataGovApiKey`) collected by a workflow step
 - 2 saved commands
 - 1 workflow that runs the 2 commands in sequence
 
@@ -11,14 +11,13 @@ This guide creates a simple but realistic API smoke-test flow using the public [
 
 - [Prerequisites](#prerequisites)
 - [1) Add one setting](#1-add-one-setting)
-- [2) Add one secret](#2-add-one-secret)
-- [3) Create two saved commands](#3-create-two-saved-commands)
+- [2) Create two saved commands](#2-create-two-saved-commands)
   - [Command 1: Search datasets (package_search)](#command-1-search-datasets-package_search)
   - [Command 2: List organizations (organization_list)](#command-2-list-organizations-organization_list)
-- [4) Create one workflow using the two commands](#4-create-one-workflow-using-the-two-commands)
-- [5) Validate what was created](#5-validate-what-was-created)
-- [6) Run the workflow](#6-run-the-workflow)
-- [7) Run interactively (optional)](#7-run-interactively-optional)
+- [3) Create one workflow using the two commands](#3-create-one-workflow-using-the-two-commands)
+- [4) Validate what was created](#4-validate-what-was-created)
+- [5) Run the workflow](#5-run-the-workflow)
+- [6) Run interactively (optional)](#6-run-interactively-optional)
 
 ## Prerequisites
 
@@ -37,13 +36,7 @@ byo --help
 byo settings set --key Demo:DataGovApiBaseUrl --value https://www.data.gov.au/data/api/3/action
 ```
 
-## 2) Add one secret
-
-```bash
-byo secrets set --key Demo:DataGovApiKey --value public-demo-key
-```
-
-## 3) Create two saved commands
+## 2) Create two saved commands
 
 ### Command 1: Search datasets (package_search)
 
@@ -57,7 +50,7 @@ byo commands set --name "Data.gov.au Package Search" --bookmark "Examples/Gettin
 byo commands set --name "Data.gov.au Organization List" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe --ssl-no-revoke  -H 'X-API-Key: {{Demo:DataGovApiKey}}' '{{Demo:DataGovApiBaseUrl}}/organization_list?limit=10'"
 ```
 
-## 4) Create one workflow using the two commands
+## 3) Create one workflow using the two commands
 
 Run:
 
@@ -71,24 +64,28 @@ When prompted, add steps in this order:
    - Enter message to display: `Starting data.gov.au API smoke test`
    - Color: `Cyan`
    - Wait for Enter: `No`
-2. **Execute Command**
+2. **Input As Secret**
+   - Prompt: `Enter data.gov.au API key`
+   - Secret key: `Demo:DataGovApiKey`
+3. **Execute Command**
    - Command: `Data.gov.au Package Search`
    - Run asynchronously: `No`
-3. **Execute Command**
+4. **Execute Command**
    - Command: `Data.gov.au Organization List`
    - Run asynchronously: `No`
-4. **Done - Finish adding steps**
+5. **Done - Finish adding steps**
 
-## 5) Validate what was created
+## 4) Validate what was created
 
 ```bash
 byo settings list
-byo secrets list
 byo commands list
 byo workflows list
 ```
 
-## 6) Run the workflow
+The secret is intentionally not listed by a CLI command. It is stored locally by the `InputAsSecret` step and resolved when the commands run.
+
+## 5) Run the workflow
 
 ```bash
 byo run --target workflow --name "Data.gov.au API Smoke Test" --bookmark "Examples/GettingStarted"
@@ -96,15 +93,10 @@ byo run --target workflow --name "Data.gov.au API Smoke Test" --bookmark "Exampl
 
 The workflow runs immediately and executes both commands in sequence.
 
-## 7) Run interactively (optional)
+## 6) Run interactively (optional)
 
-You can also use the interactive runner and choose a saved command/workflow from the bookmark hierarchy:
-
-```bash
-byo run --interactive
-```
-
-Or preselect target type:
+You can choose a saved command or workflow from the bookmark hierarchy by
+omitting `--name`:
 
 ```bash
 byo run --target command

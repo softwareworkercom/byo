@@ -6,6 +6,8 @@
   <Folder Name="/docs/">
     <File Path="docs/commands.md" />
     <File Path="docs/getting-started.md" />
+    <File Path="docs/plugins.md" />
+    <File Path="docs/release-and-distribution.md" />
     <File Path="docs/run.md" />
     <File Path="docs/secrets.md" />
     <File Path="docs/settings.md" />

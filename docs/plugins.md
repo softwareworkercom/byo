@@ -6,6 +6,7 @@ Manage BYO CLI plugins distributed as NuGet packages.
 
 - [plugins list](#plugins-list)
   - [Syntax](#syntax)
+  - [Options](#options)
   - [Behavior](#behavior)
 - [plugins install](#plugins-install)
   - [Syntax](#syntax-1)
@@ -25,8 +26,14 @@ List available SoftwareWorker plugin packages from NuGet.org.
 ### Syntax
 
 ```bash
-byo plugins list
+byo plugins list [--source <folder>]
 ```
+
+### Options
+
+| Option | Required | Description |
+|--------|----------|-------------|
+| `--source` | No | Local folder containing `.nupkg` files to list alongside NuGet.org |
 
 ### Behavior
 
@@ -41,7 +48,7 @@ Install a BYO plugin package from NuGet.org.
 ### Syntax
 
 ```bash
-byo plugins install --package <packageId> [--version <version>]
+byo plugins install --package <packageId> [--version <version>] [--source <folder>]
 ```
 
 ### Options
@@ -50,6 +57,7 @@ byo plugins install --package <packageId> [--version <version>]
 |--------|----------|-------------|
 | `--package` | Yes | NuGet package id to install |
 | `--version` | No | Package version to install. If omitted, installs latest stable version |
+| `--source` | No | Local folder containing `.nupkg` files to try before NuGet.org |
 
 ### Examples
 
@@ -60,7 +68,7 @@ byo plugins install --package BYO.Plugin.GoogleCalendar --version 1.0.0
 
 ### Behavior
 
-- Downloads the package from NuGet.org
+- Tries the local source first when `--source` is provided, then falls back to NuGet.org
 - Extracts assemblies and selects the best target framework automatically
 - Validates that the package contains BYO command handlers
 - Copies plugin binaries into local BYO plugin storage

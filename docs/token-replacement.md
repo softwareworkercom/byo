@@ -6,7 +6,6 @@ BYO replaces `{{...}}` tokens at runtime when commands/workflows are executed.
 
 - [Token format](#token-format)
 - [Resolution order](#resolution-order)
-- [Explicit token overrides](#explicit-token-overrides)
 - [Settings and secrets tokens](#settings-and-secrets-tokens)
 - [Dot notation tokens](#dot-notation-tokens)
 - [Practical example](#practical-example)
@@ -30,26 +29,15 @@ Token matching is case-insensitive.
 
 Tokens are resolved in this order:
 
-1. Explicit token overrides (highest priority)
-2. Built-in system tokens
+1. Built-in system tokens
    - `{{Date}}`
    - `{{DateTimeRangeFromNow}}`
    - `{{Guid}}`
-3. Saved settings and secrets
-4. Object/JSON payload values (dot notation)
-5. Interactive prompt (when running interactively)
+2. Saved settings and secrets
+3. Object/JSON payload values (dot notation)
+4. Interactive prompt (when running interactively)
 
 If a token cannot be resolved, BYO keeps it unchanged.
-
-## Explicit token overrides
-
-You can provide token values directly on the command line. Overrides have the highest priority.
-
-Supported form:
-
-- `--Demo:ApiToken=my-token`
-
-> Note: if the same token is provided multiple times, the last value wins.
 
 ## Settings and secrets tokens
 
@@ -70,12 +58,6 @@ For object traversal, single-segment tokens (for example `{{Name}}`) are not res
 
 ```bash
 byo commands set --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer?correlationId={{Guid}}'"
-```
-
-Run with an explicit override:
-
-```bash
-byo run --target command --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --Demo:ApiToken=my-temporary-token
 ```
 
 ## Interactive vs non-interactive behavior

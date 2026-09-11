@@ -12,7 +12,7 @@ Execute saved commands or workflows interactively or directly.
 ## Syntax
 
 ```bash
-byo run --target <command|workflow> [--name <name>] [--bookmark <path>] [--<TokenKey>=<value>]
+byo run --target <command|workflow> [--name <name>] [--bookmark <path>]
 ```
 
 ## Options
@@ -22,7 +22,6 @@ byo run --target <command|workflow> [--name <name>] [--bookmark <path>] [--<Toke
 | `--target` | Yes | Type of target to run: `command` or `workflow` |
 | `--name` | No | Name of the command/workflow to run. If omitted, prompts interactively |
 | `--bookmark` | No | Bookmark hierarchy path to locate the command/workflow |
-| `--<TokenKey>=<value>` | No | Explicit token override (for example `--Demo:ApiToken=xyz`) |
 
 ## Examples
 
@@ -36,8 +35,8 @@ byo run --target workflow
 # Run a specific command
 byo run --target command --name "Deploy API" --bookmark "DevOps/Production"
 
-# Run a workflow with token override
-byo run --target workflow --name "API Smoke Test" --bookmark "Examples/GettingStarted" --Demo:ApiToken=test-token
+# Run a workflow
+byo run --target workflow --name "API Smoke Test" --bookmark "Examples/GettingStarted"
 ```
 
 ## Behavior

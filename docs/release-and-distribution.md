@@ -4,7 +4,8 @@ This document describes how the **byo** CLI is built, versioned, packaged, and
 released to end users. It is the source of truth for maintainers and
 contributors.
 
-> **TL;DR** — Push a `v*.*.*` tag to `main`. GitHub Actions builds self-contained
+> **TL;DR** — Run the **Release** GitHub Actions workflow manually with a version.
+> GitHub Actions builds self-contained
 > binaries for all five supported platforms, generates SHA256 checksums, and
 > publishes a GitHub Release with auto-generated notes. Users install with one
 > command:
@@ -22,8 +23,8 @@ contributors.
 
 | Channel | Status | Where | Purpose |
 |---|---|---|---|
-| `dotnet tool install -g byo` | **Active** | nuget.org | For developers who already have .NET 10 SDK. Published by `publish.yml`. |
-| Self-contained binaries (GitHub Releases) | **New, this guide** | github.com/softwareworkercom/byo/releases | For users without the .NET SDK/runtime. Published by `release.yml`. |
+| `dotnet tool install -g byo` | **Not currently published** | nuget.org | The CLI project is not packable; use a GitHub Release binary instead. |
+| Self-contained binaries (GitHub Releases) | **Active** | github.com/softwareworkercom/byo/releases | For users without the .NET SDK/runtime. Published by the manually dispatched `release.yml` workflow. |
 | winget / Homebrew | Future | — | Considered once download volume justifies the maintenance overhead. |
 
 Both channels coexist. The NuGet tool path is unchanged.
@@ -49,10 +50,10 @@ Both channels coexist. The NuGet tool path is unchanged.
 | ADR-01 | **Self-contained publish** | Users do not need any .NET SDK or runtime installed. |
 | ADR-02 | **Single-file publish** with `IncludeNativeLibrariesForSelfExtract=true` and `EnableCompressionInSingleFile=true` | One file to copy onto `PATH`. Compression keeps download size manageable. |
 | ADR-03 | **ReadyToRun (R2R)** enabled | Faster cold start; the small size cost is worth it for a frequently invoked CLI. |
-| ADR-04 | **Trimming = disabled** | Plugin handlers execute out-of-process assemblies that may depend on members not statically visible to the linker. Trimming can remove required APIs and cause runtime `MissingMethodException` in plugins. |
+| ADR-04 | **Trimming = disabled** | Plugin handlers are loaded in-process through isolated assembly load contexts and may depend on members not statically visible to the linker. Trimming can remove required APIs and cause runtime failures in plugins. |
 | ADR-05 | **Native AOT = No (for now)** | Several dependencies (Refit, parts of Spectre.Console, JSON reflection) are not AOT-safe. Revisit after dependency surface is audited. |
 | ADR-06 | **GitHub Releases as primary channel** | Free, integrity-checked over HTTPS, no third-party registry overhead. Package managers can be layered on later. |
-| ADR-07 | **Tag-driven release** (`v*.*.*`) | A single source of truth for versions and a clean audit trail. |
+| ADR-07 | **Manually dispatched release** | Maintainers provide the release version explicitly and can run a build-only dry run before publishing. |
 | ADR-08 | **SHA256 checksums** in every release | Integrity verification in the installers without requiring a code-signing certificate. |
 | ADR-09 | **Reproducible build flags** (`Deterministic`, `ContinuousIntegrationBuild`, `EmbedUntrackedSources`) | Output verifiable across CI runs. |
 
@@ -60,16 +61,17 @@ Both channels coexist. The NuGet tool path is unchanged.
 
 ## 4. Versioning (SemVer 2.0.0)
 
-- Tag format: **`vMAJOR.MINOR.PATCH`** (e.g. `v1.4.2`). Pre-releases: `v1.4.2-rc.1`.
+- Release version format: **`MAJOR.MINOR.PATCH`** (e.g. `1.4.2`). Pre-releases: `1.4.2-rc.1`.
 - **MAJOR** — breaking CLI surface (removed/renamed commands, changed exit codes, breaking config format).
 - **MINOR** — new commands, new flags, backward-compatible behavior.
 - **PATCH** — bug fixes, performance, docs.
 - Pre-1.0: anything may change; communicate breakage in release notes.
-- The release workflow extracts the version from the tag (`${GITHUB_REF_NAME#v}`)
-  and overrides MSBuild `Version` and `InformationalVersion` on the publish
-  command line. The `Version` baked into the binary always matches the tag.
-- Nerdbank.GitVersioning (`version.json`) continues to drive NuGet tool
-  versioning. The two pipelines are independent.
+- The release workflow takes the version from its dispatch input and overrides
+  MSBuild `Version` and `InformationalVersion` on the publish command line. The
+  version baked into the binary matches that input.
+- Nerdbank.GitVersioning (`version.json`) supplies repository build metadata;
+  there is no active NuGet tool publishing channel while the CLI project is
+  non-packable.
 - To keep SDK and CLI version metadata aligned locally, create a symbolic link:
 
   ```powershell
@@ -85,7 +87,7 @@ Both channels coexist. The NuGet tool path is unchanged.
 ```
 byo/
 ├── src/
-│   └── SoftwareWorker.BYO.CLI/          # CLI project (PackAsTool=true for NuGet)
+│   └── SoftwareWorker.BYO.CLI/          # CLI project (self-contained publish; not packable)
 ├── tests/
 │   └── SoftwareWorker.BYO.Tests/
 ├── installers/
@@ -94,8 +96,8 @@ byo/
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml                       # Build + test matrix on PRs / main
-│   │   ├── publish.yml                  # NuGet tool publish (existing)
-│   │   └── release.yml                  # Tag-driven self-contained release
+│   │   ├── publish.yml                  # Existing publishing workflow; verify before use
+│   │   └── release.yml                  # Manually dispatched self-contained release
 │   ├── release.yml                      # Auto-release-notes config
 │   └── RELEASE_TEMPLATE.md              # Body template for each release
 └── docs/
@@ -146,15 +148,8 @@ done
 
 ### Standard release
 
-```bash
-git switch main && git pull
-# 1. Update CHANGELOG.md (if present) and commit any final docs.
-# 2. Tag and push.
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-The push triggers `release.yml`, which:
+Run **Actions -> Release -> Run workflow**, provide a version such as `1.0.0`,
+and choose whether to publish the GitHub Release. The workflow then:
 
 1. Publishes self-contained binaries for all five RIDs in parallel.
 2. Runs a `--help` smoke test on every same-arch runner.
@@ -169,10 +164,10 @@ The push triggers `release.yml`, which:
 The `release.yml` workflow accepts a `workflow_dispatch` input for manual runs:
 
 - Go to **Actions → Release → Run workflow**.
-- Provide a version (e.g. `0.0.0-rc1`) — artifacts will be built and uploaded as
-  workflow artifacts, but **no GitHub Release will be created** (the `release`
-  job is gated on `refs/tags/v*`).
-- Use this to validate end-to-end packaging before cutting a real tag.
+- Provide a version (e.g. `0.0.0-rc1`) and set **Publish** to `false`.
+  Artifacts will be built and uploaded as workflow artifacts, but no GitHub
+  Release will be created.
+- Use this to validate end-to-end packaging before publishing a release.
 
 ### Dry-run the installers locally
 
@@ -343,9 +338,8 @@ BYO_VERSION=1.0.0 curl -fsSL https://github.com/softwareworkercom/byo/releases/d
 
 ### Trimming
 
-- `partial` (chosen): trims framework assemblies; safe with reflection-heavy
-  libraries like Spectre.Console, System.CommandLine, Refit, and reflection-based
-  System.Text.Json.
+- Trimming is disabled (`PublishTrimmed=false`) because the CLI discovers
+  handlers by reflection and loads plugins dynamically.
 - `full`: smaller binaries, but every reflective code path must be audited
   (`[DynamicDependency]`, `TrimmerRootAssembly`, source-generated JSON contexts,
   etc.). Not worth the risk for a single-maintainer project.
