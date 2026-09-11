@@ -20,7 +20,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             {
                 UserInterfaceService.ShowError(
                     $"Error: {ex.GetType().Name}: {ex.Message}\n" +
-                    "This usually means an installed plugin was built against a different version of SoftwareWorker.BYO.SDK than the one currently installed. " +
+                    "This usually means an installed plugin was built against a different version of BYO.SDK than the one currently installed. " +
                     "Try updating or reinstalling the plugin (byo plugin install <plugin>) to a version compatible with the current CLI.");
                 return 1;
             }

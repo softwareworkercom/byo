@@ -73,7 +73,7 @@ Both channels coexist. The NuGet tool path is unchanged.
 - To keep SDK and CLI version metadata aligned locally, create a symbolic link:
 
   ```powershell
-  New-Item -ItemType SymbolicLink -Path ".\SoftwareWorker.BYO.SDK\version.json" -Target ".\SoftwareWorker.BYO.CLI\version.json"
+  New-Item -ItemType SymbolicLink -Path ".\src\SoftwareWorker.BYO.SDK\version.json" -Target ".\src\SoftwareWorker.BYO.CLI\version.json"
   ```
 
   Admin access required.

@@ -243,7 +243,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             // AssemblyLoadContext resolve them lazily on demand - can bind to a different copy/version
             // of a shared dependency than the one the plugin's own code was compiled against, which
             // manifests as an intermittent MissingMethodException/TypeLoadException even when the
-            // plugin and CLI target the exact same SoftwareWorker.BYO.SDK version.
+            // plugin and CLI target the exact same BYO.SDK version.
             if (!fileName.StartsWith(PluginAssemblyPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
