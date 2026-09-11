@@ -4,11 +4,9 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
 		<AssemblyName>BYO.CLI</AssemblyName>
-		<PackageId>BYO.CLI</PackageId>
+		<IsPackable>false</IsPackable>
 		<!-- Keep reflection-based System.Text.Json working in trimmed/self-contained publish builds -->
 		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
-		<!-- This makes it a .NET tool -->
-		<PackAsTool>true</PackAsTool>
 		<!-- The command users will run -->
 		<ToolCommandName>byo</ToolCommandName>
 		<PackageIcon>Icons/byo-icon.png</PackageIcon>
