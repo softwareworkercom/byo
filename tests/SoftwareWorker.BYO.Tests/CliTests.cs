@@ -1,7 +1,9 @@
 ﻿using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Engine;
+using SoftwareWorker.BYO.CLI.Core.Service;
 using System.CommandLine;
+using System.IO.Compression;
 using System.Reflection;
 
 namespace SoftwareWorker.BYO.Tests;
@@ -174,6 +176,78 @@ public class CliTests
                 Directory.Delete(tempRoot, true);
             }
         }
+    }
+
+    [Fact]
+    public async Task EnsureDependencyPackageExtractedAsync_ShouldCreateExtractionFolderBeforeScanningNuspec()
+    {
+        var originalPackagesDirectory = SystemConstants.PLUGINS_PACKAGES_DIRECTORY;
+        var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
+        var packageId = "example.plugin";
+        var version = "1.2.3+g7360a40ae3";
+        var packageRoot = Path.Combine(tempRoot, packageId, version);
+        var packageFilePath = Path.Combine(packageRoot, $"{packageId}.{version}.nupkg");
+
+        Directory.CreateDirectory(packageRoot);
+
+        await using (var stream = File.Create(packageFilePath))
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var entry = archive.CreateEntry("example.plugin.nuspec");
+            await using var writer = entry.Open();
+            using var content = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<package>\n" +
+                "  <metadata>\n" +
+                "    <id>example.plugin</id>\n" +
+                "    <version>1.2.3+g7360a40ae3</version>\n" +
+                "  </metadata>\n" +
+                "</package>\n"));
+            await content.CopyToAsync(writer);
+        }
+
+        SystemConstants.PLUGINS_PACKAGES_DIRECTORY = tempRoot;
+
+        try
+        {
+            var method = typeof(InstallationService).GetMethod(
+                "EnsureDependencyPackageExtractedAsync",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            Assert.NotNull(method);
+
+            var result = await (Task<string?>)method!.Invoke(null, [packageId, version])!;
+
+            Assert.NotNull(result);
+            Assert.True(Directory.Exists(Path.Combine(packageRoot, "extracted")));
+        }
+        finally
+        {
+            SystemConstants.PLUGINS_PACKAGES_DIRECTORY = originalPackagesDirectory;
+
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, true);
+            }
+        }
+    }
+
+    [Fact]
+    public void PluginAssemblyLoadContext_ShouldResolveHostByoSdkAssemblyFromDefaultContext()
+    {
+        var loadContextType = typeof(CommandsScanner).GetNestedType("PluginAssemblyLoadContext", BindingFlags.NonPublic);
+        Assert.NotNull(loadContextType);
+
+        var ctor = loadContextType!.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, [typeof(string)]);
+        Assert.NotNull(ctor);
+
+        var instance = ctor!.Invoke([Path.Combine(Path.GetTempPath(), "byo-plugin-test", "fake-plugin.dll")]);
+        var loadMethod = loadContextType.GetMethod("Load", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.NotNull(loadMethod);
+
+        var result = loadMethod!.Invoke(instance, [new AssemblyName("BYO.SDK")]);
+        Assert.NotNull(result);
+        Assert.Equal(typeof(CommandsScanner).Assembly, result);
     }
 
     [Theory]

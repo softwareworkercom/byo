@@ -219,12 +219,13 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             var packageFilePath = Path.Combine(packageRootDirectory, $"{packageIdLower}.{version}.nupkg");
             var extractedDirectory = Path.Combine(packageRootDirectory, "extracted");
 
-            if (Directory.GetFiles(extractedDirectory, "*.nuspec", SearchOption.TopDirectoryOnly).Length > 0)
+            Directory.CreateDirectory(packageRootDirectory);
+
+            if (Directory.Exists(extractedDirectory) &&
+                Directory.GetFiles(extractedDirectory, "*.nuspec", SearchOption.TopDirectoryOnly).Length > 0)
             {
                 return extractedDirectory;
             }
-
-            Directory.CreateDirectory(packageRootDirectory);
 
             if (!File.Exists(packageFilePath))
             {

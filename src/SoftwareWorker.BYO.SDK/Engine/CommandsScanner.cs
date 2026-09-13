@@ -133,7 +133,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         private static List<Type> FindAllHandlerTypes()
         {
             var handlerTypes = new List<Type>();
-            var processedAssemblies = new HashSet<string>();
+            var processedAssemblyPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var pluginLoadContexts = new Dictionary<string, PluginAssemblyLoadContext>(StringComparer.OrdinalIgnoreCase);
 
             // 1) Inspect assemblies already loaded into the current AppDomain first.
@@ -148,10 +148,29 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     continue;
                 }
 
-                var name = assembly.GetName().Name;
-                if (name == null || !processedAssemblies.Add(name))
+                var assemblyPath = assembly.Location;
+                if (string.IsNullOrWhiteSpace(assemblyPath))
                 {
-                    continue;
+                    // Assemblies without a physical path can still contribute handlers; keep them
+                    // unique by simple name so we do not re-scan the same loaded assembly again.
+                    var name = assembly.GetName().Name;
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        continue;
+                    }
+
+                    if (!processedAssemblyPaths.Add(name))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    var normalizedPath = Path.GetFullPath(assemblyPath);
+                    if (!processedAssemblyPaths.Add(normalizedPath))
+                    {
+                        continue;
+                    }
                 }
 
                 handlerTypes.AddRange(GetHandlerTypesFromAssembly(assembly));
@@ -171,7 +190,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             var dllFiles = assemblyDirectories
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Where(Directory.Exists)
-                .SelectMany(directory => Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly))
+                .SelectMany(directory => Directory.EnumerateFiles(directory, "*.dll", SearchOption.AllDirectories))
+                .Select(path => Path.GetFullPath(path))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
@@ -179,18 +199,19 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             {
                 try
                 {
+                    if (!processedAssemblyPaths.Add(dllFile))
+                    {
+                        continue;
+                    }
+
                     if (IsPluginDependencyAssemblyToSkip(dllFile))
                     {
                         continue;
                     }
 
-                    var assemblyName = AssemblyName.GetAssemblyName(dllFile);
-                    if (assemblyName.Name != null && processedAssemblies.Add(assemblyName.Name))
-                    {
-                        var assembly = LoadAssemblyForScan(dllFile, pluginLoadContexts);
-                        var types = GetHandlerTypesFromAssembly(assembly);
-                        handlerTypes.AddRange(types);
-                    }
+                    var assembly = LoadAssemblyForScan(dllFile, pluginLoadContexts);
+                    var types = GetHandlerTypesFromAssembly(assembly);
+                    handlerTypes.AddRange(types);
                 }
                 catch (Exception ex)
                 {
@@ -254,14 +275,22 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
 
         private sealed class PluginAssemblyLoadContext : AssemblyLoadContext
         {
-            private readonly AssemblyDependencyResolver _resolver;
+            private readonly AssemblyDependencyResolver? _resolver;
             private readonly string _pluginDirectory;
 
-            public PluginAssemblyLoadContext(string mainAssemblyPath)
+            internal PluginAssemblyLoadContext(string mainAssemblyPath)
                 : base($"plugin:{Path.GetFileNameWithoutExtension(mainAssemblyPath)}", isCollectible: false)
             {
-                _resolver = new AssemblyDependencyResolver(mainAssemblyPath);
                 _pluginDirectory = Path.GetDirectoryName(mainAssemblyPath) ?? string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(mainAssemblyPath) && File.Exists(mainAssemblyPath))
+                {
+                    _resolver = new AssemblyDependencyResolver(mainAssemblyPath);
+                }
+                else
+                {
+                    _resolver = null;
+                }
             }
 
             public Assembly LoadPluginAssembly(string assemblyPath)
@@ -277,12 +306,32 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     return null;
                 }
 
-                if (assemblySimpleName.StartsWith("SoftwareWorker.BYO.", StringComparison.OrdinalIgnoreCase))
+                var alreadyLoaded = FindLoadedAssembly(assemblySimpleName);
+                if (alreadyLoaded != null)
                 {
-                    return null;
+                    return alreadyLoaded;
                 }
 
-                var resolvedPath = _resolver.ResolveAssemblyToPath(assemblyName);
+                try
+                {
+                    var assemblyByIdentity = Assembly.Load(assemblyName);
+                    if (assemblyByIdentity != null)
+                    {
+                        return assemblyByIdentity;
+                    }
+                }
+                catch
+                {
+                    // Ignore missing identity and continue resolving from the host/plugin directories.
+                }
+
+                var hostAssembly = FindHostAssembly(assemblySimpleName);
+                if (hostAssembly != null)
+                {
+                    return hostAssembly;
+                }
+
+                var resolvedPath = _resolver?.ResolveAssemblyToPath(assemblyName);
                 if (resolvedPath == null)
                 {
                     var candidatePath = Path.Combine(_pluginDirectory, $"{assemblySimpleName}.dll");
@@ -290,14 +339,132 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     {
                         resolvedPath = candidatePath;
                     }
+                    else
+                    {
+                        resolvedPath = TryResolveFromPluginBinaryCache(assemblySimpleName);
+                    }
                 }
 
-                if (resolvedPath == null)
+                if (resolvedPath != null)
+                {
+                    return LoadFromAssemblyPath(resolvedPath);
+                }
+
+                return null;
+            }
+
+            private static Assembly? FindLoadedAssembly(string assemblySimpleName)
+            {
+                foreach (var context in GetAssemblyContextsToSearch())
+                {
+                    foreach (var assembly in context.Assemblies)
+                    {
+                        if (string.Equals(assembly.GetName().Name, assemblySimpleName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return assembly;
+                        }
+                    }
+                }
+
+                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (string.Equals(assembly.GetName().Name, assemblySimpleName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return assembly;
+                    }
+                }
+
+                return null;
+            }
+
+            private static Assembly? FindHostAssembly(string assemblySimpleName)
+            {
+                var candidates = new[]
+                {
+                    typeof(CommandsScanner).Assembly,
+                    typeof(BaseCommandHandler).Assembly,
+                    AssemblyLoadContext.Default.Assemblies.FirstOrDefault(a => string.Equals(a.GetName().Name, assemblySimpleName, StringComparison.OrdinalIgnoreCase))
+                };
+
+                foreach (var candidate in candidates)
+                {
+                    if (candidate != null && string.Equals(candidate.GetName().Name, assemblySimpleName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return candidate;
+                    }
+                }
+
+                foreach (var assembly in AssemblyLoadContext.Default.Assemblies)
+                {
+                    if (string.Equals(assembly.GetName().Name, assemblySimpleName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return assembly;
+                    }
+                }
+
+                var baseDirectory = AppContext.BaseDirectory;
+                var directPath = Path.Combine(baseDirectory, $"{assemblySimpleName}.dll");
+                if (File.Exists(directPath))
+                {
+                    try
+                    {
+                        return Assembly.LoadFrom(directPath);
+                    }
+                    catch
+                    {
+                        // Ignore if the file is already loaded or cannot be loaded from the host path.
+                    }
+                }
+
+                var scannerLocation = typeof(CommandsScanner).Assembly.Location;
+                if (!string.IsNullOrWhiteSpace(scannerLocation))
+                {
+                    var siblingPath = Path.Combine(Path.GetDirectoryName(scannerLocation) ?? string.Empty, $"{assemblySimpleName}.dll");
+                    if (File.Exists(siblingPath))
+                    {
+                        try
+                        {
+                            return Assembly.LoadFrom(siblingPath);
+                        }
+                        catch
+                        {
+                            // Ignore duplicate-load conditions and keep falling back to the plugin cache.
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            private static IEnumerable<AssemblyLoadContext> GetAssemblyContextsToSearch()
+            {
+                if (AssemblyLoadContext.Default != null)
+                {
+                    yield return AssemblyLoadContext.Default;
+                }
+
+                foreach (var context in AssemblyLoadContext.All)
+                {
+                    if (!ReferenceEquals(context, AssemblyLoadContext.Default))
+                    {
+                        yield return context;
+                    }
+                }
+            }
+
+            private string? TryResolveFromPluginBinaryCache(string assemblySimpleName)
+            {
+                if (!Directory.Exists(SystemConstants.PLUGINS_BINARIES_DIRECTORY))
                 {
                     return null;
                 }
 
-                return LoadFromAssemblyPath(resolvedPath);
+                var candidatePaths = Directory
+                    .EnumerateFiles(SystemConstants.PLUGINS_BINARIES_DIRECTORY, $"{assemblySimpleName}.dll", SearchOption.AllDirectories)
+                    .Where(path => !string.Equals(Path.GetDirectoryName(path), _pluginDirectory, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                return candidatePaths.FirstOrDefault();
             }
         }
 
