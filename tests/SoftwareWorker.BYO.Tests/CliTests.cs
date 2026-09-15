@@ -40,7 +40,6 @@ public class CliTests
             args.Add("--schedule");
             args.Add("5m");
             args.Add("--export");
-            args.Add("json");
             args.Add("--async");
 
             var parseResult = rootCommand.Parse(args.ToArray());
@@ -328,14 +327,6 @@ public class CliTests
     }
 
     [Fact]
-    public void InferContextValue_ShouldBuildContextFromCommandSegments()
-    {
-        var context = InvokeInferContextValue(["command", "sub", "run", "--name", "value"]);
-
-        Assert.Equal("byo-command-sub-run", context);
-    }
-
-    [Fact]
     public void BuildReplayCommand_ShouldRebuildCommandWithKnownOptions()
     {
         var rawTokens = new[] { "commands", "run", "--unknown", "x" };
@@ -424,12 +415,6 @@ public class CliTests
         var method = GetPrivateMethod("ExtractDynamicParameters");
         var result = method.Invoke(null, [rawTokens, optionsMap]);
         return Assert.IsType<Dictionary<string, string>>(result);
-    }
-
-    private static string? InvokeInferContextValue(IReadOnlyList<string> rawTokens)
-    {
-        var method = GetPrivateMethod("InferContextValue");
-        return (string?)method.Invoke(null, [rawTokens]);
     }
 
     private static string InvokeBuildReplayCommand(

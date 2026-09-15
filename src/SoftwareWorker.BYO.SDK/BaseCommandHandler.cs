@@ -1,7 +1,7 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Core.Service;
-using SoftwareWorker.BYO.Core.Model.Enums;
 using Spectre.Console;
+using System.Data;
 using System.Reflection;
 
 namespace SoftwareWorker.BYO.CLI.Core
@@ -20,8 +20,11 @@ namespace SoftwareWorker.BYO.CLI.Core
     public abstract class BaseCommandHandler
     {
         public IReadOnlyDictionary<string, string> DynamicParameters { get; private set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        public ExportEnum? Export { get; private set; }
-        public string? ContextKey { get; private set; }
+        public bool Export { get; private set; }
+        /// <summary>
+        /// Data tables to export when the command is run with --export.
+        /// </summary>
+        public List<DataTable> ExportSource { get; } = [];
 
         /// <summary>
         /// Executes the command with parameters automatically bound to properties.
@@ -34,14 +37,9 @@ namespace SoftwareWorker.BYO.CLI.Core
             DynamicParameters = dynamicParameters ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public void SetExport(ExportEnum? export)
+        public void SetExport(bool export)
         {
             Export = export;
-        }
-
-        public void SetContext(string? context)
-        {
-            ContextKey = context;
         }
 
         /// <summary>

@@ -14,7 +14,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-       <PackageReference Include="CsvHelper" />
        <PackageReference Include="GitHub.Copilot.SDK" />
 		<PackageReference Include="Nerdbank.GitVersioning">
 			<PrivateAssets>all</PrivateAssets>
@@ -23,7 +22,6 @@
 		<PackageReference Include="Polly" />
 		<PackageReference Include="Refit" />
        <PackageReference Include="Spectre.Console" />
-		<PackageReference Include="SpreadCheetah" />
 			<PackageReference Include="System.CommandLine" />
 			<PackageReference Include="System.Security.Cryptography.ProtectedData" />
 	</ItemGroup>

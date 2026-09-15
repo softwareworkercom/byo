@@ -1,7 +1,7 @@
 using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
 using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using SoftwareWorker.BYO.CLI.Core.Service;
-using SoftwareWorker.BYO.Core.Model.Enums;
+using SoftwareWorker.BYO.CLI.Core.Helpers;
 using System.CommandLine;
 using System.Diagnostics;
 using System.Reflection;
@@ -136,11 +136,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             return scheduleOption;
         }
 
-        private static Option<ExportEnum?> AddExportOption(Command command)
+        private static Option<bool> AddExportOption(Command command)
         {
-            var exportOption = new Option<ExportEnum?>($"--{ExportOptionName}")
+            var exportOption = new Option<bool>($"--{ExportOptionName}")
             {
-                Description = "Optional export format. Supported values: csv, json, excel.",
+                Description = "Export results as JSON.",
                 Required = false
             };
             command.Add(exportOption);
@@ -164,7 +164,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             string handlerName,
             Dictionary<string, Option<string>> optionsMap,
             Option<string> scheduleOption,
-            Option<ExportEnum?> exportOption,
+            Option<bool> exportOption,
             Option<bool> asyncOption)
         {
             command.SetAction(async (ParseResult parseResult) =>
@@ -181,7 +181,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 var scheduleValue = parseResult.CommandResult.GetValue(scheduleOption);
                 var exportValue = parseResult.CommandResult.GetValue(exportOption);
                 var runAsync = parseResult.CommandResult.GetValue(asyncOption);
-                var contextValue = InferContextValue(rawTokens);
 
                 if (runAsync)
                 {
@@ -196,9 +195,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     return;
                 }
 
-                if (exportValue.HasValue)
+                if (exportValue)
                 {
-                    optionsDict[ExportOptionName] = exportValue.Value.ToString();
+                    optionsDict[ExportOptionName] = exportValue;
                 }
 
                 // Ensure all parameters are populated (prompts interactively by default)
@@ -216,7 +215,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     handlerInstance.BindParameters(optionsDict);
                     handlerInstance.SetDynamicParameters(dynamicParameters);
                     handlerInstance.SetExport(exportValue);
-                    handlerInstance.SetContext(contextValue);
 
                     var isSuccessful = true;
                     Stopwatch stopwatch = Stopwatch.StartNew();
@@ -224,6 +222,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     try
                     {
                         await handlerInstance.ExecuteAsync();
+                        if (exportValue)
+                        {
+                            await ExportService.ExportFile(
+                                handlerInstance.ExportSource);
+                        }
                     }
                     catch (Exception ex) when (ex is MissingMethodException || ex is TypeLoadException || ex is MissingFieldException)
                     {
@@ -292,25 +295,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     Console.CancelKeyPress -= cancelHandler;
                 }
             });
-        }
-
-        private static string? InferContextValue(IReadOnlyList<string> rawTokens)
-        {
-            var commandSegments = rawTokens
-                .TakeWhile(token => !token.StartsWith("--", StringComparison.Ordinal))
-                .Select(NormalizeContextSegment)
-                .Where(segment => !string.IsNullOrWhiteSpace(segment))
-                .ToList();
-
-            if (commandSegments.Count == 0)
-            {
-                return null;
-            }
-
-            var toolName = NormalizeContextSegment(GetToolCommandName());
-            commandSegments.Insert(0, string.IsNullOrWhiteSpace(toolName) ? "byo" : toolName);
-
-            return string.Join("-", commandSegments);
         }
 
         private static string NormalizeContextSegment(string? value)

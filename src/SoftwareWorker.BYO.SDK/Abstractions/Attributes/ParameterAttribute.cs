@@ -22,7 +22,7 @@ namespace SoftwareWorker.BYO.CLI.Abstractions.Attributes
         public bool IsRequired { get; }
 
         /// <summary>
-        /// Default value or pipe-separated options (e.g., "xls|csv|json")
+        /// Default value or pipe-separated options (e.g., "option1|option2")
         /// </summary>
         public object? DefaultValue { get; }
 

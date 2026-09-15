@@ -73,6 +73,14 @@ BYO CLI is built around five command groups:
 - **[workflows](docs/workflows.md)**: Manage multi-step automation workflows
 - **[plugins](docs/plugins.md)**: Discover, install, and uninstall plugins
 
+### Built-in flags
+
+These flags are available on executable commands where applicable:
+
+- **[export](docs/export.md)**: Export supported command results as JSON
+- **[schedule](docs/schedule.md)**: Repeat a command on a schedule
+- **[async](docs/async.md)**: Run a command in the background
+
 There is no standalone `secrets` command group. Use a workflow `InputAsSecret` step to collect and save sensitive values, then reference them with token replacement.
 
 All commands follow a consistent pattern: `byo <group> <action> [options]`
