@@ -20,11 +20,11 @@ namespace SoftwareWorker.BYO.CLI.Core
     public abstract class BaseCommandHandler
     {
         public IReadOnlyDictionary<string, string> DynamicParameters { get; private set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        public bool Export { get; private set; }
+        public bool Export { get; set; }
         /// <summary>
         /// Data tables to export when the command is run with --export.
         /// </summary>
-        public List<DataTable> ExportSource { get; } = [];
+        public List<DataTable> ExportSource { get; set; } = new List<DataTable>();
 
         /// <summary>
         /// Executes the command with parameters automatically bound to properties.
