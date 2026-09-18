@@ -158,6 +158,23 @@ public class TokenServiceTests
     }
 
     [Fact]
+    public void ParseOverridesFromCommandLine_ShouldSupportSpaceSeparatedValues()
+    {
+        var overrides = TokenService.ParseOverridesFromCommandLine(new string[]
+        {
+            "byo.dll",
+            "--Tenant", "prod",
+            "--context:region", "westus",
+            "--async"
+        });
+
+        Assert.Equal("prod", overrides["Tenant"]);
+        Assert.Equal("westus", overrides["context:region"]);
+        Assert.False(overrides.ContainsKey("connection"));
+        Assert.False(overrides.ContainsKey("async"));
+    }
+
+    [Fact]
     public void ResolveTokens_ShouldKeepUnresolvedTokensUnchanged()
     {
         const string text = "Value: {{TokenServiceTests_Unresolved_987654321}}";

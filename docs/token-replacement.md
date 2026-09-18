@@ -7,6 +7,8 @@ BYO replaces `{{...}}` tokens at runtime when commands/workflows are executed.
 - [Token format](#token-format)
 - [Resolution order](#resolution-order)
 - [Settings and secrets tokens](#settings-and-secrets-tokens)
+- [Dynamic parameters](#dynamic-parameters)
+- [Programmatic token overrides](#programmatic-token-overrides)
 - [Dot notation tokens](#dot-notation-tokens)
 - [Practical example](#practical-example)
 - [Interactive vs non-interactive behavior](#interactive-vs-non-interactive-behavior)
@@ -29,13 +31,14 @@ Token matching is case-insensitive.
 
 Tokens are resolved in this order:
 
-1. Built-in system tokens
+1. Token overrides
+2. Built-in system tokens
    - `{{Date}}`
    - `{{DateTimeRangeFromNow}}`
    - `{{Guid}}`
-2. Saved settings and secrets
-3. Object/JSON payload values (dot notation)
-4. Interactive prompt (when running interactively)
+3. Saved settings and secrets
+4. Object/JSON payload values (dot notation)
+5. Interactive prompt (when running interactively)
 
 If a token cannot be resolved, BYO keeps it unchanged.
 
@@ -44,6 +47,39 @@ If a token cannot be resolved, BYO keeps it unchanged.
 Settings/secrets are commonly referenced with namespaced keys such as `{{Demo:ApiToken}}`.
 
 If a setting/secret contains pipe-separated values (`value1|value2|value3`), BYO prompts you to pick one value at runtime.
+
+## Dynamic Parameters
+
+Dynamic parameters are captured automatically from the command line and made available through `DynamicParameters`.
+
+A dynamic parameter such as `--Tenant "prod"` can satisfy `{{Tenant}}`, and `--context:region westus` can satisfy `{{context:region}}`. Prefer the space-separated form for dynamic parameters. Token names are matched case-insensitively, and braces such as `{{Tenant}}` are normalized automatically.
+
+## Programmatic Token Overrides
+
+You can also supply token overrides programmatically when calling `TokenService.ResolveTokens(...)`. BYO merges automatic dynamic parameters with any explicit override dictionary.
+
+Example:
+
+```csharp
+public override async Task ExecuteAsync()
+{
+    var text = "Tenant={{Tenant}}, Region={{context:region}}";
+
+    var programmaticOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Tenant"] = "prod"
+    };
+
+    var resolved = TokenService.ResolveTokens(
+        text,
+        payload: null,
+        tokenOverrides: programmaticOverrides);
+
+    Console.WriteLine(resolved);
+}
+```
+
+If the same token is provided by multiple sources, token overrides win over built-in tokens, settings, secrets, object values, and interactive prompts.
 
 ## Dot notation tokens
 

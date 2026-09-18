@@ -38,7 +38,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         {
             var merged = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var (key, value) in ParseOverridesFromCommandLine())
+            foreach (var (key, value) in ParseOverridesFromCommandLine(Environment.GetCommandLineArgs()))
             {
                 merged[key] = value;
             }
@@ -55,10 +55,10 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         }
 
 
-        private static Dictionary<string, string> ParseOverridesFromCommandLine()
+        public static Dictionary<string, string> ParseOverridesFromCommandLine(IEnumerable<string> commandLineArgs)
         {
             var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var args = Environment.GetCommandLineArgs().Skip(1).ToList();
+            var args = commandLineArgs.Skip(1).ToList();
 
             for (var index = 0; index < args.Count; index++)
             {
@@ -74,20 +74,22 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                     continue;
                 }
 
-                string key;
-                string value;
-                var eqIndex = optionText.IndexOf('=');
+                var key = optionText;
+                string? value = null;
 
-                if (eqIndex <= 0)
+                var eqIndex = optionText.IndexOf('=');
+                if (eqIndex > 0)
                 {
-                    continue;
+                    key = optionText[..eqIndex].Trim();
+                    value = optionText[(eqIndex + 1)..].Trim();
+                }
+                else if (index + 1 < args.Count && !args[index + 1].StartsWith("--", StringComparison.Ordinal))
+                {
+                    value = args[++index];
                 }
 
-                key = optionText[..eqIndex].Trim();
-                value = optionText[(eqIndex + 1)..].Trim();
-
                 key = NormalizeTokenName(key);
-                if (!string.IsNullOrWhiteSpace(key))
+                if (!string.IsNullOrWhiteSpace(key) && value != null)
                 {
                     overrides[key] = value;
                 }
