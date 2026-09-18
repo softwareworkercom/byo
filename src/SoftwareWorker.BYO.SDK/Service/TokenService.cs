@@ -47,7 +47,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             {
                 foreach (var (key, value) in tokenOverrides)
                 {
-                    merged[NormalizeTokenName(key)] = value;
+                    merged[key] = value;
                 }
             }
 
@@ -88,7 +88,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                     value = args[++index];
                 }
 
-                key = NormalizeTokenName(key);
                 if (!string.IsNullOrWhiteSpace(key) && value != null)
                 {
                     overrides[key] = value;
@@ -139,12 +138,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                 return false;
             }
 
-            var normalizedToken = NormalizeTokenName(token);
-
             foreach (var overrideItem in tokenOverrides)
             {
-                var normalizedKey = NormalizeTokenName(overrideItem.Key);
-                if (!string.Equals(normalizedKey, normalizedToken, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(overrideItem.Key, token, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -154,24 +150,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             return false;
-        }
-
-        private static string NormalizeTokenName(string tokenName)
-        {
-            if (string.IsNullOrWhiteSpace(tokenName))
-            {
-                return string.Empty;
-            }
-
-            var normalized = tokenName.Trim();
-            if (normalized.StartsWith("{{", StringComparison.Ordinal) &&
-                normalized.EndsWith("}}", StringComparison.Ordinal) &&
-                normalized.Length > 4)
-            {
-                normalized = normalized[2..^2].Trim();
-            }
-
-            return normalized;
         }
 
         private static string? ResolveTokenFromPrompt(string token)

@@ -11,7 +11,7 @@ public class TokenServiceTests
         const string text = "Hello {{Tests.TokenA}} and {{tests.tokena}}";
         var overrides = new Dictionary<string, string>
         {
-            ["{{TESTS.TOKENA}}"] = "world"
+            ["TESTS.TOKENA"] = "world"
         };
 
         var result = TokenService.ResolveTokens(text, tokenOverrides: overrides);
@@ -149,7 +149,7 @@ public class TokenServiceTests
         const string text = "Tenant={{context:tenant}}";
         var overrides = new Dictionary<string, string>
         {
-            ["{{context:tenant}}"] = "prod"
+            ["context:tenant"] = "prod"
         };
 
         var result = TokenService.ResolveTokens(text, tokenOverrides: overrides);
@@ -192,5 +192,47 @@ public class TokenServiceTests
         var result = TokenService.ResolveTokens(text);
 
         Assert.Equal(text, result);
+    }
+
+    [Fact]
+    public void ResolveTokens_ShouldUseOverrideForSystemToken_DateTimeRangeFromNow()
+    {
+        const string text = "Date range: {{DateTimeRangeFromNow}}";
+        var overrides = new Dictionary<string, string>
+        {
+            ["DateTimeRangeFromNow"] = "2024-01-15 10:30"
+        };
+
+        var result = TokenService.ResolveTokens(text, tokenOverrides: overrides);
+
+        Assert.Equal("Date range: 2024-01-15 10:30", result);
+    }
+
+    [Fact]
+    public void ResolveTokens_ShouldUseOverrideForSystemToken_DateTimeRangeFromNow_CaseInsensitiveOverrideKey()
+    {
+        const string text = "Date range: {{DateTimeRangeFromNow}}";
+        var overrides = new Dictionary<string, string>
+        {
+            ["datetimerangefromnow"] = "2024-01-15 10:30"
+        };
+
+        var result = TokenService.ResolveTokens(text, tokenOverrides: overrides);
+
+        Assert.Equal("Date range: 2024-01-15 10:30", result);
+    }
+
+    [Fact]
+    public void ResolveTokens_ShouldUseOverrideForSystemToken_DateTimeRangeFromNow_CaseInsensitive()
+    {
+        const string text = "Date range: {{datetimerangefromnow}}";
+        var overrides = new Dictionary<string, string>
+        {
+            ["DateTimeRangeFromNow"] = "2024-01-15 10:30"
+        };
+
+        var result = TokenService.ResolveTokens(text, tokenOverrides: overrides);
+
+        Assert.Equal("Date range: 2024-01-15 10:30", result);
     }
 }
