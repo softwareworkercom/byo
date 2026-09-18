@@ -125,8 +125,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                 return value;
             }
 
-            value = ResolveTokenFromPrompt(token);
-            return value;
+            UserInterfaceService.ShowWarning($"Token {{{{{token}}}}} could not be resolved and has been replaced with an empty string");
+            return string.Empty;
         }
 
         private static bool TryResolveTokenFromOverrides(string token, IReadOnlyDictionary<string, string>? tokenOverrides, out string? value)
@@ -150,20 +150,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             return false;
-        }
-
-        private static string? ResolveTokenFromPrompt(string token)
-        {
-            try
-            {
-                var value = UserInterfaceService.Prompt(new TextPrompt<string>($"[cyan]Enter value for [bold]{token}[/] (or press Enter to skip):[/]"));
-                return value;
-            }
-            catch (InvalidOperationException)
-            {
-                // Non-interactive mode: cannot prompt – leave token unreplaced
-                return null;
-            }
         }
 
         private static bool TryResolveTokenFromSystem(string token, out string? value)

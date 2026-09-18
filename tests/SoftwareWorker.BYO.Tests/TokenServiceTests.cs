@@ -91,7 +91,7 @@ public class TokenServiceTests
 
         var result = TokenService.ResolveTokens(text, model);
 
-        Assert.Equal(text, result);
+        Assert.Equal("Repository: ", result);
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class TokenServiceTests
 
         var result = TokenService.ResolveTokens(text, json.RootElement);
 
-        Assert.Equal(text, result);
+        Assert.Equal("Description=", result);
     }
 
     [Fact]
@@ -175,13 +175,13 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public void ResolveTokens_ShouldKeepUnresolvedTokensUnchanged()
+    public void ResolveTokens_ShouldReplaceUnresolvedTokensWithEmptyString()
     {
         const string text = "Value: {{TokenServiceTests_Unresolved_987654321}}";
 
         var result = TokenService.ResolveTokens(text);
 
-        Assert.Equal(text, result);
+        Assert.Equal("Value: ", result);
     }
 
     [Fact]
@@ -234,5 +234,51 @@ public class TokenServiceTests
         var result = TokenService.ResolveTokens(text, tokenOverrides: overrides);
 
         Assert.Equal("Date range: 2024-01-15 10:30", result);
+    }
+
+    [Fact]
+    public void ResolveTokens_ShouldReplaceTokenWithDateTimeWindowStartOverride()
+    {
+        const string text = "Report starting from {{DateTimeWindowStart}}";
+        var rangeStartDate = "2024-01-01 00:00";
+        var tokenOverrides = new Dictionary<string, string>
+        {
+            ["DateTimeWindowStart"] = rangeStartDate
+        };
+
+        var result = TokenService.ResolveTokens(text, tokenOverrides: tokenOverrides);
+
+        Assert.Equal("Report starting from 2024-01-01 00:00", result);
+    }
+
+    [Fact]
+    public void ResolveTokens_ShouldReplaceTokenWithDateTimeWindowStartOverride_CaseInsensitive()
+    {
+        const string text = "Report starting from {{datetimewindowstart}}";
+        var rangeStartDate = "2024-01-01 00:00";
+        var tokenOverrides = new Dictionary<string, string>
+        {
+            ["DateTimeWindowStart"] = rangeStartDate
+        };
+
+        var result = TokenService.ResolveTokens(text, tokenOverrides: tokenOverrides);
+
+        Assert.Equal("Report starting from 2024-01-01 00:00", result);
+    }
+
+    [Fact]
+    public void ResolveTokens_ShouldMultipleTokensWithDateTimeWindowStartAndOtherOverrides()
+    {
+        const string text = "Report period: {{DateTimeWindowStart}} to {{DateTimeWindowEnd}} for {{TenantId}}";
+        var tokenOverrides = new Dictionary<string, string>
+        {
+            ["DateTimeWindowStart"] = "2024-01-01 00:00",
+            ["DateTimeWindowEnd"] = "2024-12-31 23:59",
+            ["TenantId"] = "tenant-123"
+        };
+
+        var result = TokenService.ResolveTokens(text, tokenOverrides: tokenOverrides);
+
+        Assert.Equal("Report period: 2024-01-01 00:00 to 2024-12-31 23:59 for tenant-123", result);
     }
 }
