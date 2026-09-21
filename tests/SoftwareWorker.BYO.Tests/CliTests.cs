@@ -208,7 +208,7 @@ public class CliTests
 
         try
         {
-            var method = typeof(InstallationService).GetMethod(
+            var method = typeof(PluginInstallationService).GetMethod(
                 "EnsureDependencyPackageExtractedAsync",
                 BindingFlags.NonPublic | BindingFlags.Static);
 
@@ -248,7 +248,7 @@ public class CliTests
             File.WriteAllText(managedAssemblyPath, string.Empty);
             File.WriteAllText(nativeAssemblyPath, string.Empty);
 
-            var method = typeof(InstallationService).GetMethod(
+            var method = typeof(PluginInstallationService).GetMethod(
                 "GetDependencyAssetFiles",
                 BindingFlags.NonPublic | BindingFlags.Static);
 
@@ -261,6 +261,151 @@ public class CliTests
         }
         finally
         {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, true);
+            }
+        }
+    }
+
+    [Fact]
+    public void ReadPackageDependencies_ShouldPreferNearestSupportedTargetFrameworkGroup()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            File.WriteAllText(
+                Path.Combine(tempRoot, "sample.nuspec"),
+                """
+                <?xml version="1.0" encoding="utf-8"?>
+                <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+                  <metadata>
+                    <id>Sample.Plugin</id>
+                    <version>1.0.0</version>
+                    <dependencies>
+                      <group targetFramework="net8.0">
+                        <dependency id="Package.Net8" version="8.0.0" />
+                      </group>
+                      <group targetFramework="net9.0">
+                        <dependency id="Package.Net9" version="9.0.0" />
+                      </group>
+                      <group targetFramework=".NETStandard2.0">
+                        <dependency id="Package.NetStandard" version="2.0.0" />
+                      </group>
+                    </dependencies>
+                  </metadata>
+                </package>
+                """);
+
+            var readDependenciesMethod = typeof(PluginInstallationService).GetMethod(
+                "ReadPackageDependencies",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            Assert.NotNull(readDependenciesMethod);
+
+            var dependencies = (IReadOnlyList<(string Id, string Version)>)readDependenciesMethod!.Invoke(null, [tempRoot])!;
+
+            var dependency = Assert.Single(dependencies);
+            Assert.Equal("Package.Net9", dependency.Id);
+            Assert.Equal("9.0.0", dependency.Version);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, true);
+            }
+        }
+    }
+
+    [Fact]
+    public void PluginAssemblyLoadContext_ShouldResolvePackageAssetsFromCurrentPluginGraphBeforeGlobalCache()
+    {
+        var originalPluginsDirectory = SystemConstants.PLUGINS_BINARIES_DIRECTORY;
+        var originalPackagesDirectory = SystemConstants.PLUGINS_PACKAGES_DIRECTORY;
+        var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
+        var pluginDirectory = Path.Combine(tempRoot, "bin", "plugin.a", "1.0.0");
+        var pluginPackageDirectory = Path.Combine(tempRoot, "packages", "plugin.a", "1.0.0", "extracted");
+        var scopedDependencyDirectory = Path.Combine(tempRoot, "packages", "dependency.scoped", "1.0.0", "extracted", "lib", "net9.0");
+        var unrelatedDependencyDirectory = Path.Combine(tempRoot, "packages", "dependency.unrelated", "1.0.0", "extracted", "lib", "net9.0");
+
+        Directory.CreateDirectory(pluginDirectory);
+        Directory.CreateDirectory(pluginPackageDirectory);
+        Directory.CreateDirectory(scopedDependencyDirectory);
+        Directory.CreateDirectory(unrelatedDependencyDirectory);
+
+        try
+        {
+            var pluginAssemblyPath = Path.Combine(pluginDirectory, "BYO.Plugin.Sample.dll");
+            File.WriteAllText(pluginAssemblyPath, string.Empty);
+            File.WriteAllText(
+                Path.Combine(pluginPackageDirectory, "plugin.a.nuspec"),
+                """
+                <?xml version="1.0" encoding="utf-8"?>
+                <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+                  <metadata>
+                    <id>Plugin.A</id>
+                    <version>1.0.0</version>
+                    <dependencies>
+                      <group targetFramework="net9.0">
+                        <dependency id="Dependency.Scoped" version="1.0.0" />
+                      </group>
+                    </dependencies>
+                  </metadata>
+                </package>
+                """);
+            File.WriteAllText(
+                Path.Combine(tempRoot, "packages", "dependency.scoped", "1.0.0", "extracted", "dependency.scoped.nuspec"),
+                """
+                <?xml version="1.0" encoding="utf-8"?>
+                <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+                  <metadata>
+                    <id>Dependency.Scoped</id>
+                    <version>1.0.0</version>
+                  </metadata>
+                </package>
+                """);
+            File.WriteAllText(
+                Path.Combine(tempRoot, "packages", "dependency.unrelated", "1.0.0", "extracted", "dependency.unrelated.nuspec"),
+                """
+                <?xml version="1.0" encoding="utf-8"?>
+                <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+                  <metadata>
+                    <id>Dependency.Unrelated</id>
+                    <version>1.0.0</version>
+                  </metadata>
+                </package>
+                """);
+
+            var scopedAssemblyPath = Path.Combine(scopedDependencyDirectory, "Shared.Dependency.dll");
+            var unrelatedAssemblyPath = Path.Combine(unrelatedDependencyDirectory, "Shared.Dependency.dll");
+            File.WriteAllText(scopedAssemblyPath, string.Empty);
+            File.WriteAllText(unrelatedAssemblyPath, string.Empty);
+
+            SystemConstants.PLUGINS_BINARIES_DIRECTORY = Path.Combine(tempRoot, "bin");
+            SystemConstants.PLUGINS_PACKAGES_DIRECTORY = Path.Combine(tempRoot, "packages");
+
+            var loadContextType = typeof(CommandsScanner).GetNestedType("PluginAssemblyLoadContext", BindingFlags.NonPublic);
+            Assert.NotNull(loadContextType);
+
+            var ctor = loadContextType!.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, [typeof(string)]);
+            Assert.NotNull(ctor);
+
+            var instance = ctor!.Invoke([pluginAssemblyPath]);
+            var resolveMethod = loadContextType.GetMethod("TryResolveFromPluginPackageGraph", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull(resolveMethod);
+
+            var resolvedPath = (string?)resolveMethod!.Invoke(instance, ["Shared.Dependency", ".dll"]);
+
+            Assert.Equal(scopedAssemblyPath, resolvedPath, StringComparer.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            SystemConstants.PLUGINS_BINARIES_DIRECTORY = originalPluginsDirectory;
+            SystemConstants.PLUGINS_PACKAGES_DIRECTORY = originalPackagesDirectory;
+
             if (Directory.Exists(tempRoot))
             {
                 Directory.Delete(tempRoot, true);

@@ -25,7 +25,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Plugins
             var packageId = Package.Trim();
             UserInterfaceService.ShowGrey($"Installing {packageId}...");
 
-            var result = await InstallationService.InstallPluginAsync(packageId, Version, Source);
+            var result = await PluginInstallationService.InstallPluginAsync(packageId, Version, Source);
 
             foreach (var warning in result.Warnings)
             {

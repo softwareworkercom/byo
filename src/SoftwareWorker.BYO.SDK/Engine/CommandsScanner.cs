@@ -280,11 +280,13 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             private readonly AssemblyDependencyResolver? _resolver;
             private readonly string _pluginDirectory;
+            private readonly Lazy<IReadOnlyList<string>> _pluginPackageGraphDirectories;
 
             internal PluginAssemblyLoadContext(string mainAssemblyPath)
                 : base($"plugin:{Path.GetFileNameWithoutExtension(mainAssemblyPath)}", isCollectible: false)
             {
                 _pluginDirectory = Path.GetDirectoryName(mainAssemblyPath) ?? string.Empty;
+                _pluginPackageGraphDirectories = new Lazy<IReadOnlyList<string>>(GetPluginPackageGraphDirectories);
 
                 if (!string.IsNullOrWhiteSpace(mainAssemblyPath) && File.Exists(mainAssemblyPath))
                 {
@@ -345,6 +347,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     else
                     {
                         resolvedPath = TryResolveFromPluginBinaryCache(assemblySimpleName)
+                            ?? TryResolveFromPluginPackageGraph(assemblySimpleName, ".dll")
                             ?? TryResolveFromPluginPackageCache(assemblySimpleName, ".dll");
                     }
                 }
@@ -361,6 +364,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             {
                 var resolvedPath = _resolver?.ResolveUnmanagedDllToPath(unmanagedDllName)
                     ?? TryResolveNativeFromPluginDirectory(unmanagedDllName)
+                    ?? TryResolveFromPluginPackageGraph(unmanagedDllName, GetNativeLibraryExtension())
                     ?? TryResolveFromPluginPackageCache(unmanagedDllName, GetNativeLibraryExtension());
 
                 if (!string.IsNullOrWhiteSpace(resolvedPath))
@@ -493,6 +497,97 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
 
                 var candidatePath = Path.Combine(_pluginDirectory, fileName);
                 return File.Exists(candidatePath) ? candidatePath : null;
+            }
+
+            private string? TryResolveFromPluginPackageGraph(string libraryName, string extension)
+            {
+                var fileName = libraryName.EndsWith(extension, StringComparison.OrdinalIgnoreCase)
+                    ? libraryName
+                    : libraryName + extension;
+
+                foreach (var extractedDirectory in _pluginPackageGraphDirectories.Value)
+                {
+                    var candidatePath = Directory
+                        .EnumerateFiles(extractedDirectory, fileName, SearchOption.AllDirectories)
+                        .OrderByDescending(GetPackageAssetPathScore)
+                        .ThenBy(path => path, StringComparer.OrdinalIgnoreCase)
+                        .FirstOrDefault();
+
+                    if (candidatePath != null)
+                    {
+                        return candidatePath;
+                    }
+                }
+
+                return null;
+            }
+
+            private IReadOnlyList<string> GetPluginPackageGraphDirectories()
+            {
+                if (!TryGetPluginPackageIdentity(out var packageId, out var version))
+                {
+                    return [];
+                }
+
+                var directories = new List<string>();
+                var visitedPackages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                AddPackageGraphDirectories(packageId, version, directories, visitedPackages);
+                return directories;
+            }
+
+            private static void AddPackageGraphDirectories(
+                string packageId,
+                string version,
+                ICollection<string> directories,
+                ISet<string> visitedPackages)
+            {
+                var packageKey = $"{packageId}|{version}";
+                if (!visitedPackages.Add(packageKey))
+                {
+                    return;
+                }
+
+                var extractedDirectory = PluginInstallationService.TryGetExtractedPackageDirectory(packageId, version);
+                if (extractedDirectory == null)
+                {
+                    return;
+                }
+
+                directories.Add(extractedDirectory);
+
+                foreach (var dependency in PluginInstallationService.ReadPackageDependencies(extractedDirectory))
+                {
+                    AddPackageGraphDirectories(dependency.Id, dependency.Version, directories, visitedPackages);
+                }
+            }
+
+            private bool TryGetPluginPackageIdentity(out string packageId, out string version)
+            {
+                packageId = string.Empty;
+                version = string.Empty;
+
+                if (string.IsNullOrWhiteSpace(_pluginDirectory) ||
+                    string.IsNullOrWhiteSpace(SystemConstants.PLUGINS_BINARIES_DIRECTORY) ||
+                    !Path.IsPathRooted(_pluginDirectory))
+                {
+                    return false;
+                }
+
+                var relativePath = Path.GetRelativePath(SystemConstants.PLUGINS_BINARIES_DIRECTORY, _pluginDirectory);
+                if (relativePath.StartsWith("..", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                var segments = relativePath.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+                if (segments.Length < 2)
+                {
+                    return false;
+                }
+
+                packageId = segments[0];
+                version = segments[1];
+                return true;
             }
 
             private string? TryResolveFromPluginPackageCache(string libraryName, string extension)
