@@ -231,6 +231,44 @@ public class CliTests
     }
 
     [Fact]
+    public void GetDependencyAssetFiles_ShouldIncludeRuntimeSpecificManagedAndNativeAssets()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
+        var extractedDirectory = Path.Combine(tempRoot, "extracted");
+        var runtimeManagedDirectory = Path.Combine(extractedDirectory, "runtimes", "win-x64", "lib", "net8.0");
+        var runtimeNativeDirectory = Path.Combine(extractedDirectory, "runtimes", "win-x64", "native");
+
+        Directory.CreateDirectory(runtimeManagedDirectory);
+        Directory.CreateDirectory(runtimeNativeDirectory);
+
+        try
+        {
+            var managedAssemblyPath = Path.Combine(runtimeManagedDirectory, "Microsoft.Data.SqlClient.dll");
+            var nativeAssemblyPath = Path.Combine(runtimeNativeDirectory, "Microsoft.Data.SqlClient.SNI.dll");
+            File.WriteAllText(managedAssemblyPath, string.Empty);
+            File.WriteAllText(nativeAssemblyPath, string.Empty);
+
+            var method = typeof(InstallationService).GetMethod(
+                "GetDependencyAssetFiles",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            Assert.NotNull(method);
+
+            var files = (IReadOnlyCollection<string>)method!.Invoke(null, [extractedDirectory])!;
+
+            Assert.Contains(files, file => string.Equals(file, managedAssemblyPath, StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(files, file => string.Equals(file, nativeAssemblyPath, StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, true);
+            }
+        }
+    }
+
+    [Fact]
     public void PluginAssemblyLoadContext_ShouldResolveHostByoSdkAssemblyFromDefaultContext()
     {
         var loadContextType = typeof(CommandsScanner).GetNestedType("PluginAssemblyLoadContext", BindingFlags.NonPublic);

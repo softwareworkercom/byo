@@ -3,6 +3,7 @@ using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace SoftwareWorker.BYO.CLI.Core.Engine
@@ -176,9 +177,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 handlerTypes.AddRange(GetHandlerTypesFromAssembly(assembly));
             }
 
-            // 2) Scan DLL files from the app output and installed plugin folders to
-            //    discover handlers in assemblies that are not yet loaded (e.g. plugins).
-            var assemblyDirectories = new List<string> { AppContext.BaseDirectory };
+            // 2) Scan installed plugin folders for assemblies that are not yet loaded.
+            //    The current AppDomain already covers the host CLI/BYO assemblies, and recursively
+            //    walking AppContext.BaseDirectory pulls in unrelated package/runtime assets
+            //    (including native DLLs under runtimes/*/native) that are not command handlers.
+            var assemblyDirectories = new List<string>();
 
             if (Directory.Exists(SystemConstants.PLUGINS_BINARIES_DIRECTORY))
             {
@@ -341,7 +344,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     }
                     else
                     {
-                        resolvedPath = TryResolveFromPluginBinaryCache(assemblySimpleName);
+                        resolvedPath = TryResolveFromPluginBinaryCache(assemblySimpleName)
+                            ?? TryResolveFromPluginPackageCache(assemblySimpleName, ".dll");
                     }
                 }
 
@@ -351,6 +355,20 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 }
 
                 return null;
+            }
+
+            protected override nint LoadUnmanagedDll(string unmanagedDllName)
+            {
+                var resolvedPath = _resolver?.ResolveUnmanagedDllToPath(unmanagedDllName)
+                    ?? TryResolveNativeFromPluginDirectory(unmanagedDllName)
+                    ?? TryResolveFromPluginPackageCache(unmanagedDllName, GetNativeLibraryExtension());
+
+                if (!string.IsNullOrWhiteSpace(resolvedPath))
+                {
+                    return LoadUnmanagedDllFromPath(resolvedPath);
+                }
+
+                return base.LoadUnmanagedDll(unmanagedDllName);
             }
 
             private static Assembly? FindLoadedAssembly(string assemblySimpleName)
@@ -465,6 +483,124 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     .ToList();
 
                 return candidatePaths.FirstOrDefault();
+            }
+
+            private string? TryResolveNativeFromPluginDirectory(string libraryName)
+            {
+                var fileName = libraryName.EndsWith(GetNativeLibraryExtension(), StringComparison.OrdinalIgnoreCase)
+                    ? libraryName
+                    : libraryName + GetNativeLibraryExtension();
+
+                var candidatePath = Path.Combine(_pluginDirectory, fileName);
+                return File.Exists(candidatePath) ? candidatePath : null;
+            }
+
+            private string? TryResolveFromPluginPackageCache(string libraryName, string extension)
+            {
+                if (!Directory.Exists(SystemConstants.PLUGINS_PACKAGES_DIRECTORY))
+                {
+                    return null;
+                }
+
+                var fileName = libraryName.EndsWith(extension, StringComparison.OrdinalIgnoreCase)
+                    ? libraryName
+                    : libraryName + extension;
+
+                var candidatePaths = Directory
+                    .EnumerateFiles(SystemConstants.PLUGINS_PACKAGES_DIRECTORY, fileName, SearchOption.AllDirectories)
+                    .Where(path => path.Contains($"{Path.DirectorySeparatorChar}extracted{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(GetPackageAssetPathScore)
+                    .ThenBy(path => path, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                return candidatePaths.FirstOrDefault();
+            }
+
+            private static int GetPackageAssetPathScore(string path)
+            {
+                var normalizedPath = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                var score = 0;
+                var nativeExtension = GetNativeLibraryExtension();
+                var fileName = Path.GetFileName(path);
+
+                if (normalizedPath.Contains($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 100;
+                }
+
+                foreach (var runtimeIdentifier in GetPreferredRuntimeIdentifiers())
+                {
+                    if (normalizedPath.Contains($"{Path.DirectorySeparatorChar}{runtimeIdentifier}{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                    {
+                        score += 50;
+                        break;
+                    }
+                }
+
+                if (normalizedPath.Contains($"{Path.DirectorySeparatorChar}lib{Path.DirectorySeparatorChar}net10.0{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 40;
+                }
+                else if (normalizedPath.Contains($"{Path.DirectorySeparatorChar}lib{Path.DirectorySeparatorChar}net9.0{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 35;
+                }
+                else if (normalizedPath.Contains($"{Path.DirectorySeparatorChar}lib{Path.DirectorySeparatorChar}net8.0{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 30;
+                }
+                else if (normalizedPath.Contains($"{Path.DirectorySeparatorChar}lib{Path.DirectorySeparatorChar}netstandard2.1{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 20;
+                }
+                else if (normalizedPath.Contains($"{Path.DirectorySeparatorChar}lib{Path.DirectorySeparatorChar}netstandard2.0{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 15;
+                }
+
+                if (string.Equals(Path.GetExtension(fileName), nativeExtension, StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 10;
+                }
+
+                return score;
+            }
+
+            private static IEnumerable<string> GetPreferredRuntimeIdentifiers()
+            {
+                var architecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
+
+                if (OperatingSystem.IsWindows())
+                {
+                    return [$"win-{architecture}", "win", "any"];
+                }
+
+                if (OperatingSystem.IsMacOS())
+                {
+                    return [$"osx-{architecture}", "osx", "unix", "any"];
+                }
+
+                if (OperatingSystem.IsLinux())
+                {
+                    return [$"linux-{architecture}", "linux", "unix", "any"];
+                }
+
+                return ["any"];
+            }
+
+            private static string GetNativeLibraryExtension()
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    return ".dll";
+                }
+
+                if (OperatingSystem.IsMacOS())
+                {
+                    return ".dylib";
+                }
+
+                return ".so";
             }
         }
 

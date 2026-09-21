@@ -2,6 +2,7 @@ using SoftwareWorker.BYO.CLI.Core.Constants;
 using SoftwareWorker.BYO.CLI.Core.Helpers;
 using System.IO.Compression;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 namespace SoftwareWorker.BYO.CLI.Core.Service
@@ -194,17 +195,12 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                     continue;
                 }
 
-                var candidateDirectories = GetCandidateAssemblyDirectories(dependencyExtractedDirectory);
-                if (candidateDirectories.Count > 0)
+                foreach (var file in GetDependencyAssetFiles(dependencyExtractedDirectory))
                 {
-                    var selected = SelectBestCandidateDirectory(candidateDirectories);
-                    foreach (var file in Directory.GetFiles(selected, "*.dll", SearchOption.TopDirectoryOnly))
+                    var destinationPath = Path.Combine(installedVersionDirectory, Path.GetFileName(file));
+                    if (!File.Exists(destinationPath))
                     {
-                        var destinationPath = Path.Combine(installedVersionDirectory, Path.GetFileName(file));
-                        if (!File.Exists(destinationPath))
-                        {
-                            File.Copy(file, destinationPath);
-                        }
+                        File.Copy(file, destinationPath);
                     }
                 }
 
@@ -307,6 +303,37 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
         }
 
+        private static List<string> GetDependencyAssetFiles(string extractedDirectory)
+        {
+            var files = new List<string>();
+
+            var candidateDirectories = GetCandidateAssemblyDirectories(extractedDirectory);
+            if (candidateDirectories.Count > 0)
+            {
+                var selected = SelectBestCandidateDirectory(candidateDirectories);
+                files.AddRange(Directory.GetFiles(selected, "*.dll", SearchOption.TopDirectoryOnly));
+            }
+
+            var runtimeManagedDirectories = GetRuntimeManagedAssetDirectories(extractedDirectory);
+            if (runtimeManagedDirectories.Count > 0)
+            {
+                var selected = SelectBestRuntimeAssetDirectory(runtimeManagedDirectories);
+                files.AddRange(Directory.GetFiles(selected, "*.dll", SearchOption.TopDirectoryOnly));
+            }
+
+            var runtimeNativeDirectories = GetRuntimeNativeAssetDirectories(extractedDirectory);
+            if (runtimeNativeDirectories.Count > 0)
+            {
+                var selected = SelectBestRuntimeAssetDirectory(runtimeNativeDirectories);
+                files.AddRange(Directory.GetFiles(selected, "*", SearchOption.TopDirectoryOnly)
+                    .Where(file => !string.Equals(Path.GetExtension(file), ".pdb", StringComparison.OrdinalIgnoreCase)));
+            }
+
+            return files
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
         private static List<string> GetCandidateAssemblyDirectories(string extractedDirectory)
         {
             var candidates = new List<string>();
@@ -336,6 +363,45 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
 
             return candidates.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        private static List<string> GetRuntimeManagedAssetDirectories(string extractedDirectory)
+        {
+            var runtimesDirectory = Path.Combine(extractedDirectory, "runtimes");
+            if (!Directory.Exists(runtimesDirectory))
+            {
+                return [];
+            }
+
+            return Directory.GetDirectories(runtimesDirectory, "*", SearchOption.AllDirectories)
+                .Where(directory => IsRuntimeAssetDirectory(directory, runtimesDirectory, "lib"))
+                .Where(directory => Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly).Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static List<string> GetRuntimeNativeAssetDirectories(string extractedDirectory)
+        {
+            var runtimesDirectory = Path.Combine(extractedDirectory, "runtimes");
+            if (!Directory.Exists(runtimesDirectory))
+            {
+                return [];
+            }
+
+            return Directory.GetDirectories(runtimesDirectory, "*", SearchOption.AllDirectories)
+                .Where(directory => IsRuntimeAssetDirectory(directory, runtimesDirectory, "native"))
+                .Where(directory => Directory.GetFiles(directory, "*", SearchOption.TopDirectoryOnly).Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static bool IsRuntimeAssetDirectory(string directory, string runtimesDirectory, string assetSegment)
+        {
+            var relativePath = Path.GetRelativePath(runtimesDirectory, directory);
+            var segments = relativePath.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+
+            return segments.Length >= 2 &&
+                string.Equals(segments[1], assetSegment, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string SelectBestCandidateDirectory(IReadOnlyCollection<string> candidates)
@@ -370,6 +436,89 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             return candidates
                 .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
                 .First();
+        }
+
+        private static string SelectBestRuntimeAssetDirectory(IReadOnlyCollection<string> candidates)
+        {
+            if (candidates.Count == 1)
+            {
+                return candidates.First();
+            }
+
+            foreach (var runtimeIdentifier in GetPreferredRuntimeIdentifiers())
+            {
+                var runtimeMatches = candidates
+                    .Where(path => string.Equals(GetRuntimeIdentifier(path), runtimeIdentifier, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (runtimeMatches.Count == 0)
+                {
+                    continue;
+                }
+
+                var managedMatches = runtimeMatches
+                    .Where(path => !string.Equals(Path.GetFileName(path), "native", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (managedMatches.Count > 0)
+                {
+                    return SelectBestCandidateDirectory(managedMatches);
+                }
+
+                return runtimeMatches
+                    .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                    .First();
+            }
+
+            var fallbackManagedMatches = candidates
+                .Where(path => !string.Equals(Path.GetFileName(path), "native", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (fallbackManagedMatches.Count > 0)
+            {
+                return SelectBestCandidateDirectory(fallbackManagedMatches);
+            }
+
+            return candidates
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .First();
+        }
+
+        private static IEnumerable<string> GetPreferredRuntimeIdentifiers()
+        {
+            var architecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
+
+            if (OperatingSystem.IsWindows())
+            {
+                return [$"win-{architecture}", "win", "any"];
+            }
+
+            if (OperatingSystem.IsMacOS())
+            {
+                return [$"osx-{architecture}", "osx", "unix", "any"];
+            }
+
+            if (OperatingSystem.IsLinux())
+            {
+                return [$"linux-{architecture}", "linux", "unix", "any"];
+            }
+
+            return ["any"];
+        }
+
+        private static string? GetRuntimeIdentifier(string directory)
+        {
+            var segments = directory.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+
+            for (var index = 0; index < segments.Length - 1; index++)
+            {
+                if (string.Equals(segments[index], "runtimes", StringComparison.OrdinalIgnoreCase))
+                {
+                    return segments[index + 1];
+                }
+            }
+
+            return null;
         }
 
         private static bool TryFindValidHandlers(
