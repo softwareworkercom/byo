@@ -64,7 +64,6 @@ byo --help
 
 ## Documentation
 
-
 BYO CLI is built around five command groups:
 
 - **[run](docs/run.md)**: Execute saved commands or workflows
@@ -73,13 +72,20 @@ BYO CLI is built around five command groups:
 - **[workflows](docs/workflows.md)**: Manage multi-step automation workflows
 - **[plugins](docs/plugins.md)**: Discover, install, and uninstall plugins
 
+### SDK
+
+- **[ExportService](docs/sdk-export-service.md)**: Export one or more `DataTable` results to a JSON file
+
 ### Built-in flags
 
 These flags are available on executable commands where applicable:
 
-- **[export](docs/export.md)**: Export supported command results as JSON
 - **[schedule](docs/schedule.md)**: Repeat a command on a schedule
 - **[async](docs/async.md)**: Run a command in the background
+
+### Data Storage
+
+- **[storage](docs/export.md)**: Learn where BYO CLI stores your data and understand the file formats
 
 There is no standalone `secrets` command group. Use a workflow `InputAsSecret` step to collect and save sensitive values, then reference them with token replacement.
 

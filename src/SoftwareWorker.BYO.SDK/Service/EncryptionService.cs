@@ -214,6 +214,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             }
         }
 
+
         /// <summary>
         /// Securely compares two byte arrays in constant time to prevent timing attacks.
         /// </summary>

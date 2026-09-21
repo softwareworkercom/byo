@@ -10,11 +10,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
     {
         public override async Task ExecuteAsync()
         {
-            var secretsTable = new Table();
-            secretsTable.Title = new TableTitle("Secrets");
-            secretsTable.AddColumn("Name");
-            secretsTable.AddColumn("Value");
-
             var secrets = SecretsService.GetList() ?? new Dictionary<string, string>();
 
             if (secrets.Count == 0)
@@ -22,6 +17,11 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
                 UserInterfaceService.ShowWarning("No secrets found. Use 'byo secrets set --key <key> --value <value>' to add one.");
                 return;
             }
+
+            var secretsTable = new Table();
+            secretsTable.Title = new TableTitle("Secrets");
+            secretsTable.AddColumn("Name");
+            secretsTable.AddColumn("Value");
 
             foreach (var item in secrets.OrderBy(c => c.Key))
             {
@@ -32,6 +32,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Handlers.Secrets
             }
 
             UserInterfaceService.ShowTable(secretsTable);
+
+            await Task.CompletedTask;
         }
     }
 }

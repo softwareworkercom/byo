@@ -13,7 +13,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
     public class CommandsBuilder
     {
         private const string ScheduleOptionName = "schedule";
-        private const string ExportOptionName = "export";
         private const string AsyncOptionName = "async";
         private static readonly Regex ScheduleIntervalRegex = new(
             @"^(?<value>\d+)\s*(?<unit>mo|[smhdw])$",
@@ -32,10 +31,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 {
                     var optionsMap = AddParametersToCommand(systemCommand, trunkCommand.Parameters);
                     var scheduleOption = AddScheduleOption(systemCommand);
-                    var exportOption = AddExportOption(systemCommand);
                     var asyncOption = AddAsyncOption(systemCommand);
                     ConfigureDynamicParameterHandling(systemCommand, trunkCommand.Handler);
-                    SetAction(systemCommand, trunkCommand.Handler, optionsMap, scheduleOption, exportOption, asyncOption);
+                    SetAction(systemCommand, trunkCommand.Handler, optionsMap, scheduleOption, asyncOption);
                 }
 
                 if (hasBranchCommands)
@@ -75,10 +73,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             var actionCommand = new Command(action.Name, action.Description);
             var optionsMap = AddParametersToCommand(actionCommand, action.Parameters);
             var scheduleOption = AddScheduleOption(actionCommand);
-            var exportOption = AddExportOption(actionCommand);
             var asyncOption = AddAsyncOption(actionCommand);
             ConfigureDynamicParameterHandling(actionCommand, action.Handler);
-            SetAction(actionCommand, action.Handler, optionsMap, scheduleOption, exportOption, asyncOption);
+            SetAction(actionCommand, action.Handler, optionsMap, scheduleOption, asyncOption);
             return actionCommand;
         }
 
@@ -87,10 +84,9 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             var subCommand = new Command(subCmd.Name, subCmd.Description);
             var optionsMap = AddParametersToCommand(subCommand, subCmd.Parameters);
             var scheduleOption = AddScheduleOption(subCommand);
-            var exportOption = AddExportOption(subCommand);
             var asyncOption = AddAsyncOption(subCommand);
             ConfigureDynamicParameterHandling(subCommand, subCmd.Handler);
-            SetAction(subCommand, subCmd.Handler, optionsMap, scheduleOption, exportOption, asyncOption);
+            SetAction(subCommand, subCmd.Handler, optionsMap, scheduleOption, asyncOption);
             return subCommand;
         }
 
@@ -136,17 +132,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             return scheduleOption;
         }
 
-        private static Option<bool> AddExportOption(Command command)
-        {
-            var exportOption = new Option<bool>($"--{ExportOptionName}")
-            {
-                Description = "Export results as JSON.",
-                Required = false
-            };
-            command.Add(exportOption);
-            return exportOption;
-        }
-
         private static Option<bool> AddAsyncOption(Command command)
         {
             var asyncOption = new Option<bool>($"--{AsyncOptionName}")
@@ -164,7 +149,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             string handlerName,
             Dictionary<string, Option<string>> optionsMap,
             Option<string> scheduleOption,
-            Option<bool> exportOption,
             Option<bool> asyncOption)
         {
             command.SetAction(async (ParseResult parseResult) =>
@@ -179,7 +163,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 var optionsDict = ExtractOptionValues(parseResult, optionsMap);
                 var dynamicParameters = ExtractDynamicParameters(rawTokens, optionsMap);
                 var scheduleValue = parseResult.CommandResult.GetValue(scheduleOption);
-                var exportValue = parseResult.CommandResult.GetValue(exportOption);
                 var runAsync = parseResult.CommandResult.GetValue(asyncOption);
 
                 if (runAsync)
@@ -193,11 +176,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
 
                     UserInterfaceService.ShowGrey($"Started in background (PID {backgroundProcessId}).");
                     return;
-                }
-
-                if (exportValue)
-                {
-                    optionsDict[ExportOptionName] = exportValue;
                 }
 
                 // Ensure all parameters are populated (prompts interactively by default)
@@ -214,7 +192,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     var handlerInstance = (BaseCommandHandler)Activator.CreateInstance(handlerType)!;
                     handlerInstance.BindParameters(optionsDict);
                     handlerInstance.SetDynamicParameters(dynamicParameters);
-                    handlerInstance.SetExport(exportValue);
 
                     var isSuccessful = true;
                     Stopwatch stopwatch = Stopwatch.StartNew();
@@ -222,11 +199,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     try
                     {
                         await handlerInstance.ExecuteAsync();
-                        if (exportValue)
-                        {
-                            await ExportService.ExportFile(
-                                handlerInstance.ExportSource);
-                        }
                     }
                     catch (Exception ex) when (ex is MissingMethodException || ex is TypeLoadException || ex is MissingFieldException)
                     {
@@ -366,7 +338,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             var dynamicParameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var knownOptions = optionsMap.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
             knownOptions.Add(ScheduleOptionName);
-            knownOptions.Add(ExportOptionName);
             knownOptions.Add(AsyncOptionName);
             var tokens = rawTokens.ToList();
 
@@ -609,7 +580,6 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
             var knownOptions = new HashSet<string>(options.Keys, StringComparer.OrdinalIgnoreCase)
             {
                 ScheduleOptionName,
-                ExportOptionName,
                 AsyncOptionName
             };
 

@@ -2,7 +2,7 @@ using SoftwareWorker.BYO.CLI.Core.Service;
 using System.Data;
 using System.Text.Json;
 
-namespace SoftwareWorker.BYO.CLI.Core.Helpers
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class ExportService
     {
