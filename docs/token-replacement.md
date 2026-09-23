@@ -1,103 +1,168 @@
 # Token Replacement
 
-BYO replaces `{{...}}` tokens at runtime when commands/workflows are executed.
+BYO resolves `{{...}}` tokens at runtime when it executes saved commands, workflow command steps, and string settings that contain tokens.
 
 ## Table of Contents
 
 - [Token format](#token-format)
 - [Resolution order](#resolution-order)
+- [Built-in tokens](#built-in-tokens)
+- [Command-line overrides](#command-line-overrides)
 - [Settings and secrets tokens](#settings-and-secrets-tokens)
-- [Dynamic parameters](#dynamic-parameters)
 - [Programmatic token overrides](#programmatic-token-overrides)
-- [Dot notation tokens](#dot-notation-tokens)
-- [Practical example](#practical-example)
-- [Interactive vs non-interactive behavior](#interactive-vs-non-interactive-behavior)
+- [Object and JSON payload tokens](#object-and-json-payload-tokens)
+- [Unresolved tokens](#unresolved-tokens)
+- [Examples](#examples)
 
 ## Token format
 
 - Use double curly braces: `{{TokenName}}`
 - Token names can include letters, numbers, `_`, `:`, and `.`
+- Token matching is case-insensitive
 
 Examples:
 
 - `{{Demo:ApiBaseUrl}}`
 - `{{Demo:ApiToken}}`
+- `{{context:region}}`
 - `{{Project.Repository.Name}}`
+- `{{UtcDateTimeNow}}`
 - `{{Guid}}`
-
-Token matching is case-insensitive.
 
 ## Resolution order
 
 Tokens are resolved in this order:
 
 1. Token overrides
+   - Command-line overrides parsed from the current process
+   - Explicit `tokenOverrides` passed to `TokenService.ResolveTokens(...)`
 2. Built-in system tokens
-   - `{{Date}}`
-   - `{{DateTimeRangeFromNow}}`
-   - `{{Guid}}`
 3. Saved settings and secrets
-4. Object/JSON payload values (dot notation)
-5. Interactive prompt (when running interactively)
+4. Object or JSON payload values
+5. Unresolved tokens are replaced with an empty string
 
-If a token cannot be resolved, BYO keeps it unchanged.
+If the same token is supplied by multiple override sources, the explicit `tokenOverrides` dictionary wins over command-line values.
+
+## Built-in tokens
+
+These tokens are resolved without needing a saved setting or secret:
+
+| Token | Description | Format |
+|-------|-------------|--------|
+| `{{DateNow}}` | Current local date | `yyyy-MM-dd` |
+| `{{DateTimeNow}}` | Current local date and time | `yyyy-MM-dd HH:mm` |
+| `{{UtcDateNow}}` | Current UTC date | `yyyy-MM-dd` |
+| `{{UtcDateTimeNow}}` | Current UTC date and time | `yyyy-MM-dd HH:mm` |
+| `{{Guid}}` | New random GUID | Standard GUID string |
+
+### `{{DateTimeWindow}}`
+
+`{{DateTimeWindow}}` is a special override token. When supplied through command-line or programmatic overrides, BYO converts a relative time expression into an absolute local datetime.
+
+Supported expressions:
+
+- `1m`, `30m` — minutes ago
+- `1h`, `8h` — hours ago
+- `1d`, `7d` — days ago
+- `1w`, `4w` — weeks ago
+- `1mo`, `3mo` — months ago
+
+Behavior details:
+
+- Output format: `yyyy-MM-dd HH:mm`
+- Matching is case-insensitive
+- Extra spaces are ignored, so `7 d` and `7D` are normalized
+- Invalid values are not converted and continue through normal resolution
+
+## Command-line overrides
+
+Any CLI option that starts with `--` and has a value is available as a token override.
+
+Supported forms:
+
+- `--Tenant prod`
+- `--Tenant=prod`
+- `--context:region westus`
+- `--context:region=westus`
+
+Examples:
+
+```bash
+byo run --target command --name "Demo API Bearer Check" --Tenant prod --context:region westus
+byo run --target command --name "Recent Errors" --DateTimeWindow 7d
+```
+
+Those values can satisfy matching tokens such as `{{Tenant}}`, `{{context:region}}`, and `{{DateTimeWindow}}`.
 
 ## Settings and secrets tokens
 
-Settings/secrets are commonly referenced with namespaced keys such as `{{Demo:ApiToken}}`.
+Settings and secrets are commonly referenced with namespaced keys such as `{{Demo:ApiToken}}`.
 
-If a setting/secret contains pipe-separated values (`value1|value2|value3`), BYO prompts you to pick one value at runtime.
+BYO looks up saved keys by prefix. Exact token names are the simplest option, but if multiple saved keys start with the same token text, BYO asks you to choose which saved key to use.
 
-## Dynamic Parameters
+If a resolved setting or secret value contains pipe-separated values such as `value1|value2|value3`, BYO asks you to choose one of those values at runtime.
 
-Dynamic parameters are captured automatically from the command line and made available through `DynamicParameters`.
+## Programmatic token overrides
 
-A dynamic parameter such as `--Tenant "prod"` can satisfy `{{Tenant}}`, and `--context:region westus` can satisfy `{{context:region}}`. Prefer the space-separated form for dynamic parameters. Token names are matched case-insensitively, and braces such as `{{Tenant}}` are normalized automatically.
-
-## Programmatic Token Overrides
-
-You can also supply token overrides programmatically when calling `TokenService.ResolveTokens(...)`. BYO merges automatic dynamic parameters with any explicit override dictionary.
+You can also supply overrides directly when calling `TokenService.ResolveTokens(...)`. BYO merges command-line overrides with the explicit dictionary you pass in.
 
 Example:
 
 ```csharp
-public override async Task ExecuteAsync()
+var text = "Tenant={{Tenant}}, Region={{Deployment.Region}}, From={{DateTimeWindow}}";
+var payload = new
 {
-    var text = "Tenant={{Tenant}}, Region={{context:region}}";
-
-    var programmaticOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    Deployment = new
     {
-        ["Tenant"] = "prod"
-    };
+        Region = "westus"
+    }
+};
 
-    var resolved = TokenService.ResolveTokens(
-        text,
-        payload: null,
-        tokenOverrides: programmaticOverrides);
+var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+{
+    ["Tenant"] = "prod",
+    ["DateTimeWindow"] = "7d"
+};
 
-    Console.WriteLine(resolved);
-}
+var resolved = TokenService.ResolveTokens(
+    text,
+    obj: payload,
+    tokenOverrides: overrides);
 ```
 
-If the same token is provided by multiple sources, token overrides win over built-in tokens, settings, secrets, object values, and interactive prompts.
+## Object and JSON payload tokens
 
-## Dot notation tokens
+BYO can resolve token values from an object payload or a `JsonElement` payload.
 
-Use dot notation for nested object/JSON values:
+Use dot notation for nested values:
 
 - `{{Project.Repository.Name}}`
-- `{{project.repository.name}}` (case-insensitive)
+- `{{project.repository.name}}`
+- `{{Deployment.Region}}`
 
-For object traversal, single-segment tokens (for example `{{Name}}`) are not resolved from object payloads.
+Behavior details:
 
-## Practical example
+- Regular object payloads use case-insensitive public property lookup
+- Regular object payloads do not resolve single-segment tokens such as `{{Name}}`
+- `JsonElement` payloads support case-insensitive property lookup for both single-segment and dot-notation tokens
+
+## Unresolved tokens
+
+If BYO cannot resolve a token, it replaces that token with an empty string and shows a warning.
+
+BYO does not keep unresolved token text in place, and it does not prompt for arbitrary missing token values.
+
+## Examples
+
+Save a command that uses stored settings/secrets and built-in tokens:
 
 ```bash
 byo commands set --name "Demo API Bearer Check" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe -s -H 'Authorization: Bearer {{Demo:ApiToken}}' '{{Demo:ApiBaseUrl}}/bearer?correlationId={{Guid}}'"
 ```
 
-## Interactive vs non-interactive behavior
+Run a saved command with a time window override:
 
-- Interactive: unresolved tokens prompt for a value.
-- Non-interactive: unresolved tokens remain unchanged.
+```bash
+byo run --target command --name "Recent Errors" --DateTimeWindow 7d
+```
 

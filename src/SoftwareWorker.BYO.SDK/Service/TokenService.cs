@@ -1,4 +1,5 @@
 using Spectre.Console;
+using SoftwareWorker.BYO.SDK.Helpers;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -129,6 +130,25 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             return string.Empty;
         }
 
+        /// <summary>
+        /// Attempts to resolve a token value from the provided override dictionary.
+        /// </summary>
+        /// <remarks>
+        /// This method handles token resolution with special processing for the "DateTimeWindow" key.
+        /// For DateTimeWindow tokens, the value is processed through DateTimeHelper.TryResolveRangeStart
+        /// to convert relative time expressions (e.g., "1d", "2h", "30m") into absolute datetime strings.
+        /// For all other tokens, the override value is returned as-is.
+        /// </remarks>
+        /// <param name="token">The token name to resolve (case-insensitive comparison).</param>
+        /// <param name="tokenOverrides">The dictionary of token overrides to search. Can be null or empty.</param>
+        /// <param name="value">
+        /// When successful, contains the resolved token value formatted as "yyyy-MM-dd HH:mm" for DateTimeWindow tokens,
+        /// or the raw override value for other tokens. Null if resolution fails.
+        /// </param>
+        /// <returns>
+        /// True if the token was found in the overrides and successfully resolved; otherwise false.
+        /// For DateTimeWindow tokens, returns true only if DateTimeHelper.TryResolveRangeStart succeeds.
+        /// </returns>
         private static bool TryResolveTokenFromOverrides(string token, IReadOnlyDictionary<string, string>? tokenOverrides, out string? value)
         {
             value = null;
@@ -145,6 +165,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
                     continue;
                 }
 
+                // Handle DateTimeWindow special case - convert relative time to absolute datetime
+                if (string.Equals(overrideItem.Key, "DateTimeWindow", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (DateTimeHelper.TryResolveRangeStart(overrideItem.Value, out value))
+                    {
+                        return true;
+                    }
+                }
+
                 value = overrideItem.Value;
                 return true;
             }
@@ -157,13 +186,17 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
             value = null;
             switch (token)
             {
-                case "Date":
-                    var date = UserInterfaceService.SelectDate();
-                    value = $"{date:yyyy-MM-dd}";
+                case "DateNow":
+                    value = $"{DateTime.Now:yyyy-MM-dd}";
                     break;
-                case "DateTimeRangeFromNow":
-                    var startDate = UserInterfaceService.SelectDateTimeRangeFromNow();
-                    value = $"{startDate:yyyy-MM-dd HH:mm}";
+                case "DateTimeNow":
+                    value = $"{DateTime.Now:yyyy-MM-dd HH:mm}";
+                    break;
+                case "UtcDateNow":
+                    value = $"{DateTime.UtcNow:yyyy-MM-dd}";
+                    break;
+                case "UtcDateTimeNow":
+                    value = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm}";
                     break;
                 case "Guid":
                     value = Guid.NewGuid().ToString();
