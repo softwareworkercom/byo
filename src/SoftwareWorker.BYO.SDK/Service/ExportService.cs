@@ -6,10 +6,10 @@ namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class ExportService
     {
-        public static Task<string?> ExportFile(IReadOnlyList<DataTable> dataTables)
+        public static Task<string?> ExportFile(IReadOnlyList<DataTable> dataTables, string fileName)
         {
             var path = Directory.GetCurrentDirectory();
-            var filename = GetTimestampedFileName("export");
+            var filename = GetTimestampedFileName(string.IsNullOrWhiteSpace(fileName) ? "export" : fileName);
             var fullPath = Path.Combine(path, $"{filename}.json");
 
             if (dataTables.Count == 0)
