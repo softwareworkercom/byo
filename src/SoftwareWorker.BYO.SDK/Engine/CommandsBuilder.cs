@@ -200,13 +200,10 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     {
                         await handlerInstance.ExecuteAsync();
                     }
-                    catch (Exception ex) when (ex is MissingMethodException || ex is TypeLoadException || ex is MissingFieldException)
+                    catch (Exception ex) when (PluginCompatibilityHelper.IsCompatibilityException(ex))
                     {
                         isSuccessful = false;
-                        UserInterfaceService.ShowError(
-                            $"Error: {ex.GetType().Name}: {ex.Message}\n" +
-                            "This usually means an installed plugin was built against a different version of BYO.SDK than the one currently installed. " +
-                            "Try updating or reinstalling the plugin (byo plugin install <plugin>) to a version compatible with the current CLI.");
+                        UserInterfaceService.ShowError(PluginCompatibilityHelper.BuildErrorMessage(ex, handlerType.Assembly));
                     }
                     catch (Exception ex)
                     {
