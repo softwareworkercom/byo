@@ -72,6 +72,8 @@ BYO CLI is built around five command groups:
 - **[workflows](docs/workflows.md)**: Manage multi-step automation workflows
 - **[plugins](docs/plugins.md)**: Discover, install, and uninstall plugins
 
+Prefer to stay in BYO? Run **[byo](docs/shell.md)** without arguments to open an interactive shell with autocompletion, syntax highlighting and history.
+
 ### SDK
 
 - **[ExportService](docs/sdk-export-service.md)**: Export one or more `DataTable` results to a JSON file

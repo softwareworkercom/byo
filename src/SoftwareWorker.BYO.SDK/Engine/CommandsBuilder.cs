@@ -3,6 +3,7 @@ using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
 using SoftwareWorker.BYO.CLI.Core.Service;
 using SoftwareWorker.BYO.CLI.Core.Helpers;
 using System.CommandLine;
+using System.CommandLine.Completions;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -114,11 +115,30 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                     Description = param.Description,
                     Required = false
                 };
+
+                // Pipe-separated default values ("a|b|c") are the allowed choices, so offer them as completions.
+                var choices = GetEnumeratedValues(param.DefaultValue);
+                if (choices.Length > 0)
+                {
+                    option.CompletionSources.Add(_ => choices.Select(choice => new CompletionItem(choice)));
+                }
+
                 optionsMap[param.Name] = option;
                 command.Add(option);
             }
 
             return optionsMap;
+        }
+
+        private static string[] GetEnumeratedValues(object? defaultValue)
+        {
+            var value = defaultValue?.ToString();
+            if (string.IsNullOrWhiteSpace(value) || !value.Contains('|'))
+            {
+                return [];
+            }
+
+            return value.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
 
         private static Option<string> AddScheduleOption(Command command)
@@ -685,34 +705,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 return false;
             }
 
-            var commandLineArgs = Environment.GetCommandLineArgs();
-            if (commandLineArgs.Length == 0)
+            if (Environment.GetCommandLineArgs().Length == 0)
             {
                 error = "Unable to determine command entry point for background execution.";
                 return false;
             }
 
-            var entryPoint = commandLineArgs[0];
-            var processPath = Environment.ProcessPath;
-            var executable = string.IsNullOrWhiteSpace(processPath) ? entryPoint : processPath;
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = executable,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WorkingDirectory = Environment.CurrentDirectory
-            };
-
-            if (entryPoint.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
-            {
-                startInfo.ArgumentList.Add(entryPoint);
-            }
-
-            foreach (var token in commandTokens)
-            {
-                startInfo.ArgumentList.Add(token);
-            }
+            var startInfo = CreateSelfProcessStartInfo(commandTokens);
+            startInfo.CreateNoWindow = true;
 
             try
             {
@@ -731,6 +731,38 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 error = $"Unable to start background process: {ex.Message}";
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Creates a start info that runs this CLI again with the given arguments.
+        /// </summary>
+        internal static ProcessStartInfo CreateSelfProcessStartInfo(IEnumerable<string> commandTokens)
+        {
+            var entryPoint = Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
+            var processPath = Environment.ProcessPath;
+            var executable = string.IsNullOrWhiteSpace(processPath) ? entryPoint : processPath;
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = executable,
+                UseShellExecute = false,
+                WorkingDirectory = Environment.CurrentDirectory
+            };
+
+            // Only the dotnet muxer ("dotnet byo.dll") needs the entry assembly as its first argument;
+            // the byo apphost would treat it as an unknown command.
+            var isDotnetHost = string.Equals(Path.GetFileNameWithoutExtension(executable), "dotnet", StringComparison.OrdinalIgnoreCase);
+            if (isDotnetHost && entryPoint.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            {
+                startInfo.ArgumentList.Add(entryPoint);
+            }
+
+            foreach (var token in commandTokens)
+            {
+                startInfo.ArgumentList.Add(token);
+            }
+
+            return startInfo;
         }
 
         private static string FormatCommandArgument(string value)

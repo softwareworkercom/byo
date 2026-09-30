@@ -41,6 +41,7 @@ The `byo` folder contains the following JSON files:
 ??? settings.json      # All saved settings (non-sensitive key-value pairs)
 ??? workflows.json     # All saved multi-step workflows
 ??? secrets.json       # Encrypted secrets (encrypted at rest)
+??? shell_history.txt  # Interactive shell history (lines that look sensitive are not saved)
 ```
 
 ## File Formats

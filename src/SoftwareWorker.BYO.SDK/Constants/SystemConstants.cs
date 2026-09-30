@@ -17,6 +17,7 @@ namespace SoftwareWorker.BYO.CLI.Core.Constants
         public static readonly string STORAGE_COMPONENTS_FILE = Path.Combine(USER_PROFILE_FOLDER, "components.json");
         public static readonly string STORAGE_BOOKMARKS_FILE = Path.Combine(USER_PROFILE_FOLDER, "bookmarks.json");
         public static readonly string STORAGE_LOCAL_DB_FILE = Path.Combine(USER_PROFILE_FOLDER, "softwareworker_local.db");
+        public static readonly string STORAGE_SHELL_HISTORY_FILE = Path.Combine(USER_PROFILE_FOLDER, "shell_history.txt");
         public static string PLUGINS_DIRECTORY { get; set; } = Path.Combine(USER_PROFILE_FOLDER, "plugins");
         public static string PLUGINS_PACKAGES_DIRECTORY { get; set; } = Path.Combine(PLUGINS_DIRECTORY, "packages");
         public static string PLUGINS_BINARIES_DIRECTORY { get; set; } = Path.Combine(PLUGINS_DIRECTORY, "bin");
