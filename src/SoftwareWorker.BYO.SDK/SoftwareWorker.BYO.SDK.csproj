@@ -14,6 +14,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="SoftwareWorker.BYO.Tests" />
+	</ItemGroup>
+
+	<ItemGroup>
        <PackageReference Include="GitHub.Copilot.SDK" />
 		<PackageReference Include="Nerdbank.GitVersioning">
 			<PrivateAssets>all</PrivateAssets>

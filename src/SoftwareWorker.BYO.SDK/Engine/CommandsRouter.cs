@@ -1,6 +1,7 @@
 using System.CommandLine;
 using SoftwareWorker.BYO.CLI.Core.Helpers;
 using SoftwareWorker.BYO.CLI.Core.Service;
+using SoftwareWorker.BYO.CLI.Core.Shell;
 
 namespace SoftwareWorker.BYO.CLI.Core.Engine
 {
@@ -10,10 +11,14 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
         {
             try
             {
-                var trunkCommands = CommandsScanner.BuildFromReflection();
+                // Running "byo" on its own in a terminal opens the interactive shell.
+                // Scripts and redirected input keep the regular command-line behavior.
+                if (args.Length == 0 && UserInterfaceService.IsInteractive)
+                {
+                    return InteractiveShell.Run();
+                }
 
-                var rootCommand = new RootCommand();
-                CommandsBuilder.LoadCommands(rootCommand, trunkCommands);
+                var rootCommand = BuildRootCommand();
                 var parseResult = rootCommand.Parse(args);
                 return parseResult.Invoke();
             }
@@ -27,6 +32,15 @@ namespace SoftwareWorker.BYO.CLI.Core.Engine
                 UserInterfaceService.ShowError($"Error: {ex.Message}");
                 return 1;
             }
+        }
+
+        internal static RootCommand BuildRootCommand()
+        {
+            var trunkCommands = CommandsScanner.BuildFromReflection();
+
+            var rootCommand = new RootCommand();
+            CommandsBuilder.LoadCommands(rootCommand, trunkCommands);
+            return rootCommand;
         }
     }
 }
