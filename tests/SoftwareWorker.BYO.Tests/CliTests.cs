@@ -235,8 +235,8 @@ public class CliTests
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
         var extractedDirectory = Path.Combine(tempRoot, "extracted");
-        var runtimeManagedDirectory = Path.Combine(extractedDirectory, "runtimes", "win-x64", "lib", "net8.0");
-        var runtimeNativeDirectory = Path.Combine(extractedDirectory, "runtimes", "win-x64", "native");
+        var runtimeManagedDirectory = Path.Combine(extractedDirectory, "runtimes", GetCurrentOsRuntimeIdentifier(), "lib", "net8.0");
+        var runtimeNativeDirectory = Path.Combine(extractedDirectory, "runtimes", GetCurrentOsRuntimeIdentifier(), "native");
 
         Directory.CreateDirectory(runtimeManagedDirectory);
         Directory.CreateDirectory(runtimeNativeDirectory);
@@ -266,6 +266,96 @@ public class CliTests
                 Directory.Delete(tempRoot, true);
             }
         }
+    }
+
+    [Fact]
+    public void GetDependencyAssetFiles_ShouldPreferRuntimeSpecificManagedAssetOverSameNamedLibPlaceholder()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
+        var extractedDirectory = Path.Combine(tempRoot, "extracted");
+        var libDirectory = Path.Combine(extractedDirectory, "lib", "net9.0");
+        var runtimeManagedDirectory = Path.Combine(extractedDirectory, "runtimes", GetCurrentOsRuntimeIdentifier(), "lib", "net9.0");
+
+        Directory.CreateDirectory(libDirectory);
+        Directory.CreateDirectory(runtimeManagedDirectory);
+
+        try
+        {
+            var placeholderAssemblyPath = Path.Combine(libDirectory, "Microsoft.Data.SqlClient.dll");
+            var libOnlyAssemblyPath = Path.Combine(libDirectory, "Microsoft.Data.SqlClient.Extensions.dll");
+            var runtimeAssemblyPath = Path.Combine(runtimeManagedDirectory, "Microsoft.Data.SqlClient.dll");
+            File.WriteAllText(placeholderAssemblyPath, string.Empty);
+            File.WriteAllText(libOnlyAssemblyPath, string.Empty);
+            File.WriteAllText(runtimeAssemblyPath, string.Empty);
+
+            var method = typeof(PluginInstallationService).GetMethod(
+                "GetDependencyAssetFiles",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            Assert.NotNull(method);
+
+            var files = (IReadOnlyCollection<string>)method!.Invoke(null, [extractedDirectory])!;
+
+            Assert.Contains(files, file => string.Equals(file, runtimeAssemblyPath, StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(files, file => string.Equals(file, libOnlyAssemblyPath, StringComparison.OrdinalIgnoreCase));
+            Assert.DoesNotContain(files, file => string.Equals(file, placeholderAssemblyPath, StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, true);
+            }
+        }
+    }
+
+    [Fact]
+    public void GetDependencyAssetFiles_ShouldKeepLibAssetWhenRuntimeAssetTargetsAnotherOs()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "byo-tests", Guid.NewGuid().ToString("N"));
+        var extractedDirectory = Path.Combine(tempRoot, "extracted");
+        var libDirectory = Path.Combine(extractedDirectory, "lib", "net9.0");
+        var foreignRuntimeIdentifier = OperatingSystem.IsWindows() ? "linux" : "win";
+        var foreignRuntimeDirectory = Path.Combine(extractedDirectory, "runtimes", foreignRuntimeIdentifier, "lib", "net9.0");
+
+        Directory.CreateDirectory(libDirectory);
+        Directory.CreateDirectory(foreignRuntimeDirectory);
+
+        try
+        {
+            var libAssemblyPath = Path.Combine(libDirectory, "Sample.dll");
+            var foreignAssemblyPath = Path.Combine(foreignRuntimeDirectory, "Sample.dll");
+            File.WriteAllText(libAssemblyPath, string.Empty);
+            File.WriteAllText(foreignAssemblyPath, string.Empty);
+
+            var method = typeof(PluginInstallationService).GetMethod(
+                "GetDependencyAssetFiles",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            Assert.NotNull(method);
+
+            var files = (IReadOnlyCollection<string>)method!.Invoke(null, [extractedDirectory])!;
+
+            Assert.Contains(files, file => string.Equals(file, libAssemblyPath, StringComparison.OrdinalIgnoreCase));
+            Assert.DoesNotContain(files, file => string.Equals(file, foreignAssemblyPath, StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, true);
+            }
+        }
+    }
+
+    private static string GetCurrentOsRuntimeIdentifier()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return "win";
+        }
+
+        return OperatingSystem.IsMacOS() ? "osx" : "linux";
     }
 
     [Fact]

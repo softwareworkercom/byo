@@ -392,18 +392,27 @@ namespace SoftwareWorker.BYO.CLI.Core.Service
         {
             var files = new List<string>();
 
-            var candidateDirectories = GetCandidateAssemblyDirectories(extractedDirectory);
-            if (candidateDirectories.Count > 0)
-            {
-                var selected = SelectBestCandidateDirectory(candidateDirectories);
-                files.AddRange(Directory.GetFiles(selected, "*.dll", SearchOption.TopDirectoryOnly));
-            }
-
-            var runtimeManagedDirectories = GetRuntimeManagedAssetDirectories(extractedDirectory);
+            // Runtime-specific managed assets must win over same-named lib/ assets. Packages such as
+            // Microsoft.Data.SqlClient ship a lib/ placeholder that throws PlatformNotSupportedException,
+            // with the real implementation under runtimes/<rid>/lib/. Both flatten to the same file name
+            // in the plugin folder, so only one of them can be kept.
+            var preferredRuntimeIdentifiers = GetPreferredRuntimeIdentifiers().ToList();
+            var runtimeManagedDirectories = GetRuntimeManagedAssetDirectories(extractedDirectory)
+                .Where(directory => preferredRuntimeIdentifiers.Contains(GetRuntimeIdentifier(directory) ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+                .ToList();
             if (runtimeManagedDirectories.Count > 0)
             {
                 var selected = SelectBestRuntimeAssetDirectory(runtimeManagedDirectories);
                 files.AddRange(Directory.GetFiles(selected, "*.dll", SearchOption.TopDirectoryOnly));
+            }
+
+            var candidateDirectories = GetCandidateAssemblyDirectories(extractedDirectory);
+            if (candidateDirectories.Count > 0)
+            {
+                var runtimeFileNames = new HashSet<string>(files.Select(Path.GetFileName)!, StringComparer.OrdinalIgnoreCase);
+                var selected = SelectBestCandidateDirectory(candidateDirectories);
+                files.AddRange(Directory.GetFiles(selected, "*.dll", SearchOption.TopDirectoryOnly)
+                    .Where(file => !runtimeFileNames.Contains(Path.GetFileName(file))));
             }
 
             var runtimeNativeDirectories = GetRuntimeNativeAssetDirectories(extractedDirectory);
