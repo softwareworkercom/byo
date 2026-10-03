@@ -2,7 +2,7 @@ using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK;
 using SoftwareWorker.BYO.SDK.Helpers;
 using SoftwareWorker.BYO.SDK.Model;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Handlers.Workflows

@@ -1,7 +1,7 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK.Abstractions.Model.Command;
 using SoftwareWorker.BYO.SDK.Constants;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.SDK;
 using SoftwareWorker.BYO.CLI.Service;
 using System.Reflection;

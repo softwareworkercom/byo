@@ -1,6 +1,7 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.GitHub.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 
 namespace SoftwareWorker.BYO.Integrations.GitHub
 {
@@ -22,7 +23,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
         public async Task<GitHubBranch?> GetBranch(string organization, string repository, string jiraIssueId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetBranch(_headers, organization, repository, jiraIssueId));
         }
 
@@ -34,7 +35,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
             while (true)
             {
-                var commits = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var commits = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.GetCommitsPage(_headers, organization, repository, branchName, perPage, page));
 
                 if (commits == null || commits.Count == 0)
@@ -57,14 +58,14 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
         public async Task<List<GitHubPullRequest>?> SearchPullRequests(string organization, string query)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.SearchPullRequests(_headers, organization, query));
             return result?.items.ToList();
         }
 
         public async Task<GitHubRepository?> GetRepository(string organization, string repository)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetRepository(_headers, organization, repository));
         }
 
@@ -76,7 +77,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
             while (true)
             {
-                var repositories = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var repositories = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListRepositoriesPage(_headers, organization, perPage, page));
 
                 if (repositories == null || repositories.Count == 0)
@@ -99,7 +100,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
         public async Task<GitHubPullRequest?> GetPullRequest(string organization, string repository, int pullNumber)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetPullRequest(_headers, organization, repository, pullNumber));
         }
 
@@ -112,7 +113,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
                 Head = head,
                 Base = baseRef
             };
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreatePullRequest(_headers, organization, repository, request));
         }
 
@@ -123,7 +124,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
                 Title = title,
                 Body = body
             };
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdatePullRequest(_headers, organization, repository, pullNumber, request));
         }
 
@@ -131,7 +132,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
         {
             try
             {
-                await ResilienceHelper.ExecuteWithResilienceAsync(
+                await ResilienceService.ExecuteWithResilienceAsync(
                     async () =>
                     {
                         await _api.MergePullRequest(_headers, organization, repository, pullNumber);
@@ -147,7 +148,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
         public async Task<GitHubIssue?> GetIssue(string organization, string repository, int issueNumber)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetIssue(_headers, organization, repository, issueNumber));
         }
 
@@ -159,7 +160,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
             while (true)
             {
-                var issues = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var issues = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListIssuesPage(_headers, organization, repository, perPage, page));
 
                 if (issues == null || issues.Count == 0)
@@ -189,7 +190,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
                 Assignees = assignees,
                 Labels = labels
             };
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateIssue(_headers, organization, repository, request));
         }
 
@@ -200,7 +201,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
                 Title = title,
                 Body = body
             };
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateIssue(_headers, organization, repository, issueNumber, request));
         }
 
@@ -212,7 +213,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
             while (true)
             {
-                var releases = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var releases = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListReleasesPage(_headers, organization, repository, perPage, page));
 
                 if (releases == null || releases.Count == 0)
@@ -235,13 +236,13 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
         public async Task<GitHubWorkflowRuns?> ListWorkflowRuns(string organization, string repository)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListWorkflowRuns(_headers, organization, repository));
         }
 
         public async Task<GitHubWorkflowRun?> GetWorkflowRun(string organization, string repository, long runId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetWorkflowRun(_headers, organization, repository, runId));
         }
     }

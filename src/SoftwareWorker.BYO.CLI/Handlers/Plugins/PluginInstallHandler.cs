@@ -1,6 +1,6 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.CLI.Service;
 
 namespace SoftwareWorker.BYO.CLI.Handlers.Plugins

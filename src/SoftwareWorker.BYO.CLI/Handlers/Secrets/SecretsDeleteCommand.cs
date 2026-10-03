@@ -1,5 +1,5 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 
 namespace SoftwareWorker.BYO.SDK.Handlers.Secrets
 {

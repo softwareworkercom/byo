@@ -1,5 +1,6 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.Telegram.Model;
 
 namespace SoftwareWorker.BYO.Integrations.Telegram
@@ -24,7 +25,7 @@ namespace SoftwareWorker.BYO.Integrations.Telegram
         /// </summary>
         public async Task<TelegramUser?> GetMeAsync()
         {
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetMeAsync());
 
             return response?.Ok == true ? response.Result : null;
@@ -38,7 +39,7 @@ namespace SoftwareWorker.BYO.Integrations.Telegram
         /// <param name="limit">Limits the number of updates to be retrieved (1–100).</param>
         public async Task<List<TelegramUpdate>> GetUpdatesAsync(long? offset = null, int? limit = null)
         {
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetUpdatesAsync(offset, limit));
 
             return response?.Ok == true ? (response.Result ?? []) : [];
@@ -69,7 +70,7 @@ namespace SoftwareWorker.BYO.Integrations.Telegram
                 ParseMode = parseMode
             };
 
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.SendMessageAsync(request));
 
             return response?.Ok == true ? response.Result : null;
@@ -96,7 +97,7 @@ namespace SoftwareWorker.BYO.Integrations.Telegram
                 DropPendingUpdates = dropPendingUpdates
             };
 
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.SetWebhookAsync(request));
 
             return response?.Ok == true && response.Result;
@@ -113,7 +114,7 @@ namespace SoftwareWorker.BYO.Integrations.Telegram
                 ["drop_pending_updates"] = dropPendingUpdates
             };
 
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.DeleteWebhookAsync(body));
 
             return response?.Ok == true && response.Result;
@@ -124,7 +125,7 @@ namespace SoftwareWorker.BYO.Integrations.Telegram
         /// </summary>
         public async Task<TelegramWebhookInfo?> GetWebhookInfoAsync()
         {
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetWebhookInfoAsync());
 
             return response?.Ok == true ? response.Result : null;

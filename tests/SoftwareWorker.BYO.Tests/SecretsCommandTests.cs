@@ -1,6 +1,5 @@
 using SoftwareWorker.BYO.SDK.Handlers.Secrets;
-using SoftwareWorker.BYO.SDK.Service;
-using SoftwareWorker.BYO.SDK.Storage;
+using SoftwareWorker.BYO.SDK.Services;
 
 namespace SoftwareWorker.BYO.Tests;
 

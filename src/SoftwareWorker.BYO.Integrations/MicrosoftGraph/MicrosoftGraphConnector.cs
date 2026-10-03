@@ -1,5 +1,6 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.MicrosoftGraph.Model;
 
 namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
@@ -29,27 +30,27 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
         // Teams Operations
         public async Task<List<MicrosoftGraphTeam>?> ListJoinedTeamsAsync()
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListJoinedTeams(GetHeaders()));
             return result?.Value;
         }
 
         public async Task<MicrosoftGraphTeam?> GetTeamAsync(string teamId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetTeam(GetHeaders(), teamId));
         }
 
         public async Task<List<MicrosoftGraphChannel>?> ListChannelsAsync(string teamId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListChannels(GetHeaders(), teamId));
             return result?.Value;
         }
 
         public async Task<MicrosoftGraphChannel?> GetChannelAsync(string teamId, string channelId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetChannel(GetHeaders(), teamId, channelId));
         }
 
@@ -63,20 +64,20 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
                     Content = content
                 }
             };
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.SendChannelMessage(GetHeaders(), teamId, channelId, message));
         }
 
         public async Task<List<MicrosoftGraphMessage>?> ListChannelMessagesAsync(string teamId, string channelId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListChannelMessages(GetHeaders(), teamId, channelId));
             return result?.Value;
         }
 
         public async Task<List<MicrosoftGraphMessage>?> ListChannelMessageRepliesAsync(string teamId, string channelId, string messageId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListChannelMessageReplies(GetHeaders(), teamId, channelId, messageId));
             return result?.Value;
         }
@@ -91,7 +92,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
             for (var page = 0; page < maxPages; page++)
             {
-                var pageResult = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var pageResult = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListChatMessages(GetHeaders(), chatId, top, skipToken));
 
                 if (pageResult?.Value is { Count: > 0 })
@@ -140,13 +141,13 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
         public async Task<MicrosoftGraphChat?> GetChatAsync(string chatId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetChat(GetHeaders(), chatId));
         }
 
         public async Task<List<MicrosoftGraphMember>?> ListTeamMembersAsync(string teamId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListTeamMembers(GetHeaders(), teamId));
             return result?.Value;
         }
@@ -160,7 +161,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
             while (allMessages.Count < maxResults)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListMessages(GetHeaders(), top, skip));
 
                 if (result?.Value == null || result.Value.Count == 0)
@@ -186,7 +187,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
             for (var page = 0; page < maxPages; page++)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListMessages(GetHeaders(), top, skip));
 
                 if (result?.Value == null || result.Value.Count == 0)
@@ -211,7 +212,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
         public async Task<MicrosoftGraphMailMessage?> GetMessageAsync(string messageId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetMessage(GetHeaders(), messageId));
         }
 
@@ -240,13 +241,13 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
                 SaveToSentItems = true
             };
 
-            await ResilienceHelper.ExecuteWithResilienceAsync<object?>(
+            await ResilienceService.ExecuteWithResilienceAsync<object?>(
                 async () => { await _api.SendMail(GetHeaders(), request); return null; });
         }
 
         public async Task<List<MicrosoftGraphMailFolder>?> ListMailFoldersAsync()
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListMailFolders(GetHeaders()));
             return result?.Value;
         }
@@ -259,7 +260,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
             while (allMessages.Count < maxResults)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListFolderMessages(GetHeaders(), folderId, top, skip));
 
                 if (result?.Value == null || result.Value.Count == 0)
@@ -285,7 +286,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
             while (allEvents.Count < maxResults)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListEvents(GetHeaders(), top, skip));
 
                 if (result?.Value == null || result.Value.Count == 0)
@@ -313,7 +314,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
             while (allEvents.Count < maxResults)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListCalendarView(GetHeaders(), start, end, top, skip));
 
                 if (result?.Value == null || result.Value.Count == 0)
@@ -332,31 +333,31 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
         public async Task<MicrosoftGraphEvent?> GetEventAsync(string eventId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetEvent(GetHeaders(), eventId));
         }
 
         public async Task<MicrosoftGraphEvent?> CreateEventAsync(MicrosoftGraphEventRequest eventRequest)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateEvent(GetHeaders(), eventRequest));
         }
 
         public async Task<MicrosoftGraphEvent?> UpdateEventAsync(string eventId, MicrosoftGraphEventRequest eventRequest)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateEvent(GetHeaders(), eventId, eventRequest));
         }
 
         public async Task DeleteEventAsync(string eventId)
         {
-            await ResilienceHelper.ExecuteWithResilienceAsync<object?>(
+            await ResilienceService.ExecuteWithResilienceAsync<object?>(
                 async () => { await _api.DeleteEvent(GetHeaders(), eventId); return null; });
         }
 
         public async Task<List<MicrosoftGraphCalendar>?> ListCalendarsAsync()
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListCalendars(GetHeaders()));
             return result?.Value;
         }
@@ -370,7 +371,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
             while (allContacts.Count < maxResults)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListContacts(GetHeaders(), top, skip));
 
                 if (result?.Value == null || result.Value.Count == 0)
@@ -389,44 +390,44 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
         public async Task<MicrosoftGraphContact?> GetContactAsync(string contactId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetContact(GetHeaders(), contactId));
         }
 
         public async Task<MicrosoftGraphContact?> CreateContactAsync(MicrosoftGraphContactRequest contactRequest)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateContact(GetHeaders(), contactRequest));
         }
 
         public async Task<MicrosoftGraphContact?> UpdateContactAsync(string contactId, MicrosoftGraphContactRequest contactRequest)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateContact(GetHeaders(), contactId, contactRequest));
         }
 
         public async Task DeleteContactAsync(string contactId)
         {
-            await ResilienceHelper.ExecuteWithResilienceAsync<object?>(
+            await ResilienceService.ExecuteWithResilienceAsync<object?>(
                 async () => { await _api.DeleteContact(GetHeaders(), contactId); return null; });
         }
 
         // User Operations
         public async Task<MicrosoftGraphUser?> GetCurrentUserAsync()
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetCurrentUser(GetHeaders()));
         }
 
         public async Task<MicrosoftGraphUser?> GetUserAsync(string userId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetUser(GetHeaders(), userId));
         }
 
         public async Task<List<MicrosoftGraphOnlineMeeting>?> ListOnlineMeetingsAsync(string userId, string? filter = null)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListOnlineMeetings(GetHeaders(), userId, filter));
 
             return result?.Value;
@@ -446,7 +447,7 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
 
         public async Task<List<MicrosoftGraphMeetingTranscript>?> ListOnlineMeetingTranscriptsAsync(string userId, string meetingId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListOnlineMeetingTranscripts(GetHeaders(), userId, meetingId));
 
             return result?.Value;

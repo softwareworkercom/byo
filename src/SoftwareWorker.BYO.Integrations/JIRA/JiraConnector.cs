@@ -1,5 +1,6 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.JIRA.Model;
 using SoftwareWorker.BYO.Integrations.JIRA.Model.Request;
 using SoftwareWorker.BYO.Integrations.JIRA.Model.Response;

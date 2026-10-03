@@ -1,4 +1,5 @@
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Services;
+using SoftwareWorker.BYO.SDK.Http;
 using System.Net;
 using System.Text;
 

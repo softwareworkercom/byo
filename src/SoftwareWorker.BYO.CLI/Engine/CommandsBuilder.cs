@@ -1,6 +1,6 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK.Abstractions.Model.Command;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.SDK.Helpers;
 using System.CommandLine;
 using System.CommandLine.Completions;

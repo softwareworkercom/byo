@@ -1,5 +1,6 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.Toggl.Model;
 
 namespace SoftwareWorker.BYO.Integrations.Toggl
@@ -17,14 +18,14 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
 
         public async Task<List<TogglTimeEntry>?> ListTimeEntriesAsync(string? startDate = null, string? endDate = null)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListTimeEntriesAsync(startDate, endDate));
             return result;
         }
 
         public async Task<TogglTimeEntry?> GetTimeEntryAsync(long timeEntryId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetTimeEntryAsync(timeEntryId));
             return result;
         }
@@ -41,7 +42,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
                 CreatedWith = "API"
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateTimeEntryAsync(workspaceId, request));
             return result;
         }
@@ -57,7 +58,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
                 TagIds = tagIds
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateTimeEntryAsync(workspaceId, timeEntryId, request));
             return result;
         }
@@ -77,21 +78,21 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
 
         public async Task<TogglTimeEntry?> StopTimeEntryAsync(long workspaceId, long timeEntryId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.StopTimeEntryAsync(workspaceId, timeEntryId));
             return result;
         }
 
         public async Task<List<TogglProject>?> ListProjectsAsync(long workspaceId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListProjectsAsync(workspaceId));
             return result;
         }
 
         public async Task<TogglProject?> GetProjectAsync(long workspaceId, long projectId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetProjectAsync(workspaceId, projectId));
             return result;
         }
@@ -106,7 +107,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
                 IsPrivate = isPrivate
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateProjectAsync(workspaceId, request));
             return result;
         }
@@ -122,7 +123,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
                 Active = active
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateProjectAsync(workspaceId, projectId, request));
             return result;
         }
@@ -142,14 +143,14 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
 
         public async Task<List<TogglClient>?> ListClientsAsync(long workspaceId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListClientsAsync(workspaceId));
             return result;
         }
 
         public async Task<TogglClient?> GetClientAsync(long workspaceId, long clientId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetClientAsync(workspaceId, clientId));
             return result;
         }
@@ -162,7 +163,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
                 Notes = notes
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateClientAsync(workspaceId, request));
             return result;
         }
@@ -175,7 +176,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
                 Notes = notes
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateClientAsync(workspaceId, clientId, request));
             return result;
         }
@@ -195,7 +196,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
 
         public async Task<List<TogglTag>?> ListTagsAsync(long workspaceId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListTagsAsync(workspaceId));
             return result;
         }
@@ -204,7 +205,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
         {
             var request = new TogglTagRequest { Name = name };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateTagAsync(workspaceId, request));
             return result;
         }
@@ -213,7 +214,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
         {
             var request = new TogglTagRequest { Name = name };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateTagAsync(workspaceId, tagId, request));
             return result;
         }
@@ -233,14 +234,14 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
 
         public async Task<List<TogglWorkspace>?> ListWorkspacesAsync()
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListWorkspacesAsync());
             return result;
         }
 
         public async Task<TogglWorkspace?> GetWorkspaceAsync(long workspaceId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetWorkspaceAsync(workspaceId));
             return result;
         }
@@ -249,14 +250,14 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
         {
             var request = new TogglWorkspaceRequest { Name = name };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateWorkspaceAsync(workspaceId, request));
             return result;
         }
 
         public async Task<TogglUser?> GetCurrentUserAsync()
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetCurrentUserAsync());
             return result;
         }
@@ -270,7 +271,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
                 Timezone = timezone
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateCurrentUserAsync(request));
             return result;
         }

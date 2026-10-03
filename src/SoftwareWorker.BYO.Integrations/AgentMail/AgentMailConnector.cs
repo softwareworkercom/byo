@@ -1,6 +1,7 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.AgentMail.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 
 namespace SoftwareWorker.BYO.Integrations.AgentMail
 {
@@ -27,7 +28,7 @@ namespace SoftwareWorker.BYO.Integrations.AgentMail
 
         public async Task<List<AgentMailInbox>> ListInboxesAsync(int? limit = null, string? pageToken = null, bool? ascending = null)
         {
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListInboxesAsync(_headers, limit, pageToken, ascending));
 
             return response?.GetInboxes() ?? [];
@@ -40,7 +41,7 @@ namespace SoftwareWorker.BYO.Integrations.AgentMail
                 throw new ArgumentException("Inbox ID cannot be null or empty.", nameof(inboxId));
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetInboxAsync(_headers, inboxId));
         }
 
@@ -53,7 +54,7 @@ namespace SoftwareWorker.BYO.Integrations.AgentMail
                 DisplayName = displayName
             };
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateInboxAsync(_headers, request));
         }
 
@@ -64,7 +65,7 @@ namespace SoftwareWorker.BYO.Integrations.AgentMail
                 throw new ArgumentException("Inbox ID cannot be null or empty.", nameof(inboxId));
             }
 
-            await ResilienceHelper.ExecuteWithResilienceAsync(
+            await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.DeleteInboxAsync(_headers, inboxId));
         }
 
@@ -75,7 +76,7 @@ namespace SoftwareWorker.BYO.Integrations.AgentMail
                 throw new ArgumentException("Inbox ID cannot be null or empty.", nameof(inboxId));
             }
 
-            var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var response = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListMessagesAsync(_headers, inboxId, limit, pageToken, ascending));
 
             return response?.GetMessages() ?? [];
@@ -93,7 +94,7 @@ namespace SoftwareWorker.BYO.Integrations.AgentMail
                 throw new ArgumentException("Message ID cannot be null or empty.", nameof(messageId));
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetMessageAsync(_headers, inboxId, messageId));
         }
     }

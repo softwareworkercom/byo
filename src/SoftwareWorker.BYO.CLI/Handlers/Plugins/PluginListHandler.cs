@@ -1,7 +1,7 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK;
 using SoftwareWorker.BYO.CLI.Helpers;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.CLI.Integrations.NuGet;
 using Spectre.Console;
 

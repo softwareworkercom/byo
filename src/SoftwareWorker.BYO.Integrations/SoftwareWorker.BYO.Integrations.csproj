@@ -20,4 +20,8 @@
 		</PackageReference>
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\SoftwareWorker.BYO.SDK\SoftwareWorker.BYO.SDK.csproj" />
+	</ItemGroup>
+
 </Project>

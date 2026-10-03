@@ -1,6 +1,7 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Auth0.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 
 namespace SoftwareWorker.BYO.Integrations.Auth0
 {
@@ -23,7 +24,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
             while (true)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListUsersAsync(perPage, page));
 
                 if (result == null || result.Count == 0)
@@ -48,28 +49,28 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
         public async Task<Auth0User?> GetUserAsync(string id)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetUserAsync(id));
             return result;
         }
 
         public async Task<Auth0User?> CreateUserAsync(Auth0UserCreateRequest request)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateUserAsync(request));
             return result;
         }
 
         public async Task<Auth0User?> UpdateUserAsync(string id, Auth0UserUpdateRequest request)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateUserAsync(id, request));
             return result;
         }
 
         public async Task<bool> DeleteUserAsync(string id)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => { await _api.DeleteUserAsync(id); return new object(); });
             return result != null;
         }
@@ -82,7 +83,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
             while (true)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListClientsAsync(perPage, page));
 
                 if (result == null || result.Count == 0)
@@ -107,28 +108,28 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
         public async Task<Auth0Client?> GetClientAsync(string id)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetClientAsync(id));
             return result;
         }
 
         public async Task<Auth0Client?> CreateClientAsync(Auth0ClientCreateRequest request)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateClientAsync(request));
             return result;
         }
 
         public async Task<Auth0Client?> UpdateClientAsync(string id, Auth0ClientUpdateRequest request)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateClientAsync(id, request));
             return result;
         }
 
         public async Task<bool> DeleteClientAsync(string id)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => { await _api.DeleteClientAsync(id); return new object(); });
             return result != null;
         }
@@ -141,7 +142,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
             while (true)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListRolesAsync(perPage, page));
 
                 if (result == null || result.Roles == null || result.Roles.Count == 0)
@@ -166,35 +167,35 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
         public async Task<Auth0Role?> GetRoleAsync(string id)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetRoleAsync(id));
             return result;
         }
 
         public async Task<Auth0Role?> CreateRoleAsync(Auth0RoleCreateRequest request)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateRoleAsync(request));
             return result;
         }
 
         public async Task<Auth0Role?> UpdateRoleAsync(string id, Auth0RoleUpdateRequest request)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateRoleAsync(id, request));
             return result;
         }
 
         public async Task<bool> DeleteRoleAsync(string id)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => { await _api.DeleteRoleAsync(id); return new object(); });
             return result != null;
         }
 
         public async Task<List<Auth0Role>?> ListUserRolesAsync(string userId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListUserRolesAsync(userId));
             return result;
         }
@@ -202,7 +203,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
         public async Task<bool> AssignRolesToUserAsync(string userId, List<string> roleIds)
         {
             var request = new Auth0AssignRolesRequest { Roles = roleIds };
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => { await _api.AssignRolesToUserAsync(userId, request); return new object(); });
             return result != null;
         }
@@ -210,7 +211,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
         public async Task<bool> RemoveRolesFromUserAsync(string userId, List<string> roleIds)
         {
             var request = new Auth0RemoveRolesRequest { Roles = roleIds };
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => { await _api.RemoveRolesFromUserAsync(userId, request); return new object(); });
             return result != null;
         }
@@ -223,7 +224,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
             while (true)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListConnectionsAsync(perPage, page));
 
                 if (result == null || result.Count == 0)
@@ -248,7 +249,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
         public async Task<Auth0Connection?> GetConnectionAsync(string id)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetConnectionAsync(id));
             return result;
         }
@@ -261,7 +262,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
             while (true)
             {
-                var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var result = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListLogsAsync(perPage, page, query));
 
                 if (result == null || result.Count == 0)

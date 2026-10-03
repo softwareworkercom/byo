@@ -1,5 +1,5 @@
 using SoftwareWorker.BYO.Integrations.Confluence.Model;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 
 namespace SoftwareWorker.BYO.Integrations.Confluence
 {

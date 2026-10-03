@@ -1,5 +1,6 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.Stripe.Model;
 
 namespace SoftwareWorker.BYO.Integrations.Stripe
@@ -31,7 +32,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListCustomers(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -55,7 +56,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripeCustomer?> GetCustomerAsync(string customerId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetCustomer(customerId));
         }
 
@@ -71,19 +72,19 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
                 }
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateCustomer(data));
         }
 
         public async Task<StripeCustomer?> UpdateCustomerAsync(string customerId, Dictionary<string, object> updates)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateCustomer(customerId, updates));
         }
 
         public async Task<bool> DeleteCustomerAsync(string customerId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.DeleteCustomer(customerId));
             return result?.Deleted ?? false;
         }
@@ -97,7 +98,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListPaymentIntents(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -121,7 +122,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripePaymentIntent?> GetPaymentIntentAsync(string paymentIntentId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetPaymentIntent(paymentIntentId));
         }
 
@@ -142,19 +143,19 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
                 }
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreatePaymentIntent(data));
         }
 
         public async Task<StripePaymentIntent?> UpdatePaymentIntentAsync(string paymentIntentId, Dictionary<string, object> updates)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdatePaymentIntent(paymentIntentId, updates));
         }
 
         public async Task<StripePaymentIntent?> CancelPaymentIntentAsync(string paymentIntentId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CancelPaymentIntent(paymentIntentId));
         }
 
@@ -167,7 +168,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListCharges(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -191,7 +192,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripeCharge?> GetChargeAsync(string chargeId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetCharge(chargeId));
         }
 
@@ -204,7 +205,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListRefunds(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -228,7 +229,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripeRefund?> GetRefundAsync(string refundId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetRefund(refundId));
         }
 
@@ -244,14 +245,14 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
             if (amount.HasValue) data["amount"] = amount.Value;
             if (reason != null) data["reason"] = reason;
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateRefund(data));
         }
 
         // Payment Methods
         public async Task<StripePaymentMethod?> GetPaymentMethodAsync(string paymentMethodId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetPaymentMethod(paymentMethodId));
         }
 
@@ -263,14 +264,14 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
                 data[kvp.Key] = kvp.Value;
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreatePaymentMethod(data));
         }
 
         public async Task<StripePaymentMethod?> AttachPaymentMethodAsync(string paymentMethodId, string customerId)
         {
             var data = new Dictionary<string, object> { ["customer"] = customerId };
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.AttachPaymentMethod(paymentMethodId, data));
         }
 
@@ -283,7 +284,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListSubscriptions(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -307,7 +308,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripeSubscription?> GetSubscriptionAsync(string subscriptionId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetSubscription(subscriptionId));
         }
 
@@ -327,19 +328,19 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
                 }
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateSubscription(data));
         }
 
         public async Task<StripeSubscription?> UpdateSubscriptionAsync(string subscriptionId, Dictionary<string, object> updates)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateSubscription(subscriptionId, updates));
         }
 
         public async Task<StripeSubscription?> CancelSubscriptionAsync(string subscriptionId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CancelSubscription(subscriptionId));
         }
 
@@ -352,7 +353,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListProducts(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -376,7 +377,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripeProduct?> GetProductAsync(string productId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetProduct(productId));
         }
 
@@ -391,19 +392,19 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
                 }
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateProduct(data));
         }
 
         public async Task<StripeProduct?> UpdateProductAsync(string productId, Dictionary<string, object> updates)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateProduct(productId, updates));
         }
 
         public async Task<bool> DeleteProductAsync(string productId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.DeleteProduct(productId));
             return result?.Deleted ?? false;
         }
@@ -417,7 +418,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListPrices(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -441,7 +442,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripePrice?> GetPriceAsync(string priceId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetPrice(priceId));
         }
 
@@ -462,7 +463,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
                 }
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreatePrice(data));
         }
 
@@ -475,7 +476,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
             while (true)
             {
-                var response = await ResilienceHelper.ExecuteWithResilienceAsync(
+                var response = await ResilienceService.ExecuteWithResilienceAsync(
                     async () => await _api.ListInvoices(limit, startingAfter));
 
                 if (response == null || response.Data == null || response.Data.Count == 0)
@@ -499,7 +500,7 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
 
         public async Task<StripeInvoice?> GetInvoiceAsync(string invoiceId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetInvoice(invoiceId));
         }
 
@@ -514,13 +515,13 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
                 }
             }
 
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateInvoice(data));
         }
 
         public async Task<StripeInvoice?> PayInvoiceAsync(string invoiceId)
         {
-            return await ResilienceHelper.ExecuteWithResilienceAsync(
+            return await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.PayInvoice(invoiceId));
         }
     }

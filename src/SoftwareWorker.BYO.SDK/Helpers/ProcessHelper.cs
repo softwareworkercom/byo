@@ -1,4 +1,4 @@
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 using System.Diagnostics;
 using System.Security.Principal;
 

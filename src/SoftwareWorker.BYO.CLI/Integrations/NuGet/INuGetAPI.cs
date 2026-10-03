@@ -1,5 +1,5 @@
 using SoftwareWorker.BYO.CLI.Integrations.NuGet.Model;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 
 namespace SoftwareWorker.BYO.CLI.Integrations.NuGet
 {

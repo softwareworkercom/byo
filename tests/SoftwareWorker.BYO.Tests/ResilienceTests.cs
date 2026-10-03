@@ -1,6 +1,6 @@
+using SoftwareWorker.BYO.SDK.Services;
 using Microsoft.Extensions.Time.Testing;
-using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Resilience;
+using SoftwareWorker.BYO.SDK.Resilience;
 using System.Diagnostics;
 
 namespace SoftwareWorker.BYO.Tests;
@@ -137,19 +137,32 @@ public sealed class ResilienceTests
     }
 
     [Fact]
-    public async Task CircuitBreaker_ShouldIgnoreUnhandledExceptions_AndResetTheCountOnSuccess()
+    public async Task CircuitBreaker_ShouldResetTheCount_WhenACallSucceeds()
     {
         var policy = new AsyncCircuitBreakerPolicy<string>(IsTransient, 2, TimeSpan.FromSeconds(30));
 
         await Assert.ThrowsAsync<HttpRequestException>(() => policy.ExecuteAsync(() => Task.FromException<string>(new HttpRequestException())));
         await policy.ExecuteAsync(() => Task.FromResult("ok"));
         await Assert.ThrowsAsync<HttpRequestException>(() => policy.ExecuteAsync(() => Task.FromException<string>(new HttpRequestException())));
+
+        Assert.Equal(CircuitState.Closed, policy.CircuitState);
+    }
+
+    [Fact]
+    public async Task CircuitBreaker_ShouldNeitherCountNorResetTheCount_OnUnhandledExceptions()
+    {
+        var policy = new AsyncCircuitBreakerPolicy<string>(IsTransient, 2, TimeSpan.FromSeconds(30));
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => policy.ExecuteAsync(() => Task.FromException<string>(new HttpRequestException())));
         for (var i = 0; i < 3; i++)
         {
             await Assert.ThrowsAsync<InvalidOperationException>(() => policy.ExecuteAsync(() => Task.FromException<string>(new InvalidOperationException())));
         }
-
         Assert.Equal(CircuitState.Closed, policy.CircuitState);
+
+        // The handled failure before the unhandled ones still counts, so this one opens the circuit.
+        await Assert.ThrowsAsync<HttpRequestException>(() => policy.ExecuteAsync(() => Task.FromException<string>(new HttpRequestException())));
+        Assert.Equal(CircuitState.Open, policy.CircuitState);
     }
 
     [Fact]
@@ -222,8 +235,8 @@ public sealed class ResilienceTests
     {
         var voidRuns = 0;
 
-        var result = await ResilienceHelper.ExecuteWithResilienceAsync(() => Task.FromResult("value"));
-        await ResilienceHelper.ExecuteWithResilienceAsync(() =>
+        var result = await ResilienceService.ExecuteWithResilienceAsync(() => Task.FromResult("value"));
+        await ResilienceService.ExecuteWithResilienceAsync(() =>
         {
             voidRuns++;
             return Task.CompletedTask;
@@ -242,7 +255,7 @@ public sealed class ResilienceTests
         var attempts = 0;
         try
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(() =>
+            var result = await ResilienceService.ExecuteWithResilienceAsync(() =>
             {
                 attempts++;
                 return Task.FromException<string>(new InvalidOperationException("not transient"));

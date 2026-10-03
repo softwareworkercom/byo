@@ -1,4 +1,4 @@
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.Stripe.Model;
 
 namespace SoftwareWorker.BYO.Integrations.Stripe

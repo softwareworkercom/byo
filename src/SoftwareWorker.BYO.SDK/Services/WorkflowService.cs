@@ -1,0 +1,158 @@
+using SoftwareWorker.BYO.SDK.Constants;
+using SoftwareWorker.BYO.SDK.Model;
+using SoftwareWorker.BYO.SDK.Services;
+
+namespace SoftwareWorker.BYO.SDK.Services
+{
+    public static class WorkflowService
+    {
+        public static string WorkflowsFilePath { get; set; } = SystemConstants.STORAGE_WORKFLOWS_FILE;
+
+        /// <summary>
+        /// Creates a new workflow and adds it to storage.
+        /// </summary>
+        /// <param name="name">The name of the workflow.</param>
+        /// <param name="steps">The list of steps to include in the workflow.</param>
+        /// <param name="folderPath">Optional hierarchical folder path (e.g. "DevOps/Deploy").</param>
+        /// <param name="overrideExisting">Whether to replace an existing workflow with the same name and bookmark.</param>
+        /// <returns>The created workflow.</returns>
+        public static Workflow Create(string name, List<WorkflowStep> steps, string? bookmark = null, bool overrideExisting = false)
+        {
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
+            var normalizedBookmark = NormalizeFolderPath(bookmark);
+
+            var existingWorkflow = workflows.FirstOrDefault(r =>
+                r.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(
+                    NormalizeFolderPath(r.Bookmark),
+                    normalizedBookmark,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (existingWorkflow != null && !overrideExisting)
+            {
+                var bookmarkLabel = string.IsNullOrWhiteSpace(normalizedBookmark) ? "/" : normalizedBookmark;
+                throw new InvalidOperationException($"A workflow with the name '{name}' already exists in bookmark '{bookmarkLabel}'.");
+            }
+
+            if (existingWorkflow != null)
+            {
+                workflows.Remove(existingWorkflow);
+            }
+
+            var workflow = new Workflow
+            {
+                Name = name,
+                Steps = steps,
+                Bookmark = normalizedBookmark,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            workflows.Add(workflow);
+            workflows = [.. workflows.OrderBy(r => r.Name)];
+
+            StorageService.SaveList(WorkflowsFilePath, workflows);
+
+            return workflow;
+        }
+
+        /// <summary>
+        /// Gets all workflows.
+        /// </summary>
+        /// <returns>A list of all workflows.</returns>
+        public static List<Workflow> GetList()
+        {
+            return StorageService.LoadList<Workflow>(WorkflowsFilePath);
+        }
+
+        /// <summary>
+        /// Gets a workflow by name.
+        /// </summary>
+        /// <param name="name">The name of the workflow to find.</param>
+        /// <returns>The workflow if found, null otherwise.</returns>
+        public static Workflow? GetByName(string name)
+        {
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
+            return workflows.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Updates an existing workflow.
+        /// </summary>
+        /// <param name="name">The name of the workflow to update.</param>
+        /// <param name="newName">Optional new name.</param>
+        /// <param name="steps">Optional new list of steps.</param>
+        /// <param name="folderPath">Optional new folder path.</param>
+        /// <returns>The updated workflow if found, null otherwise.</returns>
+        public static Workflow? Update(
+            string name,
+            string? newName = null,
+            List<WorkflowStep>? steps = null,
+            string? folderPath = null)
+        {
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
+            var existingWorkflow = workflows.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            if (existingWorkflow == null)
+            {
+                return null;
+            }
+
+            // Update only provided values
+            if (newName != null) existingWorkflow.Name = newName;
+            if (steps != null) existingWorkflow.Steps = steps;
+            if (folderPath != null) existingWorkflow.Bookmark = NormalizeFolderPath(folderPath);
+            existingWorkflow.UpdatedAt = DateTime.UtcNow;
+
+            StorageService.SaveList(WorkflowsFilePath, workflows);
+
+            // Re-read to get the properly ordered list
+            workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
+            workflows = [.. workflows.OrderBy(r => r.Name)];
+            StorageService.SaveList(WorkflowsFilePath, workflows);
+
+            return existingWorkflow;
+        }
+
+        /// <summary>
+        /// Deletes a workflow by name.
+        /// </summary>
+        /// <param name="name">The name of the workflow to delete.</param>
+        /// <returns>True if the workflow was deleted, false if not found.</returns>
+        public static bool Delete(string name)
+        {
+            var workflows = StorageService.LoadList<Workflow>(WorkflowsFilePath);
+
+            var existingWorkflow = workflows.FirstOrDefault(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            if (existingWorkflow == null)
+            {
+                return false;
+            }
+
+            workflows.Remove(existingWorkflow);
+            StorageService.SaveList(WorkflowsFilePath, workflows);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Deletes a workflow.
+        /// </summary>
+        /// <param name="workflow">The workflow to delete.</param>
+        /// <returns>True if the workflow was deleted, false if not found.</returns>
+        public static bool Delete(Workflow workflow)
+        {
+            return Delete(workflow.Name);
+        }
+
+        /// <summary>
+        /// Normalises a folder path by trimming leading/trailing whitespace and slashes.
+        /// Returns null if the result is empty.
+        /// </summary>
+        internal static string? NormalizeFolderPath(string? folderPath)
+        {
+            var normalized = FolderNavigationService.NormalizePath(folderPath);
+            return string.IsNullOrEmpty(normalized) ? null : normalized;
+        }
+    }
+}

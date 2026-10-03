@@ -1,6 +1,7 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Confluence.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 using System.Text;
 
 namespace SoftwareWorker.BYO.Integrations.Confluence

@@ -3,7 +3,7 @@ using SoftwareWorker.BYO.CLI.Helpers;
 using SoftwareWorker.BYO.CLI.Service;
 using SoftwareWorker.BYO.CLI.Shell;
 using SoftwareWorker.BYO.SDK.Helpers;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 
 namespace SoftwareWorker.BYO.CLI.Engine
 {

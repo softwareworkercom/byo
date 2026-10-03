@@ -1,7 +1,7 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK;
 using SoftwareWorker.BYO.SDK.Model;
-using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.SDK.Model.Enums;
 using Spectre.Console;
 

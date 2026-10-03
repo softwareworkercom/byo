@@ -1,6 +1,7 @@
+using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Bitwarden.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.Integrations.Http;
+using SoftwareWorker.BYO.SDK.Http;
 
 namespace SoftwareWorker.BYO.Integrations.Bitwarden
 {
@@ -17,14 +18,14 @@ namespace SoftwareWorker.BYO.Integrations.Bitwarden
 
         public async Task<List<BitwardenSecret>?> ListSecretsAsync(string? organizationId = null)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListSecretsAsync(organizationId));
             return result?.Data;
         }
 
         public async Task<BitwardenSecretResponse?> GetSecretAsync(string secretId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetSecretAsync(secretId));
             return result;
         }
@@ -44,7 +45,7 @@ namespace SoftwareWorker.BYO.Integrations.Bitwarden
                 ProjectIds = projectIds
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.CreateSecretAsync(organizationId, request));
             return result;
         }
@@ -64,28 +65,28 @@ namespace SoftwareWorker.BYO.Integrations.Bitwarden
                 ProjectIds = projectIds
             };
 
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.UpdateSecretAsync(secretId, request));
             return result;
         }
 
         public async Task<bool> DeleteSecretAsync(string secretId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => { await _api.DeleteSecretAsync(secretId); return new object(); });
             return result != null;
         }
 
         public async Task<List<BitwardenProject>?> ListProjectsAsync(string? organizationId = null)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.ListProjectsAsync(organizationId));
             return result?.Data;
         }
 
         public async Task<BitwardenProject?> GetProjectAsync(string projectId)
         {
-            var result = await ResilienceHelper.ExecuteWithResilienceAsync(
+            var result = await ResilienceService.ExecuteWithResilienceAsync(
                 async () => await _api.GetProjectAsync(projectId));
             return result;
         }
