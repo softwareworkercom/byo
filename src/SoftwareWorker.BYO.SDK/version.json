@@ -1,1 +1,3 @@
-../SoftwareWorker.BYO.CLI/version.json
+{
+    "version": "0.38.0"
+}
