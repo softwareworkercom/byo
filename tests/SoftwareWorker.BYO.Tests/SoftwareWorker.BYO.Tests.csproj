@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\SoftwareWorker.BYO.CLI\SoftwareWorker.BYO.CLI.csproj" />
     <ProjectReference Include="..\..\src\SoftwareWorker.BYO.SDK\SoftwareWorker.BYO.SDK.csproj" />
   </ItemGroup>
 

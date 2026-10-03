@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.CLI.Abstractions.Attributes
+namespace SoftwareWorker.BYO.SDK.Abstractions.Attributes
 {
     /// <summary>
     /// Attribute to mark command parameters

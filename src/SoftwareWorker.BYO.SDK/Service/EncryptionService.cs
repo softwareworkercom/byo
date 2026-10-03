@@ -1,8 +1,8 @@
-using SoftwareWorker.BYO.CLI.Core.Helpers;
+using SoftwareWorker.BYO.SDK.Helpers;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public class EncryptionService
     {

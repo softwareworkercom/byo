@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class TokenService
     {

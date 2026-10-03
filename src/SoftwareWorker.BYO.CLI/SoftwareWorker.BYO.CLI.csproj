@@ -3,6 +3,8 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 		<AssemblyName>byo</AssemblyName>
 		<IsPackable>false</IsPackable>
 		<!-- Keep reflection-based System.Text.Json working in trimmed/self-contained publish builds -->
@@ -24,6 +26,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="SoftwareWorker.BYO.Tests" />
+	</ItemGroup>
+
+	<ItemGroup>
 	<AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
 	<_Parameter1>ToolCommandName</_Parameter1>
 	<_Parameter2>$(ToolCommandName)</_Parameter2>
@@ -35,6 +41,8 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+     <PackageReference Include="Refit" />
+     <PackageReference Include="System.CommandLine" />
 	</ItemGroup>
 
 	<!-- Always build against the current SDK sources so CI/local builds resolve the same code. -->

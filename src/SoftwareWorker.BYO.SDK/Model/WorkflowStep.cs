@@ -1,6 +1,6 @@
-using SoftwareWorker.BYO.Core.Model.Enums;
+using SoftwareWorker.BYO.SDK.Model.Enums;
 
-namespace SoftwareWorker.BYO.CLI.Core.Model
+namespace SoftwareWorker.BYO.SDK.Model
 {
     /// <summary>
     /// Represents a single step in a workflow

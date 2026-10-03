@@ -1,9 +1,9 @@
-using SoftwareWorker.BYO.CLI.Core.Constants;
-using SoftwareWorker.BYO.CLI.Core.Model;
-using SoftwareWorker.BYO.Core.Model.Enums;
-using SoftwareWorker.BYO.Core.Storage;
+using SoftwareWorker.BYO.SDK.Constants;
+using SoftwareWorker.BYO.SDK.Model;
+using SoftwareWorker.BYO.SDK.Model.Enums;
+using SoftwareWorker.BYO.SDK.Storage;
 
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class CommandService
     {

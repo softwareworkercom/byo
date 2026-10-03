@@ -1,8 +1,8 @@
-using SoftwareWorker.BYO.CLI.Core.Service;
+using SoftwareWorker.BYO.SDK.Service;
 using System.Diagnostics;
 using System.Security.Principal;
 
-namespace SoftwareWorker.BYO.CLI.Core.Helpers
+namespace SoftwareWorker.BYO.SDK.Helpers
 {
     public static class ProcessHelper
     {

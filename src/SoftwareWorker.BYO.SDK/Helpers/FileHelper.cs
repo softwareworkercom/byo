@@ -1,11 +1,11 @@
-using SoftwareWorker.BYO.CLI.Core.Service;
+using SoftwareWorker.BYO.SDK.Service;
 using System.Data;
 using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
 using System.Xml;
 
-namespace SoftwareWorker.BYO.CLI.Core.Helpers
+namespace SoftwareWorker.BYO.SDK.Helpers
 {
     public static class FileHelper
     {

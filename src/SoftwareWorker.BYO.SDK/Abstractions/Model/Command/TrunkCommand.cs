@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.CLI.Abstractions.Model.Command
+namespace SoftwareWorker.BYO.SDK.Abstractions.Model.Command
 {
     public class TrunkCommand : CommandBase
     {

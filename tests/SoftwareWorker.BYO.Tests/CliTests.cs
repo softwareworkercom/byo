@@ -1,15 +1,23 @@
-﻿using SoftwareWorker.BYO.CLI.Abstractions.Model.Command;
-using SoftwareWorker.BYO.CLI.Core.Constants;
-using SoftwareWorker.BYO.CLI.Core.Engine;
-using SoftwareWorker.BYO.CLI.Core.Service;
+﻿using SoftwareWorker.BYO.SDK.Abstractions.Model.Command;
+using SoftwareWorker.BYO.SDK.Constants;
+using SoftwareWorker.BYO.CLI.Service;
+using SoftwareWorker.BYO.CLI.Engine;
+using SoftwareWorker.BYO.SDK.Service;
 using System.CommandLine;
 using System.IO.Compression;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace SoftwareWorker.BYO.Tests;
 
 public class CliTests
 {
+    [ModuleInitializer]
+    internal static void EnsureCliAssemblyLoaded()
+    {
+        Assembly.Load("byo");
+    }
+
     [Fact]
     public void BuildFromReflection_ShouldDiscoverCliCommands()
     {
@@ -518,7 +526,7 @@ public class CliTests
 
         var result = loadMethod!.Invoke(instance, [new AssemblyName("BYO.SDK")]);
         Assert.NotNull(result);
-        Assert.Equal(typeof(CommandsScanner).Assembly, result);
+        Assert.Equal(typeof(SoftwareWorker.BYO.SDK.BaseCommandHandler).Assembly, result);
     }
 
     [Theory]

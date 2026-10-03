@@ -1,8 +1,8 @@
-using SoftwareWorker.BYO.CLI.Core.Model;
-using SoftwareWorker.BYO.Core.Model.Enums;
+using SoftwareWorker.BYO.SDK.Model;
+using SoftwareWorker.BYO.SDK.Model.Enums;
 using Spectre.Console;
 
-namespace SoftwareWorker.BYO.CLI.Core.Helpers
+namespace SoftwareWorker.BYO.SDK.Helpers
 {
     /// <summary>
     /// Builds a human-readable, markup-formatted description of a workflow step's configured selections.

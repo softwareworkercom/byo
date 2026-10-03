@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.CLI.Core.Constants
+namespace SoftwareWorker.BYO.SDK.Constants
 {
     /// <summary>
     /// Contains constant keys for system configuration entries.
@@ -27,6 +27,8 @@ namespace SoftwareWorker.BYO.CLI.Core.Constants
 
         public const string SYSTEM_RSAKeyPair = "System:RSAKeyPair";
         public const string SYSTEM_IsLoggingEnabled = "System:IsLoggingEnabled";
+        public const string SYSTEM_Alias = "System:Alias";
+        public const string SYSTEM_SkipAliasPrompt = "System:SkipAliasPrompt";
 
 
         public const string SYSTEM_DATABASE_LOCAL = "local.db";

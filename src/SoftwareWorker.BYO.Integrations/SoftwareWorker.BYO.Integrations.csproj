@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<AssemblyName>BYO.Integrations</AssemblyName>
+		<PackageId>BYO.Integrations</PackageId>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageIcon>Icons/byo-icon.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="../../docs/Images/byo-icon.png" Pack="true" PackagePath="Icons/" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Nerdbank.GitVersioning">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Polly" />
+		<PackageReference Include="Refit" />
+	</ItemGroup>
+
+</Project>

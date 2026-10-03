@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace SoftwareWorker.BYO.Core.Secrets
+namespace SoftwareWorker.BYO.SDK.Secrets
 {
     public sealed class SecretStore
     {

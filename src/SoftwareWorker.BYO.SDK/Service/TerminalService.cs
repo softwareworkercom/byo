@@ -1,10 +1,10 @@
-using SoftwareWorker.BYO.CLI.Core.Constants;
-using SoftwareWorker.BYO.Core.Model.Enums;
+using SoftwareWorker.BYO.SDK.Constants;
+using SoftwareWorker.BYO.SDK.Model.Enums;
 using System.Diagnostics;
 using System.Text;
 using Process = System.Diagnostics.Process;
 
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class TerminalService
     {

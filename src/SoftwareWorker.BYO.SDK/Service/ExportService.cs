@@ -1,4 +1,4 @@
-using SoftwareWorker.BYO.CLI.Core.Service;
+using SoftwareWorker.BYO.SDK.Service;
 using System.Data;
 using System.Text.Json;
 

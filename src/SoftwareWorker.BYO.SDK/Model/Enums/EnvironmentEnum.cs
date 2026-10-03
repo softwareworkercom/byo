@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.Core.Model.Enums
+namespace SoftwareWorker.BYO.SDK.Model.Enums
 {
     public enum EnvironmentEnum
     {

@@ -1,0 +1,70 @@
+using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
+using SoftwareWorker.BYO.SDK;
+using SoftwareWorker.BYO.SDK.Service;
+using Spectre.Console;
+
+namespace SoftwareWorker.BYO.CLI.Handlers.Commands
+{
+    [TrunkCommand("commands", "Saved command management")]
+    [BranchCommand("list", "List all saved commands")]
+    internal class CommandListHandler : BaseCommandHandler
+    {
+        public override async Task ExecuteAsync()
+        {
+            var commands = CommandService.GetList();
+
+            if (commands == null || commands.Count == 0)
+            {
+                UserInterfaceService.ShowWarning("No commands found. Use 'byo commands create' to create a command.");
+                return;
+            }
+
+            // Group commands by folder path (null/empty = root)
+            var grouped = commands
+                .OrderBy(c => c.Bookmark ?? string.Empty)
+                .ThenBy(c => c.Name)
+                .GroupBy(c => FolderNavigationService.NormalizePath(c.Bookmark))
+                .OrderBy(g => g.Key);
+
+            foreach (var group in grouped)
+            {
+                var folderHeader = string.IsNullOrEmpty(group.Key) ? "[grey](root)[/]" : $"[cyan]{Markup.Escape(group.Key)}[/]";
+                UserInterfaceService.ShowMarkup($"[bold]{folderHeader}[/]");
+
+                var table = new Table()
+                    .Border(TableBorder.Rounded)
+                    .BorderColor(Color.Cyan)
+                    .AddColumn("[bold]Name[/]")
+                    .AddColumn("[bold]Bookmark[/]")
+                    .AddColumn("[bold]Executable[/]")
+                    .AddColumn("[bold]Directory[/]")
+                    .AddColumn("[bold]Created[/]");
+
+                foreach (var command in group)
+                {
+                    var name = Markup.Escape(command.Name ?? "(unnamed)");
+                    var bookmark = string.IsNullOrWhiteSpace(command.Bookmark)
+                        ? "[grey](root)[/]"
+                        : Markup.Escape(command.Bookmark);
+                    var executable = Markup.Escape(command.Executable ?? "(missing)");
+                    var directory = string.IsNullOrWhiteSpace(command.Directory)
+                        ? "[grey]-[/]"
+                        : Markup.Escape(command.Directory);
+
+                    table.AddRow(
+                        name,
+                        bookmark,
+                        executable,
+                        directory,
+                        command.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    );
+                }
+
+                UserInterfaceService.ShowTable(table);
+                UserInterfaceService.WriteLine();
+            }
+
+            await Task.CompletedTask;
+        }
+    }
+}

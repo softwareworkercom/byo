@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace SoftwareWorker.BYO.CLI.Core.Helpers
+namespace SoftwareWorker.BYO.SDK.Helpers
 {
     /// <summary>
     /// Helper class for generating cross-platform machine identifiers.

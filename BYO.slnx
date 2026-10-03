@@ -28,6 +28,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/SoftwareWorker.BYO.CLI/SoftwareWorker.BYO.CLI.csproj" />
+    <Project Path="src/SoftwareWorker.BYO.Integrations/SoftwareWorker.BYO.Integrations.csproj" />
     <Project Path="src/SoftwareWorker.BYO.SDK/SoftwareWorker.BYO.SDK.csproj" />
   </Folder>
   <Folder Name="/tests/">

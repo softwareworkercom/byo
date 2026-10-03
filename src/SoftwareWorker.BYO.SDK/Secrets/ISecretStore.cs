@@ -1,4 +1,4 @@
-﻿namespace SoftwareWorker.BYO.Core.Secrets
+﻿namespace SoftwareWorker.BYO.SDK.Secrets
 {
     public interface ISecretStore
     {

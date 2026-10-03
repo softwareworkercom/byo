@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.CLI.Core.Storage.Interfaces;
+namespace SoftwareWorker.BYO.SDK.Storage.Interfaces;
 
 public interface IStorage<T>
 {

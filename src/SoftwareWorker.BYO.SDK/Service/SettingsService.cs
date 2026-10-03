@@ -1,9 +1,9 @@
-using SoftwareWorker.BYO.CLI.Core.Constants;
-using SoftwareWorker.BYO.CLI.Core.Helpers;
-using SoftwareWorker.BYO.Core.Storage;
+using SoftwareWorker.BYO.SDK.Constants;
+using SoftwareWorker.BYO.SDK.Helpers;
+using SoftwareWorker.BYO.SDK.Storage;
 using System.Text.Json;
 
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class SettingsService
     {

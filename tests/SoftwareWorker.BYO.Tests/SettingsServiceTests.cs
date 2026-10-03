@@ -1,5 +1,5 @@
-using SoftwareWorker.BYO.CLI.Core.Service;
-using SoftwareWorker.BYO.Core.Storage;
+using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Storage;
 using System.Text.Json;
 
 namespace SoftwareWorker.BYO.Tests;

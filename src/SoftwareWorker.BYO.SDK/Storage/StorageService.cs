@@ -1,7 +1,7 @@
-using SoftwareWorker.BYO.CLI.Core.Helpers;
+using SoftwareWorker.BYO.SDK.Helpers;
 using System.Text.Json;
 
-namespace SoftwareWorker.BYO.Core.Storage
+namespace SoftwareWorker.BYO.SDK.Storage
 {
     public class StorageService
     {

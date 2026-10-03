@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.Core.Model.Enums
+namespace SoftwareWorker.BYO.SDK.Model.Enums
 {
     /// <summary>
     /// Types of steps that can be included in a workflow

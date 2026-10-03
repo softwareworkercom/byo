@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     /// <summary>
     /// Provides hierarchical folder navigation for selecting commands and workflows.

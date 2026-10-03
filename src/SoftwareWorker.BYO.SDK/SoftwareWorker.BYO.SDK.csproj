@@ -14,20 +14,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="byo" />
 		<InternalsVisibleTo Include="SoftwareWorker.BYO.Tests" />
 	</ItemGroup>
 
 	<ItemGroup>
-       <PackageReference Include="GitHub.Copilot.SDK" />
 		<PackageReference Include="Nerdbank.GitVersioning">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Polly" />
-		<PackageReference Include="Refit" />
        <PackageReference Include="Spectre.Console" />
-			<PackageReference Include="System.CommandLine" />
-			<PackageReference Include="System.Security.Cryptography.ProtectedData" />
+       <PackageReference Include="System.Security.Cryptography.ProtectedData" />
 	</ItemGroup>
 
 	<ProjectExtensions><VisualStudio><UserProperties version_1json__JsonSchema="https://raw.githubusercontent.com/dwp/schemas/main/exchange/publishing-tools/catalogue-entry-schema.json" /></VisualStudio></ProjectExtensions>

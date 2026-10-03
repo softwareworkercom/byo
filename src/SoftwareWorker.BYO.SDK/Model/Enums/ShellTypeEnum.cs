@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.Core.Model.Enums
+namespace SoftwareWorker.BYO.SDK.Model.Enums
 {
     /// <summary>
     /// Supported shell types for command execution.

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace SoftwareWorker.BYO.Core.Secrets
+namespace SoftwareWorker.BYO.SDK.Secrets
 {
     public class LinuxSecretStore : ISecretStore
     {

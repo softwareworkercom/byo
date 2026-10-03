@@ -4,7 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class UserInterfaceService
     {

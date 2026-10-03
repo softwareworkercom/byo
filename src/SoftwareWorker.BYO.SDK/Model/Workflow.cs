@@ -1,4 +1,4 @@
-namespace SoftwareWorker.BYO.CLI.Core.Model
+namespace SoftwareWorker.BYO.SDK.Model
 {
     /// <summary>
     /// Represents a workflow containing interactive steps for user execution

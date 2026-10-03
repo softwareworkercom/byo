@@ -1,4 +1,4 @@
-using SoftwareWorker.BYO.CLI.Core.Helpers;
+using SoftwareWorker.BYO.CLI.Helpers;
 
 namespace SoftwareWorker.BYO.Tests;
 

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SoftwareWorker.BYO.Core.Secrets
+namespace SoftwareWorker.BYO.SDK.Secrets
 {
     public class WindowsSecretStore : ISecretStore
     {

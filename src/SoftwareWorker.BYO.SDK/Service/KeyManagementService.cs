@@ -1,7 +1,7 @@
-using SoftwareWorker.BYO.Core.Secrets;
+using SoftwareWorker.BYO.SDK.Secrets;
 using System.Security.Cryptography;
 
-namespace SoftwareWorker.BYO.CLI.Core.Service
+namespace SoftwareWorker.BYO.SDK.Service
 {
     public static class KeyManagementService
     {

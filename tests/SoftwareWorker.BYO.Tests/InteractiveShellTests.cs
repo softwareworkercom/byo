@@ -1,5 +1,5 @@
-using SoftwareWorker.BYO.CLI.Core.Engine;
-using SoftwareWorker.BYO.CLI.Core.Shell;
+using SoftwareWorker.BYO.CLI.Engine;
+using SoftwareWorker.BYO.CLI.Shell;
 using System.CommandLine;
 using System.CommandLine.Completions;
 

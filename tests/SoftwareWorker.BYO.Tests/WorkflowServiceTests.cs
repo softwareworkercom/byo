@@ -1,8 +1,8 @@
-using SoftwareWorker.BYO.CLI.Core.Engine;
-using SoftwareWorker.BYO.CLI.Core.Helpers;
-using SoftwareWorker.BYO.CLI.Core.Model;
-using SoftwareWorker.BYO.CLI.Core.Service;
-using SoftwareWorker.BYO.Core.Model.Enums;
+using SoftwareWorker.BYO.CLI.Engine;
+using SoftwareWorker.BYO.SDK.Helpers;
+using SoftwareWorker.BYO.SDK.Model;
+using SoftwareWorker.BYO.SDK.Service;
+using SoftwareWorker.BYO.SDK.Model.Enums;
 
 namespace SoftwareWorker.BYO.Tests;
 

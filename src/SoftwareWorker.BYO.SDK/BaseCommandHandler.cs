@@ -1,9 +1,9 @@
-using SoftwareWorker.BYO.CLI.Abstractions.Attributes;
-using SoftwareWorker.BYO.CLI.Core.Service;
+using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
+using SoftwareWorker.BYO.SDK.Service;
 using Spectre.Console;
 using System.Reflection;
 
-namespace SoftwareWorker.BYO.CLI.Core
+namespace SoftwareWorker.BYO.SDK
 {
     /// <summary>
     /// Base class for command handlers that provides automatic parameter binding.
