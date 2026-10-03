@@ -1,17 +1,17 @@
-using Refit;
+using SoftwareWorker.BYO.Integrations.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 namespace SoftwareWorker.BYO.Integrations.Helpers
 {
-    public static class RefitHelper
+    internal static class RestHelper
     {
-        public static RefitSettings GetSettings(bool isVerbose, string connectorName = "Unknown")
+        public static RestSettings GetSettings(bool isVerbose, string connectorName = "Unknown")
         {
-            var refitSettings = new RefitSettings
+            var restSettings = new RestSettings
             {
-                ContentSerializer = new SystemTextJsonContentSerializer(new JsonSerializerOptions
+                SerializerOptions = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -21,15 +21,15 @@ namespace SoftwareWorker.BYO.Integrations.Helpers
                     // reflection-based serialization is disabled by default (e.g. trimmed/AOT publish).
                     TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
                     Converters = { new JIRA.JsonConverters.DateTimeConverter() }
-                }),
+                },
             };
 
             if (isVerbose)
             {
-                refitSettings.HttpMessageHandlerFactory = () => new LoggingHandler(connectorName) { InnerHandler = new HttpClientHandler() };
+                restSettings.HttpMessageHandlerFactory = () => new LoggingHandler(connectorName) { InnerHandler = new HttpClientHandler() };
             }
 
-            return refitSettings;
+            return restSettings;
         }
     }
 }

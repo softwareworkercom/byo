@@ -1,5 +1,5 @@
-using Refit;
 using SoftwareWorker.BYO.CLI.Integrations.NuGet.Model;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.CLI.Integrations.NuGet
 {

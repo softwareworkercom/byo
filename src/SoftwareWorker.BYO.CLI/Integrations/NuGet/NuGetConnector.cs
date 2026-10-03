@@ -1,5 +1,5 @@
-using Refit;
 using SoftwareWorker.BYO.CLI.Integrations.NuGet.Model;
+using SoftwareWorker.BYO.Integrations.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -13,9 +13,9 @@ namespace SoftwareWorker.BYO.CLI.Integrations.NuGet
 
         public NuGetConnector(bool isVerbose)
         {
-            var settings = new RefitSettings
+            var settings = new RestSettings
             {
-                ContentSerializer = new SystemTextJsonContentSerializer(new JsonSerializerOptions
+                SerializerOptions = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -24,7 +24,7 @@ namespace SoftwareWorker.BYO.CLI.Integrations.NuGet
                     // Explicitly configure a metadata resolver so deserialization works even when
                     // reflection-based serialization is disabled by default (e.g. trimmed/AOT publish).
                     TypeInfoResolver = new DefaultJsonTypeInfoResolver()
-                })
+                }
             }; 
 
             _searchApi = RestService.For<INuGetAPI>("https://azuresearch-usnc.nuget.org", settings);

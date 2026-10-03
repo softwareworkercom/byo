@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.GoogleCalendar.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.GoogleCalendar
 {
@@ -12,7 +12,7 @@ namespace SoftwareWorker.BYO.Integrations.GoogleCalendar
         public GoogleCalendarConnector(string key, bool isVerbose)
         {
             _apiKey = key;
-            var settings = RefitHelper.GetSettings(isVerbose, "GoogleCalendar");
+            var settings = RestHelper.GetSettings(isVerbose, "GoogleCalendar");
             _api = RestService.For<IGoogleCalendar>("https://www.googleapis.com", settings);
         }
 

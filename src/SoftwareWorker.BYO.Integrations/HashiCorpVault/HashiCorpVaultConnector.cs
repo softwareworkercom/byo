@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.HashiCorpVault.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.HashiCorpVault
 {
@@ -10,7 +10,7 @@ namespace SoftwareWorker.BYO.Integrations.HashiCorpVault
 
         public HashiCorpVaultConnector(string vaultAddress, string token, bool isVerbose)
         {
-            var settings = RefitHelper.GetSettings(isVerbose, "HashiCorpVault");
+            var settings = RestHelper.GetSettings(isVerbose, "HashiCorpVault");
             settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult(token);
             _api = RestService.For<IHashiCorpVaultAPI>(vaultAddress, settings);
         }

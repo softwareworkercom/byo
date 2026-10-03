@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.GitHub.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.GitHub
 {
@@ -16,7 +16,7 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
                                                             { "User-Agent", $"EngMgrCli" } //https://docs.github.com/en/rest/overview/resources-in-the-rest-api#user-agent-required
                                                       };
 
-            RefitSettings settings = RefitHelper.GetSettings(isVerbose, "GitHub");
+            RestSettings settings = RestHelper.GetSettings(isVerbose, "GitHub");
             _api = RestService.For<IGitHubAPI>("https://api.github.com", settings);
         }
 

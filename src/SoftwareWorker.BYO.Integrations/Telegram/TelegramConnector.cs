@@ -1,5 +1,5 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 using SoftwareWorker.BYO.Integrations.Telegram.Model;
 
 namespace SoftwareWorker.BYO.Integrations.Telegram
@@ -15,7 +15,7 @@ namespace SoftwareWorker.BYO.Integrations.Telegram
                 throw new ArgumentException("Telegram bot token cannot be null or empty.", nameof(botToken));
             }
 
-            var settings = RefitHelper.GetSettings(isVerbose, "Telegram");
+            var settings = RestHelper.GetSettings(isVerbose, "Telegram");
             _api = RestService.For<ITelegramAPI>($"https://api.telegram.org/bot{botToken}", settings);
         }
 

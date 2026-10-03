@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.AzureDevOps.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 using System.Text;
 
 namespace SoftwareWorker.BYO.Integrations.AzureDevOps
@@ -24,7 +24,7 @@ namespace SoftwareWorker.BYO.Integrations.AzureDevOps
                                                             { "Authorization", $"Basic {pat}"}
                                                       };
 
-            RefitSettings settings = RefitHelper.GetSettings(isVerbose);
+            RestSettings settings = RestHelper.GetSettings(isVerbose);
             _api = RestService.For<IAzureDevOps>(baseUrl, settings);
         }
 

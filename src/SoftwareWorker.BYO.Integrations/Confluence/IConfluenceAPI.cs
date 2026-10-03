@@ -1,5 +1,5 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.Confluence.Model;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.Confluence
 {

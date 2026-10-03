@@ -1,5 +1,5 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 using SoftwareWorker.BYO.Integrations.JIRA.Model;
 using SoftwareWorker.BYO.Integrations.JIRA.Model.Request;
 using SoftwareWorker.BYO.Integrations.JIRA.Model.Response;
@@ -20,7 +20,7 @@ namespace SoftwareWorker.BYO.Integrations.JIRA
                                                             { "Authorization", $"Basic {atlassianAuth}" }
                                                       };
 
-            var settings = RefitHelper.GetSettings(isVerbose, "Jira");
+            var settings = RestHelper.GetSettings(isVerbose, "Jira");
             _api = RestService.For<IJiraAPI>(baseUrl, settings);
         }
 

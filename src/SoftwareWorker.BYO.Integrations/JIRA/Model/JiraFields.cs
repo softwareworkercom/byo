@@ -40,15 +40,15 @@ namespace SoftwareWorker.BYO.Integrations.JIRA.Model
         [JsonPropertyName("priority")]
         public JiraPriority Priority { get; set; }
 
-        //TODO: Make this customizable in Refit Settings
+        //TODO: Make this customizable in RestSettings
         [JsonPropertyName("customfield_10007")]
         public List<JiraSprint> Sprints { get; set; }
 
-        //TODO: Make this customizable in Refit Settings
+        //TODO: Make this customizable in RestSettings
         [JsonPropertyName("customfield_10005")]
         public double? Points { get; set; }
 
-        //TODO: Make this customizable in Refit Settings
+        //TODO: Make this customizable in RestSettings
         //[JsonPropertyName("customfield_10001")]
         public JiraTeam? Team { get; set; }
 

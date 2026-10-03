@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.AgentMail.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.AgentMail
 {
@@ -21,7 +21,7 @@ namespace SoftwareWorker.BYO.Integrations.AgentMail
                 { "Authorization", $"Bearer {apiKey}" }
             };
 
-            var settings = RefitHelper.GetSettings(isVerbose, "AgentMail");
+            var settings = RestHelper.GetSettings(isVerbose, "AgentMail");
             _api = RestService.For<IAgentMailAPI>(baseUrl ?? "https://api.agentmail.to", settings);
         }
 

@@ -51,7 +51,7 @@ Both channels coexist. The NuGet tool path is unchanged.
 | ADR-02 | **Single-file publish** with `IncludeNativeLibrariesForSelfExtract=true` and `EnableCompressionInSingleFile=true` | One file to copy onto `PATH`. Compression keeps download size manageable. |
 | ADR-03 | **ReadyToRun (R2R)** enabled | Faster cold start; the small size cost is worth it for a frequently invoked CLI. |
 | ADR-04 | **Trimming = disabled** | Plugin handlers are loaded in-process through isolated assembly load contexts and may depend on members not statically visible to the linker. Trimming can remove required APIs and cause runtime failures in plugins. |
-| ADR-05 | **Native AOT = No (for now)** | Several dependencies (Refit, parts of Spectre.Console, JSON reflection) are not AOT-safe. Revisit after dependency surface is audited. |
+| ADR-05 | **Native AOT = No (for now)** | Several components (the `DispatchProxy`-based REST client in BYO.Integrations, parts of Spectre.Console, JSON reflection) are not AOT-safe. Revisit after dependency surface is audited. |
 | ADR-06 | **GitHub Releases as primary channel** | Free, integrity-checked over HTTPS, no third-party registry overhead. Package managers can be layered on later. |
 | ADR-07 | **Manually dispatched release** | Maintainers provide the release version explicitly and can run a build-only dry run before publishing. |
 | ADR-08 | **SHA256 checksums** in every release | Integrity verification in the installers without requiring a code-signing certificate. |
@@ -349,7 +349,7 @@ BYO_VERSION=1.0.0 curl -fsSL https://github.com/softwareworkercom/byo/releases/d
 
 | | Pros | Cons |
 |---|---|---|
-| AOT | ~10–30 ms startup, no JIT, lower memory, no extraction | No `Reflection.Emit`, limited dynamic code, some dependencies (Refit/Spectre/JSON reflection) not yet AOT-safe, per-RID cross-compilation limited |
+| AOT | ~10–30 ms startup, no JIT, lower memory, no extraction | No `Reflection.Emit`, limited dynamic code, some components (`DispatchProxy` REST client/Spectre/JSON reflection) not yet AOT-safe, per-RID cross-compilation limited |
 
 **Verdict**: revisit AOT once the dependency surface is audited and startup
 becomes a measured bottleneck.

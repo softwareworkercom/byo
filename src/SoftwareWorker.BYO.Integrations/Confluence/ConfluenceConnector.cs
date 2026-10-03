@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.Confluence.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 using System.Text;
 
 namespace SoftwareWorker.BYO.Integrations.Confluence
@@ -18,7 +18,7 @@ namespace SoftwareWorker.BYO.Integrations.Confluence
                                                             { "Authorization", $"Basic {atlassianAuth}"}
                                                       };
 
-            RefitSettings settings = RefitHelper.GetSettings(isVerbose, "Confluence");
+            RestSettings settings = RestHelper.GetSettings(isVerbose, "Confluence");
             _api = RestService.For<IConfluenceAPI>(baseUrl, settings);
         }
 

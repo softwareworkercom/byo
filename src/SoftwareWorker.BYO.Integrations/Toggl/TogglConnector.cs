@@ -1,5 +1,5 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 using SoftwareWorker.BYO.Integrations.Toggl.Model;
 
 namespace SoftwareWorker.BYO.Integrations.Toggl
@@ -10,7 +10,7 @@ namespace SoftwareWorker.BYO.Integrations.Toggl
 
         public TogglConnector(string apiToken, bool isVerbose)
         {
-            var settings = RefitHelper.GetSettings(isVerbose, "Toggl");
+            var settings = RestHelper.GetSettings(isVerbose, "Toggl");
             settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult($"Basic {Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{apiToken}:api_token"))}");
             _api = RestService.For<ITogglAPI>("https://api.track.toggl.com", settings);
         }

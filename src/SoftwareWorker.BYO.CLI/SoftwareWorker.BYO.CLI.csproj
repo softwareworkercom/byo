@@ -41,8 +41,12 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-     <PackageReference Include="Refit" />
      <PackageReference Include="System.CommandLine" />
+	</ItemGroup>
+
+	<!-- The declarative REST client (Http/) is shared source: the CLI compiles it in rather than referencing the BYO.Integrations package. -->
+	<ItemGroup>
+		<Compile Include="..\SoftwareWorker.BYO.Integrations\Http\*.cs" Link="Integrations\Http\%(Filename)%(Extension)" />
 	</ItemGroup>
 
 	<!-- Always build against the current SDK sources so CI/local builds resolve the same code. -->

@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.Bitwarden.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.Bitwarden
 {
@@ -10,7 +10,7 @@ namespace SoftwareWorker.BYO.Integrations.Bitwarden
 
         public BitwardenConnector(string apiUrl, string accessToken, bool isVerbose = false)
         {
-            var settings = RefitHelper.GetSettings(isVerbose, "Bitwarden");
+            var settings = RestHelper.GetSettings(isVerbose, "Bitwarden");
             settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult(accessToken);
             _api = RestService.For<IBitwardenAPI>(apiUrl, settings);
         }

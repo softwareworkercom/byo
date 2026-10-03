@@ -1,5 +1,5 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.HashiCorpVault.Model;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.HashiCorpVault
 {

@@ -1,6 +1,6 @@
-using Refit;
 using SoftwareWorker.BYO.Integrations.Auth0.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
+using SoftwareWorker.BYO.Integrations.Http;
 
 namespace SoftwareWorker.BYO.Integrations.Auth0
 {
@@ -10,7 +10,7 @@ namespace SoftwareWorker.BYO.Integrations.Auth0
 
         public Auth0Connector(string domain, string accessToken, bool isVerbose)
         {
-            var settings = RefitHelper.GetSettings(isVerbose, "Auth0");
+            var settings = RestHelper.GetSettings(isVerbose, "Auth0");
             settings.AuthorizationHeaderValueGetter = (_, __) => ValueTask.FromResult($"Bearer {accessToken}");
             _api = RestService.For<IAuth0API>($"https://{domain}", settings);
         }
