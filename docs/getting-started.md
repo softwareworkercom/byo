@@ -83,7 +83,7 @@ byo commands list
 byo workflows list
 ```
 
-The secret is intentionally not listed by a CLI command. It is stored locally by the `InputAsSecret` step and resolved when the commands run.
+The secret is not shown by `byo settings list`. It is stored encrypted by the `InputAsSecret` step and resolved when the commands run. To inspect it directly, use [`byo secrets list`](secrets.md).
 
 ## 5) Run the workflow
 

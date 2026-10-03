@@ -37,11 +37,14 @@ The `byo` folder contains the following JSON files:
 
 ```
 ~/byo/
-??? commands.json      # All saved shell commands
-??? settings.json      # All saved settings (non-sensitive key-value pairs)
-??? workflows.json     # All saved multi-step workflows
-??? secrets.json       # Encrypted secrets (encrypted at rest)
-??? shell_history.txt  # Interactive shell history (lines that look sensitive are not saved)
+├── commands.json      # All saved shell commands
+├── settings.json      # All saved settings (non-sensitive key-value pairs)
+├── workflows.json     # All saved multi-step workflows
+├── secrets.json       # Encrypted secrets (encrypted at rest)
+├── shell_history.txt  # Interactive shell history (lines that look sensitive are not saved)
+└── plugins/           # Installed plugins
+    ├── packages/      # Downloaded NuGet packages
+    └── bin/           # Extracted plugin assemblies, scanned at startup
 ```
 
 ## File Formats
@@ -63,7 +66,7 @@ Secrets are stored in encrypted JSON format. The file contains key-value pairs w
 
 **Encryption Details:**
 
-For small values (? 446 bytes):
+For small values (≤ 446 bytes):
 - **Algorithm:** RSA-OAEP with SHA-256
 - **Key Size:** 4096-bit RSA key
 - **Padding:** OAEP with SHA-256
