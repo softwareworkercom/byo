@@ -1,7 +1,4 @@
-using Polly;
-using Polly.CircuitBreaker;
-using Polly.Retry;
-using Polly.Timeout;
+using SoftwareWorker.BYO.Integrations.Resilience;
 
 namespace SoftwareWorker.BYO.Integrations.Helpers
 {
@@ -9,39 +6,35 @@ namespace SoftwareWorker.BYO.Integrations.Helpers
     {
         public static AsyncRetryPolicy<T> GetRetryPolicy<T>(int maxRetryAttempts = 3)
         {
-            return Policy<T>
-                .Handle<HttpRequestException>()
-                .Or<TimeoutException>()
-                .WaitAndRetryAsync(
-                    maxRetryAttempts,
-                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    onRetry: (outcome, timespan, retryCount, context) =>
-                    {
-                        Console.WriteLine($"Retry {retryCount} after {timespan.TotalSeconds}s due to: {outcome.Exception?.Message}");
-                    });
+            return new AsyncRetryPolicy<T>(
+                IsTransient,
+                maxRetryAttempts,
+                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                onRetry: (exception, timespan, retryCount) =>
+                {
+                    Console.WriteLine($"Retry {retryCount} after {timespan.TotalSeconds}s due to: {exception.Message}");
+                });
         }
 
         public static AsyncCircuitBreakerPolicy<T> GetCircuitBreakerPolicy<T>(int exceptionsAllowedBeforeBreaking = 5, int durationOfBreakInSeconds = 30)
         {
-            return Policy<T>
-                .Handle<HttpRequestException>()
-                .Or<TimeoutException>()
-                .CircuitBreakerAsync(
-                    exceptionsAllowedBeforeBreaking,
-                    TimeSpan.FromSeconds(durationOfBreakInSeconds),
-                    onBreak: (outcome, duration) =>
-                    {
-                        Console.WriteLine($"Circuit breaker opened for {duration.TotalSeconds}s due to: {outcome.Exception?.Message}");
-                    },
-                    onReset: () =>
-                    {
-                        Console.WriteLine("Circuit breaker reset");
-                    });
+            return new AsyncCircuitBreakerPolicy<T>(
+                IsTransient,
+                exceptionsAllowedBeforeBreaking,
+                TimeSpan.FromSeconds(durationOfBreakInSeconds),
+                onBreak: (exception, duration) =>
+                {
+                    Console.WriteLine($"Circuit breaker opened for {duration.TotalSeconds}s due to: {exception.Message}");
+                },
+                onReset: () =>
+                {
+                    Console.WriteLine("Circuit breaker reset");
+                });
         }
 
         public static AsyncTimeoutPolicy<T> GetTimeoutPolicy<T>(int timeoutInSeconds = 30)
         {
-            return Policy.TimeoutAsync<T>(TimeSpan.FromSeconds(timeoutInSeconds));
+            return new AsyncTimeoutPolicy<T>(TimeSpan.FromSeconds(timeoutInSeconds));
         }
 
         public static IAsyncPolicy<T> GetCombinedPolicy<T>(
@@ -54,7 +47,7 @@ namespace SoftwareWorker.BYO.Integrations.Helpers
             var circuitBreakerPolicy = GetCircuitBreakerPolicy<T>(exceptionsAllowedBeforeBreaking, durationOfBreakInSeconds);
             var timeoutPolicy = GetTimeoutPolicy<T>(timeoutInSeconds);
 
-            return Policy.WrapAsync(retryPolicy, circuitBreakerPolicy, timeoutPolicy);
+            return new AsyncPolicyWrap<T>(retryPolicy, circuitBreakerPolicy, timeoutPolicy);
         }
 
         public static async Task<T?> ExecuteWithResilienceAsync<T>(
@@ -96,6 +89,12 @@ namespace SoftwareWorker.BYO.Integrations.Helpers
             {
                 Console.WriteLine($"Request failed after all retries: {ex.Message}");
             }
+        }
+
+        // Transport failures and timeouts are worth retrying; API error responses (ApiException) are not.
+        private static bool IsTransient(Exception exception)
+        {
+            return exception is HttpRequestException or TimeoutException;
         }
     }
 }
