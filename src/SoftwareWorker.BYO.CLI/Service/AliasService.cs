@@ -126,6 +126,16 @@ namespace SoftwareWorker.BYO.CLI.Service
             return string.IsNullOrWhiteSpace(alias) ? "byo" : alias.Trim();
         }
 
+        public static string AskAliasByUser()
+        {
+            return AskAlias();
+        }
+
+        public static void DeployAlias(string alias)
+        {
+            Deploy(alias);
+        }
+
         private static string AskAlias()
         {
             while (true)
