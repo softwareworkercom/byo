@@ -31,7 +31,7 @@ namespace SoftwareWorker.BYO.SDK.Abstractions.Attributes
         /// </summary>
         public bool IsPromptable { get; }
 
-        public ParameterAttribute(string name, string description, bool isRequired, object? defaultValue, bool isPromptable = true)
+        public ParameterAttribute(string name, string description, bool isRequired, object? defaultValue, bool isPromptable = false)
         {
             Name = name;
             Description = description;
