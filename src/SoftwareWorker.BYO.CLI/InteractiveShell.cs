@@ -21,7 +21,7 @@ namespace SoftwareWorker.BYO.CLI.Shell
             ["quit"] = "Exit the interactive shell",
             ["clear"] = "Clear the screen",
             ["cls"] = "Clear the screen",
-            ["history"] = "Show the command history",
+            ["history"] = "Show the command history or clear it (history clear)",
             ["help"] = "Show help for BYO or for a command (help <command>)"
         };
 
@@ -72,7 +72,11 @@ namespace SoftwareWorker.BYO.CLI.Shell
                     continue;
                 }
 
-                _history.Add(result.Text);
+                var historyEntry = GetHistoryEntry(result.Text);
+                if (!string.IsNullOrWhiteSpace(historyEntry))
+                {
+                    _history.Add(historyEntry);
+                }
 
                 if (!Execute(result.Text))
                 {
@@ -91,12 +95,7 @@ namespace SoftwareWorker.BYO.CLI.Shell
         /// </summary>
         private bool Execute(string line)
         {
-            var args = ShellTokenizer.Tokenize(line).Select(t => t.Value).ToList();
-            if (args.Count > 0 && string.Equals(args[0], CommandLineAnalyzer.ToolName, StringComparison.OrdinalIgnoreCase))
-            {
-                args.RemoveAt(0);
-            }
-
+            var args = ParseArguments(line);
             if (args.Count == 0)
             {
                 return true;
@@ -112,6 +111,12 @@ namespace SoftwareWorker.BYO.CLI.Shell
                     AnsiConsole.Clear();
                     return true;
                 case "history":
+                    if (args.Count > 1 && string.Equals(args[1], "clear", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ClearHistory();
+                        return true;
+                    }
+
                     ShowHistory();
                     return true;
                 case "help":
@@ -157,6 +162,33 @@ namespace SoftwareWorker.BYO.CLI.Shell
             {
                 Console.CancelKeyPress -= ignoreCancel;
             }
+        }
+
+        internal static string? GetHistoryEntry(string line)
+        {
+            var args = ParseArguments(line);
+            if (args.Count == 0)
+            {
+                return null;
+            }
+
+            if (args[0] == "help")
+            {
+                args = [.. args.Skip(1), "--help"];
+            }
+
+            return string.Join(' ', args.Select(ShellTokenizer.Quote));
+        }
+
+        private static List<string> ParseArguments(string line)
+        {
+            var args = ShellTokenizer.Tokenize(line).Select(t => t.Value).ToList();
+            if (args.Count > 0 && string.Equals(args[0], CommandLineAnalyzer.ToolName, StringComparison.OrdinalIgnoreCase))
+            {
+                args.RemoveAt(0);
+            }
+
+            return args;
         }
 
         private void ReloadCommands()
@@ -207,6 +239,12 @@ namespace SoftwareWorker.BYO.CLI.Shell
             {
                 UserInterfaceService.ShowMarkup($"[grey]{index + 1,4}[/]  {Markup.Escape(entries[index])}");
             }
+        }
+
+        private void ClearHistory()
+        {
+            _history.Clear();
+            UserInterfaceService.ShowSuccess("History cleared.");
         }
     }
 }

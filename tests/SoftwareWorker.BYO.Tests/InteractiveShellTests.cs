@@ -207,6 +207,43 @@ public class InteractiveShellTests
         }
     }
 
+    [Theory]
+    [InlineData("help settings list", "settings list --help")]
+    [InlineData("help", "--help")]
+    [InlineData("byo settings list", "settings list")]
+    [InlineData("byo sqlserver query --filename \"C:\\My Queries\\a.sql\"", "sqlserver query --filename \"C:\\My Queries\\a.sql\"")]
+    public void History_ShouldSaveTheExecutedCommand(string input, string expected)
+    {
+        Assert.Equal(expected, InteractiveShell.GetHistoryEntry(input));
+    }
+
+    [Fact]
+    public void History_ShouldClearPersistedEntries()
+    {
+        var filePath = Path.Combine(Path.GetTempPath(), $"byo-history-{Guid.NewGuid():N}.txt");
+        try
+        {
+            var history = ShellHistory.Load(filePath);
+            history.Add("settings list");
+            history.Add("settings set --key a");
+
+            history.Clear();
+
+            Assert.Empty(history.Entries);
+            Assert.Empty(ShellHistory.Load(filePath).Entries);
+        }
+        finally
+        {
+            File.Delete(filePath);
+        }
+    }
+
+    [Fact]
+    public void History_ShouldSkipStandaloneToolName()
+    {
+        Assert.Null(InteractiveShell.GetHistoryEntry("byo"));
+    }
+
     #endregion
 
     #region Line editor

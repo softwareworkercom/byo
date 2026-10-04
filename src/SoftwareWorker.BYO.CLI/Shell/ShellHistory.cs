@@ -70,6 +70,13 @@ namespace SoftwareWorker.BYO.CLI.Shell
             Save();
         }
 
+        public void Clear()
+        {
+            _entries.Clear();
+            _sessionOnlyEntries.Clear();
+            Save();
+        }
+
         /// <summary>
         /// Returns the most recent entry that extends <paramref name="prefix"/>, used for inline suggestions.
         /// </summary>
