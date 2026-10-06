@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Site from '../../layouts/Site.astro';
 import DocsRail from '../../components/DocsRail.astro';
 import { docOrder, labelFor, summaryFromBody, titleFromBody } from '../../lib/docs-nav';
+import { withBase } from '../../lib/paths';
 
 export async function getStaticPaths() {
   const entries = await getCollection('docs');
@@ -30,9 +31,9 @@ const source = `https://github.com/softwareworkercom/byo/blob/main/docs/${entry.
         <Content />
       </div>
       <footer class="article-foot">
-        <span>{previous && <a href={`/docs/${previous}/`}>Previous: {labelFor(previous)}</a>}</span>
+        <span>{previous && <a href={withBase(`/docs/${previous}/`)}>Previous: {labelFor(previous)}</a>}</span>
         <a href={source}>Edit this page on GitHub</a>
-        <span>{next && <a href={`/docs/${next}/`}>Next: {labelFor(next)}</a>}</span>
+        <span>{next && <a href={withBase(`/docs/${next}/`)}>Next: {labelFor(next)}</a>}</span>
       </footer>
     </article>
   </div>

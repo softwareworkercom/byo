@@ -1,6 +1,7 @@
 ---
 import Site from '../layouts/Site.astro';
 import Chevron from '../components/Chevron.astro';
+import { withBase } from '../lib/paths';
 
 // GitHub Pages serves this file for any address that does not exist.
 ---
@@ -13,8 +14,8 @@ import Chevron from '../components/Chevron.astro';
         <p class="subhead">The address may have changed, or it was never here. Everything on this site is one step from these two.</p>
       </div>
       <div class="actions">
-        <a class="btn" href="/">Home</a>
-        <a class="link" href="/docs/">Browse the documentation <Chevron /></a>
+        <a class="btn" href={withBase('/')}>Home</a>
+        <a class="link" href={withBase('/docs/')}>Browse the documentation <Chevron /></a>
       </div>
     </div>
   </section>

@@ -28,6 +28,11 @@ jobs:
         with:
           node-version: 22
 
+      # Where GitHub serves the site: the domain root with a custom domain, or /byo/ on the
+      # project URL. The build takes both from here so links and assets resolve either way.
+      - uses: actions/configure-pages@v5
+        id: pages
+
       - name: Install
         run: npm install
         working-directory: website
@@ -35,8 +40,9 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: website
-
-      - uses: actions/configure-pages@v5
+        env:
+          ASTRO_SITE: ${{ steps.pages.outputs.origin }}
+          ASTRO_BASE: ${{ steps.pages.outputs.base_path }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

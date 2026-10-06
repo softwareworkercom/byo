@@ -3,6 +3,7 @@ import Site from '../layouts/Site.astro';
 import Install from '../components/Install.astro';
 import Chevron from '../components/Chevron.astro';
 import Shell from '../components/Shell.astro';
+import { withBase } from '../lib/paths';
 
 // A marketing page: the README's argument, section by section, with no commands, code or
 // transcripts. Each section ends in a link to the documentation page that holds the detail.
@@ -86,7 +87,7 @@ const box = [
       <p class="subhead">Turn your software into tools that humans, automation, and AI agents can use.</p>
       <div class="actions">
         <a class="btn" href="#install">Install</a>
-        <a class="link" href="/docs/start/">Pick a path and start <Chevron /></a>
+        <a class="link" href={withBase('/docs/start/')}>Pick a path and start <Chevron /></a>
       </div>
     </div>
     <figure
@@ -148,7 +149,7 @@ const box = [
         {plumbing.map((item) => <li>{item}</li>)}
       </ul>
       <p class="section-link">
-        <a class="link" href="/docs/building-a-plugin/">Learn how to build with the SDK <Chevron /></a>
+        <a class="link" href={withBase('/docs/building-a-plugin/')}>Learn how to build with the SDK <Chevron /></a>
       </p>
     </div>
   </section>
@@ -190,7 +191,7 @@ const box = [
               <h3>{tile.title}</h3>
               <p>{tile.text}</p>
               <div class="tile-links">
-                <a class="link" href={tile.href}>
+                <a class="link" href={withBase(tile.href)}>
                   {tile.link} <Chevron />
                 </a>
               </div>
@@ -199,7 +200,7 @@ const box = [
         }
       </div>
       <p class="section-link">
-        <a class="link" href="/docs/">Browse the documentation <Chevron /></a>
+        <a class="link" href={withBase('/docs/')}>Browse the documentation <Chevron /></a>
       </p>
     </div>
   </section>
@@ -231,8 +232,8 @@ const box = [
           us what you find.
         </p>
         <div class="install-links">
-          <a class="link" href="/docs/start/#automate">Automate a workflow <Chevron /></a>
-          <a class="link" href="/docs/start/#plugin">Build a plugin for agents <Chevron /></a>
+          <a class="link" href={withBase('/docs/start/#automate')}>Automate a workflow <Chevron /></a>
+          <a class="link" href={withBase('/docs/start/#plugin')}>Build a plugin for agents <Chevron /></a>
           <a class="link" href={`${repo}/issues`}>Open an issue <Chevron /></a>
         </div>
       </div>

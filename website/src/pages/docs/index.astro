@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Site from '../../layouts/Site.astro';
 import { docGroups, titleFromBody } from '../../lib/docs-nav';
+import { withBase } from '../../lib/paths';
 
 const entries = await getCollection('docs');
 const titles = new Map(entries.map((entry) => [entry.id, titleFromBody(entry.body, entry.id)]));
@@ -27,7 +28,7 @@ const grammar = 'byo <group> <action> [options]';
               <ul>
                 {group.items.map((item) => (
                   <li>
-                    <a href={`/docs/${item.slug}/`}>{item.label}</a>
+                    <a href={withBase(`/docs/${item.slug}/`)}>{item.label}</a>
                     <span>{titles.get(item.slug) ?? item.summary ?? item.label}</span>
                   </li>
                 ))}

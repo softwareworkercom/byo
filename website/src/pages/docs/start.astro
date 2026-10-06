@@ -1,6 +1,7 @@
 ---
 import Site from '../../layouts/Site.astro';
 import Chevron from '../../components/Chevron.astro';
+import { withBase } from '../../lib/paths';
 
 // The first-run path: two tracks, one sitting each. Every command is the one the linked guide
 // uses, word for word, and each checkpoint quotes what the CLI itself prints, so a reader knows
@@ -74,7 +75,7 @@ const listCommand =
         </a>
       </div>
       <p class="section-link">
-        <a class="link" href="/docs/">Already know the CLI? Go straight to the reference <Chevron /></a>
+        <a class="link" href={withBase('/docs/')}>Already know the CLI? Go straight to the reference <Chevron /></a>
       </p>
     </div>
   </section>
@@ -163,11 +164,11 @@ const listCommand =
       <div class="track-end">
         <h3>Where to next.</h3>
         <ul class="next-links">
-          <li><a class="link" href="/docs/schedule/">Run it every five minutes with --schedule <Chevron /></a></li>
-          <li><a class="link" href="/docs/async/">Run it in the background with --async <Chevron /></a></li>
-          <li><a class="link" href="/docs/shell/">Stay in the interactive shell <Chevron /></a></li>
-          <li><a class="link" href="/docs/workflows/">Everything a workflow step can do <Chevron /></a></li>
-          <li><a class="link" href="/docs/getting-started/">The full getting started guide <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/schedule/')}>Run it every five minutes with --schedule <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/async/')}>Run it in the background with --async <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/shell/')}>Stay in the interactive shell <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/workflows/')}>Everything a workflow step can do <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/getting-started/')}>The full getting started guide <Chevron /></a></li>
         </ul>
       </div>
     </div>
@@ -268,10 +269,10 @@ const listCommand =
       <div class="track-end">
         <h3>Where to next.</h3>
         <ul class="next-links">
-          <li><a class="link" href="/docs/building-a-plugin/#parameters">Parameters, enumerated values and type conversion <Chevron /></a></li>
-          <li><a class="link" href="/docs/building-a-plugin/#services-available-to-handlers">Settings, secrets, REST and the other services a handler can use <Chevron /></a></li>
-          <li><a class="link" href="/docs/building-a-plugin/#packaging-and-distribution">Publish to NuGet.org or your own feed <Chevron /></a></li>
-          <li><a class="link" href="/docs/plugins/#package-sources">Package sources <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/building-a-plugin/#parameters')}>Parameters, enumerated values and type conversion <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/building-a-plugin/#services-available-to-handlers')}>Settings, secrets, REST and the other services a handler can use <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/building-a-plugin/#packaging-and-distribution')}>Publish to NuGet.org or your own feed <Chevron /></a></li>
+          <li><a class="link" href={withBase('/docs/plugins/#package-sources')}>Package sources <Chevron /></a></li>
         </ul>
         <p>When you are done with the sample:</p>
         <pre class="cmd"><code><span class="prompt">$ </span>byo plugins uninstall --package BYO.Plugin.Weather</code></pre>

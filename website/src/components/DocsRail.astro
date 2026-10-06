@@ -3,6 +3,7 @@
  * The documentation sidebar: plain text links grouped by section, the current page in the accent.
  */
 import { docGroups } from '../lib/docs-nav';
+import { withBase } from '../lib/paths';
 
 interface Props {
   current?: string;
@@ -19,7 +20,7 @@ const { current } = Astro.props;
         <ul>
           {group.items.map((item) => (
             <li>
-              <a href={`/docs/${item.slug}/`} aria-current={item.slug === current ? 'page' : undefined}>
+              <a href={withBase(`/docs/${item.slug}/`)} aria-current={item.slug === current ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>

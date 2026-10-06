@@ -2,6 +2,7 @@
 import '@fontsource-variable/inter';
 import '@fontsource-variable/geist-mono';
 import '../styles/global.css';
+import { withBase } from '../lib/paths';
 
 interface Props {
   title: string;
@@ -22,14 +23,14 @@ const year = new Date().getFullYear();
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/png" href="/byo-icon.png" />
-    <link rel="apple-touch-icon" href="/byo-icon.png" />
+    <link rel="icon" type="image/png" href={withBase('/byo-icon.png')} />
+    <link rel="apple-touch-icon" href={withBase('/byo-icon.png')} />
     <meta name="theme-color" content="#ffffff" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL('/byo-logo.png', Astro.site)} />
+    <meta property="og:image" content={new URL(withBase('/byo-logo.png'), Astro.site)} />
     <meta name="twitter:card" content="summary" />
   </head>
   <body>
@@ -37,16 +38,16 @@ const year = new Date().getFullYear();
 
     <header class="nav">
       <div class="wrap nav-inner">
-        <a class="brand" href="/" aria-label="BYO CLI home">
-          <img src="/byo-icon.png" alt="" width="28" height="28" />
+        <a class="brand" href={withBase('/')} aria-label="BYO CLI home">
+          <img src={withBase('/byo-icon.png')} alt="" width="28" height="28" />
           <span>BYO CLI</span>
         </a>
         <nav aria-label="Primary">
           <ul class="nav-links">
-            <li><a href="/docs/">Docs</a></li>
-            <li class="hide-mobile"><a href="/docs/building-a-plugin/">Build a plugin</a></li>
+            <li><a href={withBase('/docs/')}>Docs</a></li>
+            <li class="hide-mobile"><a href={withBase('/docs/building-a-plugin/')}>Build a plugin</a></li>
             <li><a href={repo}>GitHub</a></li>
-            <li><a class="btn btn-small" href="/#install">Install</a></li>
+            <li><a class="btn btn-small" href={withBase('/#install')}>Install</a></li>
           </ul>
         </nav>
       </div>
