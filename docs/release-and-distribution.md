@@ -72,14 +72,10 @@ Both channels coexist. The NuGet tool path is unchanged.
 - Nerdbank.GitVersioning (`version.json`) supplies repository build metadata;
   there is no active NuGet tool publishing channel while the CLI project is
   non-packable.
-- To keep SDK, Integrations and CLI version metadata aligned locally, create symbolic links:
-
-  ```powershell
-  New-Item -ItemType SymbolicLink -Path ".\src\SoftwareWorker.BYO.SDK\version.json" -Target ".\src\SoftwareWorker.BYO.CLI\version.json"
-  New-Item -ItemType SymbolicLink -Path ".\src\SoftwareWorker.BYO.Integrations\version.json" -Target ".\src\SoftwareWorker.BYO.CLI\version.json"
-  ```
-
-  Admin access required.
+- `version.json` exists in each of the three `src/` projects (CLI, SDK and
+  Integrations) as a regular file, and the three must be bumped together.
+  Do not replace them with symbolic links: Nerdbank.GitVersioning cannot read
+  a symlinked `version.json` on the CI runners and the build fails.
 
 ---
 
@@ -88,7 +84,9 @@ Both channels coexist. The NuGet tool path is unchanged.
 ```
 byo/
 ├── src/
-│   └── SoftwareWorker.BYO.CLI/          # CLI project (self-contained publish; not packable)
+│   ├── SoftwareWorker.BYO.CLI/          # CLI project (self-contained publish; not packable)
+│   ├── SoftwareWorker.BYO.SDK/          # BYO.SDK NuGet package referenced by plugins
+│   └── SoftwareWorker.BYO.Integrations/ # BYO.Integrations NuGet package (API connectors)
 ├── tests/
 │   └── SoftwareWorker.BYO.Tests/
 ├── installers/

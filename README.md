@@ -15,7 +15,7 @@ We are currently looking for testers on **Linux** and **macOS**. If you can help
 
 ⭐ **Give us a star to support the project**
 
-[Get Started](#get-started-in-seconds) · [Documentation](#documentation) · [Getting Started Guide](docs/getting-started.md)
+[Get Started](#get-started-in-seconds) · [Building a plugin](#building-a-plugin) · [Documentation](#documentation) · [Getting Started Guide](docs/getting-started.md)
 
 ---
 
@@ -37,6 +37,9 @@ A good CLI is already designed for what AI agents need:
 - **Deterministic.** The same command produces predictable results.
 - **Readable by machines.** Structured JSON output makes results easy for software and agents to consume.
 - **Local and secure.** CLIs can run alongside the developer, their code and their existing authentication environment.
+- **Cheaper in tokens.** Agents discover a CLI on demand through `--help` and can filter its output before it reaches the model. A typical MCP setup loads every tool definition into the context up front and passes every result through it.
+
+Anthropic's engineering team describes those two costs, and the same remedy of on-demand discovery and filtering results before they reach the model, in [Code execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp).
 
 The CLI isn't going away. It's evolving.
 
@@ -119,27 +122,29 @@ The `byo` CLI is built with the BYO SDK and is the reference for what you get. I
 - **Less context switching.** No more digging through notes, Slack messages, or shell history to remember flags and scripts.
 - **Secrets stay local.** Sensitive values are collected by workflows and stored in the local, encrypted secrets store. No account, no sync service, no hosted backend.
 - **Automate the boring stuff.** Turn repetitive setup, deployment, and debugging steps into reusable workflows in seconds.
-- **Extend it.** Add new command groups through NuGet plugins built against `BYO.SDK`.
+- **Extend it.** Add new command groups through NuGet plugins built against `BYO.SDK`. See [Building a plugin](#building-a-plugin).
+
+## Building a plugin
+
+A plugin is a NuGet package that adds your own command groups to `byo`. Write command handlers against `BYO.SDK`, pack, install, and your commands appear in `byo --help`, the interactive shell, scripts and CI alongside the built-in ones.
+
+- **[Building a plugin](docs/building-a-plugin.md)**: Quick start, the command model, parameters, SDK services, packaging and troubleshooting
 
 ## Documentation
 
-BYO CLI is built around six command groups:
+BYO CLI is built around seven command groups:
 
 - **[run](docs/run.md)**: Execute saved commands or workflows
 - **[commands](docs/commands.md)**: Manage saved shell commands
 - **[settings](docs/settings.md)**: Manage configuration key-value pairs
 - **[secrets](docs/secrets.md)**: Manage encrypted sensitive values
 - **[workflows](docs/workflows.md)**: Manage multi-step automation workflows
-- **[plugins](docs/plugins.md)**: Discover, install, and uninstall plugins
+- **[plugins](docs/plugins.md)**: Discover, install, and uninstall plugins from NuGet.org, your own NuGet feeds or local folders
+- **[alias](docs/alias.md)**: Give the CLI your own name
 
 Prefer to stay in BYO? Run **[byo](docs/shell.md)** without arguments to open an interactive shell with autocompletion, syntax highlighting and history.
 
 **[Token replacement](docs/token-replacement.md)** resolves `{{Key}}` against settings, secrets, built-in values, and command-line overrides when a command runs.
-
-### SDK
-
-- **[Building a plugin](docs/sdk-plugins.md)**: Add your own command groups to the CLI with `BYO.SDK`
-- **[ExportService](docs/sdk-export-service.md)**: Export one or more `DataTable` results to a JSON file
 
 ### Built-in flags
 

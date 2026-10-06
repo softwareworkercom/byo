@@ -1,0 +1,1648 @@
+/* byocli.com: a product page with one idea per band. White ground, grey bands, one black
+   get-started band; Inter for type, Geist Mono for the install command and the docs; one
+   accent, the brand navy, on buttons and links; the brand green only in the logo and as the
+   prompt of the install command. */
+
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f5f5f7;
+  --bg-chip: #f0f0f3;
+  --bg-dark: #000000;
+  --bg-dark-panel: #1d1d1f;
+  --fg: #1d1d1f;
+  --fg-secondary: #6e6e73;
+  --fg-on-dark: #f5f5f7;
+  --fg-on-dark-secondary: #a1a1a6;
+  --hairline: #d2d2d7;
+  --hairline-soft: rgba(0, 0, 0, 0.08);
+  --hairline-dark: #424245;
+  --accent: #203b58;
+  --accent-hover: #2b4d72;
+  --focus: rgba(32, 59, 88, 0.6);
+  --green: #87bc54;
+  --window-bar: #2c2c2e;
+  --radius-pill: 980px;
+  --radius-tile: 28px;
+  --radius-chip: 12px;
+  --radius-window: 14px;
+  --shadow-window: 0 30px 60px -24px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.2);
+  --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --content: 980px;
+  --content-wide: 1200px;
+  --gutter: 22px;
+  color-scheme: light;
+  accent-color: var(--accent);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.47;
+  letter-spacing: -0.012em;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--accent);
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 1px;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  font-feature-settings: normal;
+}
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: -100%;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+}
+
+.skip:focus {
+  top: 12px;
+}
+
+.wrap {
+  width: min(var(--content), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.wrap-wide {
+  width: min(var(--content-wide), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+/* Type scale. ------------------------------------------------------------------------------- */
+
+.display {
+  font-size: clamp(2.75rem, 2rem + 3.3vw, 5rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.headline {
+  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.028em;
+}
+
+.subhead {
+  font-size: clamp(1.3125rem, 1.1rem + 0.7vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.014em;
+  color: var(--fg-secondary);
+}
+
+.caption {
+  font-size: 0.875rem;
+  line-height: 1.43;
+  color: var(--fg-secondary);
+}
+
+/* Buttons and links. ------------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: #fff;
+  font: 500 1.0625rem/1 var(--font-sans);
+  letter-spacing: -0.012em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-small {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 0.8125rem;
+}
+
+.btn-light {
+  background: #fff;
+  color: var(--fg);
+}
+
+.btn-light:hover {
+  background: #e8e8ed;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  color: var(--accent);
+  font-size: 1.0625rem;
+  font-weight: 400;
+}
+
+.link svg {
+  width: 8px;
+  height: 13px;
+  flex: none;
+  transition: transform 0.2s var(--ease);
+}
+
+.link:hover svg {
+  transform: translateX(2px);
+}
+
+.on-dark .link {
+  color: var(--fg-on-dark);
+}
+
+/* Nav. -------------------------------------------------------------------------------------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.nav-inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  color: var(--fg);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand img {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-links a:not(.btn) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--fg);
+  font-size: 0.875rem;
+  opacity: 0.82;
+  transition: opacity 0.2s var(--ease);
+}
+
+.nav-links a:not(.btn):hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+/* Sections. --------------------------------------------------------------------------------- */
+
+.section {
+  padding-block: clamp(72px, 9vw, 128px);
+}
+
+/* A section that is a link target stops below the sticky nav, headline in view. */
+.section[id] {
+  scroll-margin-top: 48px;
+}
+
+.band-alt {
+  background: var(--bg-alt);
+}
+
+.band-dark {
+  background: var(--bg-dark);
+  color: var(--fg-on-dark);
+}
+
+.band-dark .subhead,
+.band-dark .caption {
+  color: var(--fg-on-dark-secondary);
+}
+
+.band-dark :focus-visible {
+  outline-color: rgba(255, 255, 255, 0.7);
+}
+
+.section-head {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto clamp(40px, 5vw, 64px);
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+}
+
+.section-head .subhead {
+  max-width: 48ch;
+}
+
+.section-head .cmd {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 8px;
+}
+
+/* A section's one pointer into the documentation. */
+.section-link {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(32px, 4vw, 48px);
+}
+
+/* Hero. ------------------------------------------------------------------------------------- */
+
+.hero {
+  padding-top: clamp(36px, 4vw, 72px);
+  padding-bottom: clamp(64px, 8vw, 112px);
+  text-align: center;
+}
+
+.hero .display {
+  max-width: 14ch;
+  margin-inline: auto;
+}
+
+.hero .subhead {
+  max-width: 48ch;
+  margin: 20px auto 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px 28px;
+  margin-top: 32px;
+}
+
+/* The hero figure: your software, your CLI built with BYO, and who uses it. ---------------- */
+
+.flow {
+  display: grid;
+  justify-items: center;
+  margin: clamp(32px, 3.5vw, 56px) auto 0;
+}
+
+.flow .node {
+  position: relative;
+}
+
+.flow-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  color: var(--fg);
+}
+
+/* The one dark object on the page: a window-shaped frame that stands for the CLI, and is one. */
+.flow-cli {
+  width: min(100%, 640px);
+  margin-top: 28px;
+  background: var(--bg-dark-panel);
+  color: var(--fg-on-dark);
+  border-radius: var(--radius-window);
+  box-shadow: var(--shadow-window);
+}
+
+.flow-cli::before,
+.flow-out::before,
+.flow-out li::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -28px;
+  width: 1px;
+  height: 28px;
+  background: var(--hairline);
+}
+
+.flow-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  background: var(--window-bar);
+  border-radius: var(--radius-window) var(--radius-window) 0 0;
+}
+
+.flow-bar .light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.flow-bar .red {
+  background: #ff5f57;
+}
+
+.flow-bar .yellow {
+  background: #febc2e;
+}
+
+.flow-bar .green {
+  background: #28c840;
+}
+
+.flow-bar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8125rem;
+  color: var(--fg-on-dark-secondary);
+  letter-spacing: 0;
+}
+
+.flow-bar {
+  position: relative;
+}
+
+/* The demo shell inside the frame: a real session's colours, the CLI's own words. ---------- */
+
+.shell-body {
+  padding: 14px 20px 16px;
+  text-align: left;
+}
+
+.shell-screen {
+  height: 168px;
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  letter-spacing: 0;
+  color: var(--fg-on-dark);
+  scrollbar-color: var(--hairline-dark) transparent;
+  cursor: text;
+}
+
+.shell-line {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.shell-line.k-table {
+  margin: 2px 0 6px;
+  overflow-x: auto;
+}
+
+.shell-table-title {
+  text-align: center;
+}
+
+/* The CLI's tables, drawn with borders instead of box characters: rounded for lists of
+   commands, square with a title for settings. */
+.shell-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--fg-on-dark-secondary);
+  color: var(--fg-on-dark);
+  white-space: nowrap;
+}
+
+.shell-table.rounded {
+  border-radius: 6px;
+}
+
+.shell-table th,
+.shell-table td {
+  padding: 0 1ch;
+  text-align: left;
+  font-weight: 400;
+  border-right: 1px solid var(--fg-on-dark-secondary);
+}
+
+.shell-table th:last-child,
+.shell-table td:last-child {
+  border-right: 0;
+}
+
+.shell-table th {
+  border-bottom: 1px solid var(--fg-on-dark-secondary);
+}
+
+.shell-line.k-grey {
+  color: var(--fg-on-dark-secondary);
+}
+
+.shell-line.k-green {
+  color: var(--green);
+}
+
+.shell-line.k-yellow {
+  color: #e3b341;
+}
+
+.shell-line.k-red {
+  color: #ff6b6b;
+}
+
+.shell-line.k-cyan {
+  color: #6cc5e0;
+}
+
+.shell-line.k-blue {
+  color: #8ab4f8;
+}
+
+.shell-line.appear {
+  animation: appear 0.25s var(--ease) both;
+}
+
+.shell-prompt {
+  color: var(--green);
+  user-select: none;
+}
+
+.shell-gt.is-failed,
+.is-failed .shell-row .shell-gt {
+  color: #ff6b6b;
+}
+
+.shell-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6ch;
+  margin: 0;
+}
+
+.shell-field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.shell-input {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-on-dark);
+  font: inherit;
+  letter-spacing: 0;
+  caret-color: var(--green);
+  outline: none;
+}
+
+.shell-ghost {
+  position: absolute;
+  inset: 0;
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shell-ghost .typed {
+  color: transparent;
+}
+
+.shell-ghost .rest {
+  color: #6e6e73;
+}
+
+.shell-tries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.shell-try {
+  padding: 7px 11px;
+  border: 1px solid var(--hairline-dark);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--fg-on-dark-secondary);
+  font: 400 0.75rem/1 var(--font-mono);
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.shell-try:hover {
+  color: var(--fg-on-dark);
+  border-color: #6e6e73;
+}
+
+.shell :focus-visible {
+  outline-color: rgba(255, 255, 255, 0.7);
+}
+
+.flow-caption {
+  max-width: 48ch;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.flow-out {
+  --flow-gap: 12px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--flow-gap);
+  width: min(100%, 640px);
+  margin: 48px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The stem from the frame, then the bar the three branches hang from. */
+.flow-out::before {
+  top: -48px;
+  height: 20px;
+}
+
+.flow-out::after {
+  content: '';
+  position: absolute;
+  top: -28px;
+  left: calc((100% - 2 * var(--flow-gap)) / 6);
+  right: calc((100% - 2 * var(--flow-gap)) / 6);
+  height: 1px;
+  background: var(--hairline);
+}
+
+.flow-out li {
+  justify-self: center;
+}
+
+/* The one authored motion: the figure appears top to bottom, as the pitch is read. */
+.flow .node,
+.flow-out {
+  opacity: 0;
+  animation: appear 0.45s var(--ease) forwards;
+  animation-delay: calc(var(--i, 0) * 0.15s + 0.15s);
+}
+
+@keyframes appear {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Bento tiles. ------------------------------------------------------------------------------ */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: clamp(28px, 3vw, 40px);
+  background: var(--bg);
+  border-radius: var(--radius-tile);
+  min-width: 0;
+}
+
+/* The link sits on the tile floor so a row of unequal tiles lines up. */
+.bento-box .tile > .tile-links {
+  margin-top: auto;
+}
+
+.tile h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.17;
+  letter-spacing: -0.022em;
+}
+
+.tile p {
+  color: var(--fg-secondary);
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.span-3 {
+  grid-column: span 3;
+}
+
+.span-4 {
+  grid-column: span 4;
+}
+
+.span-6 {
+  grid-column: span 6;
+}
+
+.tile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 8px;
+}
+
+/* Tiles on a white band take the grey field so they still read as tiles. */
+.tile-grey {
+  background: var(--bg-alt);
+}
+
+/* A command chip: one real command in a quiet grey field. Used on the docs index and the start page. */
+.cmd {
+  display: block;
+  margin: 0;
+  padding: 14px 18px;
+  background: var(--bg-chip);
+  color: var(--fg);
+  border-radius: var(--radius-chip);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  letter-spacing: 0;
+}
+
+/* On a grey band the chip turns white so it still reads as a field. */
+.band-alt .cmd {
+  background: var(--bg);
+}
+
+/* A multi-line code block in the same field: lines stay whole and scroll sideways if they must. */
+.cmd-code {
+  white-space: pre;
+  overflow-x: auto;
+  scrollbar-color: var(--hairline) transparent;
+}
+
+/* Qualities and audiences: terms with one line each, no boxes. ------------------------------ */
+
+.qualities {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px 48px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qualities li {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.qualities strong {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.17;
+  letter-spacing: -0.022em;
+}
+
+.qualities p {
+  color: var(--fg-secondary);
+}
+
+.audiences {
+  max-width: var(--content);
+  margin-inline: auto;
+}
+
+/* The argument that follows a list: Statement type, a little wider, its lead in ink. */
+.note {
+  max-width: 58ch;
+  margin: clamp(40px, 5vw, 56px) auto 0;
+  text-align: center;
+  font-size: clamp(1.1875rem, 1rem + 0.6vw, 1.5rem);
+  line-height: 1.35;
+  letter-spacing: -0.014em;
+  color: var(--fg-secondary);
+}
+
+.note strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.closing {
+  margin: clamp(40px, 5vw, 64px) auto 0;
+  text-align: center;
+  font-size: clamp(1.3125rem, 1.1rem + 0.7vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.014em;
+}
+
+/* Plumbing: the problems the SDK solves, as a row of quiet pills. --------------------------- */
+
+.plumbing {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.plumbing li {
+  padding: 8px 16px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  font-size: 0.9375rem;
+  color: var(--fg-secondary);
+  letter-spacing: -0.006em;
+}
+
+/* Statement: one quiet screen of large type. ------------------------------------------------ */
+
+.statement {
+  display: grid;
+  gap: 24px;
+  justify-items: center;
+  text-align: center;
+}
+
+.statement .headline {
+  max-width: 18ch;
+}
+
+.statement p {
+  max-width: 46ch;
+  font-size: clamp(1.1875rem, 1rem + 0.6vw, 1.5rem);
+  line-height: 1.35;
+  letter-spacing: -0.014em;
+  color: var(--fg-secondary);
+}
+
+.statement .tagline {
+  color: var(--fg);
+  font-weight: 500;
+  font-size: 1.0625rem;
+}
+
+/* Install band. ----------------------------------------------------------------------------- */
+
+.install {
+  display: grid;
+  gap: 20px;
+  justify-items: center;
+  max-width: var(--content);
+  margin-inline: auto;
+}
+
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-dark-panel);
+  border: 1px solid var(--hairline-dark);
+}
+
+.seg button {
+  border: 0;
+  background: transparent;
+  color: var(--fg-on-dark-secondary);
+  font: 500 0.875rem/1 var(--font-sans);
+  letter-spacing: -0.006em;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.seg button[aria-selected='true'] {
+  background: var(--fg-on-dark);
+  color: var(--fg);
+}
+
+.cmdpanel {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 8px 8px 22px;
+  background: var(--bg-dark-panel);
+  border: 1px solid var(--hairline-dark);
+  border-radius: var(--radius-window);
+}
+
+.cmdpanel[hidden] {
+  display: none;
+}
+
+.cmdpanel pre {
+  margin: 0;
+  min-width: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--fg-on-dark);
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  letter-spacing: 0;
+}
+
+.cmdpanel .prompt {
+  color: var(--green);
+  user-select: none;
+}
+
+.install-notes {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+}
+
+.install-notes .caption {
+  max-width: 62ch;
+}
+
+.install-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 28px;
+}
+
+.install-links .link {
+  font-size: 0.9375rem;
+}
+
+/* Footer. ----------------------------------------------------------------------------------- */
+
+.footer {
+  border-top: 1px solid var(--hairline-soft);
+  padding-block: 28px 40px;
+  font-size: 0.75rem;
+  color: var(--fg-secondary);
+}
+
+.footer .wrap {
+  display: grid;
+  gap: 14px;
+}
+
+.footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer a {
+  display: inline-block;
+  padding-block: 5px;
+  margin-block: -5px;
+  color: var(--hairline-dark);
+}
+
+/* Docs: the reference-manual register. --------------------------------------------------------- */
+
+.docs {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+  padding-block: 48px 112px;
+}
+
+.rail {
+  position: sticky;
+  top: 72px;
+  display: grid;
+  gap: 24px;
+}
+
+.rail h2 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-secondary);
+  margin-bottom: 8px;
+}
+
+.rail ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail a {
+  display: block;
+  padding: 5px 10px;
+  margin-left: -10px;
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.875rem;
+  letter-spacing: -0.006em;
+  opacity: 0.85;
+}
+
+.rail a:hover {
+  text-decoration: none;
+  background: var(--bg-alt);
+  opacity: 1;
+}
+
+.rail a[aria-current='page'] {
+  color: var(--accent);
+  font-weight: 600;
+  opacity: 1;
+}
+
+/* About 70 to 75 characters per line at 17px Inter. */
+.article {
+  min-width: 0;
+  max-width: 640px;
+}
+
+.article-head {
+  padding-bottom: 28px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.article-head h1 {
+  font-size: clamp(2rem, 1.6rem + 1.5vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.prose {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.prose > * + * {
+  margin-top: 1.1em;
+}
+
+.prose h1 {
+  display: none;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-top: 2.1em;
+  margin-bottom: 0.6em;
+  scroll-margin-top: 72px;
+}
+
+.prose h2 {
+  font-size: 1.875rem;
+}
+
+.prose h3 {
+  font-size: 1.375rem;
+}
+
+.prose h4 {
+  font-size: 1.0625rem;
+}
+
+.prose code {
+  font-size: 0.875em;
+  background: var(--bg-alt);
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.prose pre,
+.prose table,
+.rail {
+  scrollbar-color: var(--hairline) transparent;
+}
+
+.prose pre {
+  margin: 1.2em 0;
+  padding: 20px 22px;
+  background: var(--bg-alt);
+  color: var(--fg);
+  border-radius: var(--radius-chip);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  letter-spacing: 0;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+.prose blockquote {
+  margin: 1.4em 0;
+  padding: 16px 20px;
+  background: var(--bg-alt);
+  border-radius: var(--radius-chip);
+  color: var(--fg);
+}
+
+.prose blockquote > :first-child {
+  margin-top: 0;
+}
+
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.prose th,
+.prose td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 14px 12px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.prose th {
+  font-weight: 600;
+  color: var(--fg-secondary);
+  font-size: 0.8125rem;
+}
+
+.prose td:first-child code {
+  white-space: nowrap;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+}
+
+.prose li + li {
+  margin-top: 0.35em;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  margin: 2.5em 0;
+}
+
+.prose a:hover {
+  text-decoration: underline;
+}
+
+.article-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.9375rem;
+}
+
+/* Docs index. ------------------------------------------------------------------------------- */
+
+.manual {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 40px 48px;
+  margin-top: 48px;
+}
+
+.manual h2 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-secondary);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.manual ul {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.manual li {
+  display: grid;
+  gap: 2px;
+}
+
+.manual li a {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+}
+
+.manual li span {
+  font-size: 0.9375rem;
+  color: var(--fg-secondary);
+}
+
+/* Start page: two track cards, then each track as a column of numbered steps. --------------- */
+
+.tracks {
+  margin-top: 8px;
+}
+
+.track-card {
+  gap: 10px;
+  color: var(--fg);
+  transition: background-color 0.2s var(--ease);
+}
+
+.track-card:hover {
+  background: #ececf0;
+  text-decoration: none;
+}
+
+.track-card .track-title {
+  color: var(--fg);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.17;
+  letter-spacing: -0.022em;
+}
+
+.track-card .link {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.track-card:hover .link svg {
+  transform: translateX(2px);
+}
+
+.track-body {
+  max-width: 760px;
+}
+
+.track-head {
+  display: grid;
+  gap: 16px;
+  margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+.track-head h2 {
+  font-size: clamp(2rem, 1.6rem + 1.5vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.track-lede {
+  font-size: 1.1875rem;
+  line-height: 1.42;
+  color: var(--fg-secondary);
+}
+
+.track-meta {
+  font-size: 0.9375rem;
+  color: var(--fg-secondary);
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(28px, 3.5vw, 40px);
+}
+
+/* The number sits in a hairline circle beside the step; the sequence is the information here. */
+.step {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 20px;
+  min-width: 0;
+}
+
+.step::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.step-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+}
+
+.step h3,
+.track-end h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.018em;
+}
+
+.step h3 {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+.step p,
+.track-end p,
+.prompts {
+  color: var(--fg-secondary);
+}
+
+.step code,
+.track-lede code,
+.track-card code {
+  font-size: 0.9em;
+  color: var(--fg);
+  background: var(--bg-chip);
+  padding: 0.1em 0.4em;
+  border-radius: 6px;
+  letter-spacing: 0;
+}
+
+.band-alt .step code {
+  background: var(--bg);
+}
+
+.step .cmd code {
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.prompts {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 4px;
+}
+
+.prompts strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.check {
+  font-size: 0.9375rem;
+}
+
+.check strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.track-end {
+  margin-top: clamp(40px, 5vw, 56px);
+  padding-top: 28px;
+  border-top: 1px solid var(--hairline);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.next-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+/* Responsive. ------------------------------------------------------------------------------- */
+
+@media (max-width: 1068px) {
+  :root {
+    --content: 692px;
+    --content-wide: 980px;
+  }
+
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .span-2,
+  .span-3 {
+    grid-column: span 1;
+  }
+
+  .span-4,
+  .span-6,
+  .bento-box .tile:last-child {
+    grid-column: span 2;
+  }
+
+  .qualities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .audiences {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .docs {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 734px) {
+  :root {
+    --gutter: 16px;
+  }
+
+  .nav-links {
+    gap: 18px;
+  }
+
+  .nav-links .hide-mobile {
+    display: none;
+  }
+
+  .hero .subhead {
+    max-width: none;
+  }
+
+  .flow-pill {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 0.875rem;
+  }
+
+  .shell-body {
+    padding: 12px 14px 14px;
+  }
+
+  .shell-screen {
+    height: 176px;
+    font-size: 0.75rem;
+  }
+
+  .flow-out {
+    --flow-gap: 8px;
+  }
+
+  .bento,
+  .qualities,
+  .audiences {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .span-2,
+  .span-3,
+  .span-4,
+  .span-6,
+  .bento-box .tile:last-child {
+    grid-column: span 1;
+  }
+
+  .tile {
+    border-radius: 20px;
+  }
+
+  .cmdpanel {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .step::before {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8125rem;
+  }
+
+  .step h3 {
+    min-height: 28px;
+  }
+
+  .docs {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 24px;
+  }
+
+  .rail {
+    position: static;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: 32px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scrollbar-width: thin;
+  }
+}
+
+@media (max-width: 374px) {
+  .nav-inner {
+    gap: 12px;
+  }
+
+  .nav-links {
+    gap: 14px;
+  }
+
+  .flow-out {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .flow-out::after,
+  .flow-out li::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .flow .node,
+  .flow-out {
+    animation: none;
+    opacity: 1;
+  }
+
+  .shell-line.appear {
+    animation: none;
+  }
+
+  .btn,
+  .link svg,
+  .seg button,
+  .nav-links a {
+    transition: none;
+  }
+}

@@ -1,0 +1,33 @@
+---
+import Site from '../layouts/Site.astro';
+import Chevron from '../components/Chevron.astro';
+
+// GitHub Pages serves this file for any address that does not exist.
+---
+
+<Site title="Page not found. BYO CLI." description="That address does not exist on byocli.com. Start again from the home page or the documentation.">
+  <section class="section notfound" aria-labelledby="notfound-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h1 id="notfound-title" class="headline">Page not found.</h1>
+        <p class="subhead">The address may have changed, or it was never here. Everything on this site is one step from these two.</p>
+      </div>
+      <div class="actions">
+        <a class="btn" href="/">Home</a>
+        <a class="link" href="/docs/">Browse the documentation <Chevron /></a>
+      </div>
+    </div>
+  </section>
+</Site>
+
+<style>
+  .notfound {
+    min-height: 60vh;
+    display: grid;
+    align-content: center;
+  }
+
+  .notfound .section-head {
+    margin-bottom: 0;
+  }
+</style>

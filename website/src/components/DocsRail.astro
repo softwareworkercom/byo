@@ -1,0 +1,31 @@
+---
+/**
+ * The documentation sidebar: plain text links grouped by section, the current page in the accent.
+ */
+import { docGroups } from '../lib/docs-nav';
+
+interface Props {
+  current?: string;
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="rail" aria-label="Documentation">
+  {
+    docGroups.map((group) => (
+      <section>
+        <h2>{group.label}</h2>
+        <ul>
+          {group.items.map((item) => (
+            <li>
+              <a href={`/docs/${item.slug}/`} aria-current={item.slug === current ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</nav>

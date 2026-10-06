@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from 'astro:content';
+import Site from '../../layouts/Site.astro';
+import DocsRail from '../../components/DocsRail.astro';
+import { docOrder, labelFor, summaryFromBody, titleFromBody } from '../../lib/docs-nav';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('docs');
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const title = titleFromBody(entry.body, entry.id);
+const description = summaryFromBody(entry.body, `${title}: BYO CLI documentation.`);
+const position = docOrder.indexOf(entry.id);
+const previous = position > 0 ? docOrder[position - 1] : undefined;
+const next = position >= 0 && position < docOrder.length - 1 ? docOrder[position + 1] : undefined;
+const source = `https://github.com/softwareworkercom/byo/blob/main/docs/${entry.id}.md`;
+---
+
+<Site title={`${title}. BYO CLI documentation.`} description={description}>
+  <div class="wrap-wide docs">
+    <DocsRail current={entry.id} />
+    <article class="article">
+      <header class="article-head">
+        <h1>{title}</h1>
+      </header>
+      <div class="prose">
+        <Content />
+      </div>
+      <footer class="article-foot">
+        <span>{previous && <a href={`/docs/${previous}/`}>Previous: {labelFor(previous)}</a>}</span>
+        <a href={source}>Edit this page on GitHub</a>
+        <span>{next && <a href={`/docs/${next}/`}>Next: {labelFor(next)}</a>}</span>
+      </footer>
+    </article>
+  </div>
+</Site>

@@ -30,6 +30,23 @@ namespace SoftwareWorker.BYO.SDK.Constants
         public const string SYSTEM_Alias = "System:Alias";
         public const string SYSTEM_SkipAliasPrompt = "System:SkipAliasPrompt";
 
+        /// <summary>
+        /// Package sources plugins are installed from: a JSON array of locations (a NuGet V3 service index
+        /// URL or a folder of .nupkg files), optionally named as "name=location". Searched in order before NuGet.org.
+        /// </summary>
+        public const string SYSTEM_PluginSources = "System:Plugins:Sources";
+
+        /// <summary>
+        /// Set to false to stop using NuGet.org as the last plugin package source.
+        /// </summary>
+        public const string SYSTEM_PluginSourcesUseNuGetOrg = "System:Plugins:UseNuGetOrg";
+
+        /// <summary>
+        /// Prefix of the secrets holding a named plugin source's credentials:
+        /// "System:Plugins:Sources:&lt;name&gt;:Username" and "System:Plugins:Sources:&lt;name&gt;:Password".
+        /// </summary>
+        public const string SYSTEM_PluginSourceCredentialsPrefix = "System:Plugins:Sources:";
+
 
         public const string SYSTEM_DATABASE_LOCAL = "local.db";
         public const string SYSTEM_DATABASE_REMOTE_URL = "System:Database:Turso:Url";

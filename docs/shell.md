@@ -20,7 +20,7 @@ byo> sqlserver query --filename "C:\Repositories\queries\Orders Search.sql" --co
 
 Each command runs in its own process, exactly as if you had typed it in your terminal. Pressing `Ctrl+C` stops the running command and returns to the prompt. Plugins installed or uninstalled from the shell are available to the next command.
 
-The `>` in the prompt turns red when the last command failed.
+The prompt shows the name of your CLI: `byo>` by default, or your [alias](alias.md) when you have set one, for example `acme>`. The `>` turns red when the last command failed.
 
 ## Features
 
@@ -28,7 +28,7 @@ The `>` in the prompt turns red when the last command failed.
 - **Completion menu**: suggestions for commands, subcommands, options, option values and file paths, with their descriptions. The menu opens as you type and the best match is always selected first.
 - **Option values**: parameters declared with pipe-separated values (for example `command|workflow`) suggest those values.
 - **Path completion**: options whose name contains `file`, `path`, `folder` or `dir`, and any value that looks like a path, complete file and folder names. Paths with spaces are quoted automatically.
-- **History**: `Up`/`Down` browse previous commands. When you have typed something, only commands that start with that text are shown.
+- **History**: `Up`/`Down` browse previous commands. When you have typed something, only commands that start with that text are shown. Entries are stored as they ran: a leading `byo` is dropped, `help <command>` is stored as `<command> --help`, arguments containing spaces are quoted, and a repeated command moves to the end of the history instead of being stored twice.
 - **Inline suggestions**: the most recent matching command from history appears in grey after the cursor. Press `Right` or `End` to accept it, or `Ctrl+Right` to accept the next word.
 - **Editing**: selection, undo/redo and word-by-word navigation and deletion.
 
@@ -64,12 +64,13 @@ The `>` in the prompt turns red when the last command failed.
 | --- | --- |
 | `help [command]` | Show help for BYO or for a command, for example `help sqlserver query` |
 | `history` | Show the last 50 commands |
+| `history clear` | Clear the command history, including the history file |
 | `clear`, `cls` | Clear the screen |
 | `exit`, `quit` | Exit the shell |
 
 ## History file
 
-History is saved to `~/byo/shell_history.txt` (up to 1000 entries). Lines that contain words such as `password`, `secret`, `token` or `apikey` are kept for the current session only and never written to disk.
+History is saved to `~/byo/shell_history.txt` (up to 1000 entries). Lines that contain words such as `password`, `secret`, `token` or `apikey` are kept for the current session only and never written to disk. `history clear` empties the file as well.
 
 ## Requirements
 

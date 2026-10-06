@@ -1,0 +1,767 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-06T06:06:47Z",
+  "title": "Design System: BYO CLI",
+  "extensions": {
+    "colorMeta": {
+      "navy": {
+        "role": "primary",
+        "displayName": "Brand Navy",
+        "canonical": "#203b58",
+        "tonalRamp": [
+          "oklch(15% 0.035 250)",
+          "oklch(26% 0.05 250)",
+          "oklch(33% 0.055 250)",
+          "oklch(50% 0.06 250)",
+          "oklch(61% 0.06 250)",
+          "oklch(72% 0.05 250)",
+          "oklch(84% 0.03 250)",
+          "oklch(95% 0.01 250)"
+        ]
+      },
+      "navy-hover": {
+        "role": "primary",
+        "displayName": "Navy Hover",
+        "canonical": "#2b4d72",
+        "tonalRamp": [
+          "oklch(15% 0.035 250)",
+          "oklch(26% 0.05 250)",
+          "oklch(40% 0.06 250)",
+          "oklch(50% 0.06 250)",
+          "oklch(61% 0.06 250)",
+          "oklch(72% 0.05 250)",
+          "oklch(84% 0.03 250)",
+          "oklch(95% 0.01 250)"
+        ]
+      },
+      "navy-halo": {
+        "role": "primary",
+        "displayName": "Navy Halo",
+        "canonical": "rgba(32, 59, 88, 0.6)",
+        "tonalRamp": [
+          "oklch(15% 0.035 250)",
+          "oklch(26% 0.05 250)",
+          "oklch(38% 0.055 250)",
+          "oklch(50% 0.06 250)",
+          "oklch(61% 0.06 250)",
+          "oklch(72% 0.05 250)",
+          "oklch(84% 0.03 250)",
+          "oklch(95% 0.01 250)"
+        ]
+      },
+      "halo-on-dark": {
+        "role": "primary",
+        "displayName": "Halo on Dark",
+        "canonical": "rgba(255, 255, 255, 0.7)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(100% 0 0)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(100% 0 0)"
+        ]
+      },
+      "band-grey": {
+        "role": "neutral",
+        "displayName": "Band Grey",
+        "canonical": "#f5f5f7",
+        "tonalRamp": [
+          "oklch(15% 0.003 270)",
+          "oklch(26% 0.003 270)",
+          "oklch(38% 0.003 270)",
+          "oklch(50% 0.003 270)",
+          "oklch(61% 0.003 270)",
+          "oklch(72% 0.003 270)",
+          "oklch(84% 0.003 270)",
+          "oklch(97% 0.003 270)"
+        ]
+      },
+      "band-black": {
+        "role": "neutral",
+        "displayName": "Band Black",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "oklch(0% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "dark-panel": {
+        "role": "neutral",
+        "displayName": "Dark Panel",
+        "canonical": "#1d1d1f",
+        "tonalRamp": [
+          "oklch(15% 0.003 270)",
+          "oklch(22% 0.003 270)",
+          "oklch(38% 0.003 270)",
+          "oklch(50% 0.003 270)",
+          "oklch(61% 0.003 270)",
+          "oklch(72% 0.003 270)",
+          "oklch(84% 0.003 270)",
+          "oklch(95% 0.003 270)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1d1d1f",
+        "tonalRamp": [
+          "oklch(15% 0.003 270)",
+          "oklch(22% 0.003 270)",
+          "oklch(38% 0.003 270)",
+          "oklch(50% 0.003 270)",
+          "oklch(61% 0.003 270)",
+          "oklch(72% 0.003 270)",
+          "oklch(84% 0.003 270)",
+          "oklch(95% 0.003 270)"
+        ]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "#6e6e73",
+        "tonalRamp": [
+          "oklch(15% 0.004 270)",
+          "oklch(26% 0.004 270)",
+          "oklch(38% 0.004 270)",
+          "oklch(53% 0.006 270)",
+          "oklch(61% 0.004 270)",
+          "oklch(72% 0.004 270)",
+          "oklch(84% 0.004 270)",
+          "oklch(95% 0.004 270)"
+        ]
+      },
+      "ink-on-dark": {
+        "role": "neutral",
+        "displayName": "Ink on Dark",
+        "canonical": "#f5f5f7",
+        "tonalRamp": [
+          "oklch(15% 0.003 270)",
+          "oklch(26% 0.003 270)",
+          "oklch(38% 0.003 270)",
+          "oklch(50% 0.003 270)",
+          "oklch(61% 0.003 270)",
+          "oklch(72% 0.003 270)",
+          "oklch(84% 0.003 270)",
+          "oklch(97% 0.003 270)"
+        ]
+      },
+      "ink-on-dark-secondary": {
+        "role": "neutral",
+        "displayName": "Ink on Dark Secondary",
+        "canonical": "#a1a1a6",
+        "tonalRamp": [
+          "oklch(15% 0.004 270)",
+          "oklch(26% 0.004 270)",
+          "oklch(38% 0.004 270)",
+          "oklch(50% 0.004 270)",
+          "oklch(61% 0.004 270)",
+          "oklch(72% 0.005 270)",
+          "oklch(84% 0.004 270)",
+          "oklch(95% 0.004 270)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#d2d2d7",
+        "tonalRamp": [
+          "oklch(15% 0.004 270)",
+          "oklch(26% 0.004 270)",
+          "oklch(38% 0.004 270)",
+          "oklch(50% 0.004 270)",
+          "oklch(61% 0.004 270)",
+          "oklch(72% 0.004 270)",
+          "oklch(86% 0.006 270)",
+          "oklch(95% 0.004 270)"
+        ]
+      },
+      "hairline-soft": {
+        "role": "neutral",
+        "displayName": "Hairline Soft",
+        "canonical": "rgba(0, 0, 0, 0.08)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(93% 0 0)"
+        ]
+      },
+      "hairline-dark": {
+        "role": "neutral",
+        "displayName": "Hairline Dark",
+        "canonical": "#424245",
+        "tonalRamp": [
+          "oklch(15% 0.004 270)",
+          "oklch(26% 0.004 270)",
+          "oklch(36% 0.005 270)",
+          "oklch(50% 0.004 270)",
+          "oklch(61% 0.004 270)",
+          "oklch(72% 0.004 270)",
+          "oklch(84% 0.004 270)",
+          "oklch(95% 0.004 270)"
+        ]
+      },
+      "chip-field": {
+        "role": "neutral",
+        "displayName": "Chip Field",
+        "canonical": "#f0f0f3",
+        "tonalRamp": [
+          "oklch(15% 0.003 270)",
+          "oklch(26% 0.003 270)",
+          "oklch(38% 0.003 270)",
+          "oklch(50% 0.003 270)",
+          "oklch(61% 0.003 270)",
+          "oklch(72% 0.003 270)",
+          "oklch(84% 0.003 270)",
+          "oklch(95.5% 0.004 270)"
+        ]
+      },
+      "light-button-hover": {
+        "role": "neutral",
+        "displayName": "Light Button Hover",
+        "canonical": "#e8e8ed",
+        "tonalRamp": [
+          "oklch(15% 0.004 270)",
+          "oklch(26% 0.004 270)",
+          "oklch(38% 0.004 270)",
+          "oklch(50% 0.004 270)",
+          "oklch(61% 0.004 270)",
+          "oklch(72% 0.004 270)",
+          "oklch(84% 0.004 270)",
+          "oklch(93% 0.005 270)"
+        ]
+      },
+      "window-bar": {
+        "role": "neutral",
+        "displayName": "Window Bar",
+        "canonical": "#2c2c2e",
+        "tonalRamp": [
+          "oklch(15% 0.003 270)",
+          "oklch(27% 0.003 270)",
+          "oklch(38% 0.003 270)",
+          "oklch(50% 0.003 270)",
+          "oklch(61% 0.003 270)",
+          "oklch(72% 0.003 270)",
+          "oklch(84% 0.003 270)",
+          "oklch(95% 0.003 270)"
+        ]
+      },
+      "light-red": {
+        "role": "neutral",
+        "displayName": "Traffic Light Red",
+        "canonical": "#ff5f57",
+        "tonalRamp": [
+          "oklch(15% 0.06 25)",
+          "oklch(26% 0.1 25)",
+          "oklch(38% 0.14 25)",
+          "oklch(50% 0.18 25)",
+          "oklch(68% 0.2 25)",
+          "oklch(72% 0.16 25)",
+          "oklch(84% 0.1 25)",
+          "oklch(95% 0.03 25)"
+        ]
+      },
+      "light-yellow": {
+        "role": "neutral",
+        "displayName": "Traffic Light Yellow",
+        "canonical": "#febc2e",
+        "tonalRamp": [
+          "oklch(15% 0.04 80)",
+          "oklch(26% 0.07 80)",
+          "oklch(38% 0.1 80)",
+          "oklch(50% 0.13 80)",
+          "oklch(61% 0.15 80)",
+          "oklch(83% 0.17 80)",
+          "oklch(84% 0.12 80)",
+          "oklch(95% 0.05 80)"
+        ]
+      },
+      "light-green": {
+        "role": "neutral",
+        "displayName": "Traffic Light Green",
+        "canonical": "#28c840",
+        "tonalRamp": [
+          "oklch(15% 0.05 145)",
+          "oklch(26% 0.09 145)",
+          "oklch(38% 0.13 145)",
+          "oklch(50% 0.17 145)",
+          "oklch(72% 0.22 145)",
+          "oklch(72% 0.16 145)",
+          "oklch(84% 0.12 145)",
+          "oklch(95% 0.05 145)"
+        ]
+      },
+      "nav-frost": {
+        "role": "neutral",
+        "displayName": "Nav Frost",
+        "canonical": "rgba(255, 255, 255, 0.72)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(100% 0 0)"
+        ]
+      },
+      "brand-green": {
+        "role": "neutral",
+        "displayName": "Brand Green",
+        "canonical": "#87bc54",
+        "tonalRamp": [
+          "oklch(15% 0.05 130)",
+          "oklch(26% 0.08 130)",
+          "oklch(38% 0.11 130)",
+          "oklch(50% 0.14 130)",
+          "oklch(61% 0.16 130)",
+          "oklch(72% 0.16 130)",
+          "oklch(84% 0.12 130)",
+          "oklch(95% 0.05 130)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The hero headline only, centred, max 14ch, sentence case with a full stop."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The one headline each section band carries; max 18ch in the statement band. Also the docs index h1 and the not-found page h1."
+      },
+      "subhead": {
+        "displayName": "Subhead",
+        "purpose": "The explanation under a display or headline, max 48ch, in ink-secondary, three lines or fewer on desktop."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Bento tile headings and the terms of a term list."
+      },
+      "article-title": {
+        "displayName": "Article Title",
+        "purpose": "The h1 of every documentation article, over a hairline."
+      },
+      "frame-title": {
+        "displayName": "Frame Title",
+        "purpose": "\"Your CLI\" inside the flow figure's window frame, in ink-on-dark."
+      },
+      "frame-sub": {
+        "displayName": "Frame Sub",
+        "purpose": "\"Built with the BYO SDK\" under the frame title, in ink-on-dark-secondary, 6px below."
+      },
+      "statement": {
+        "displayName": "Statement",
+        "purpose": "The statement band paragraph at max 46ch and the note under the qualities at max 58ch, in ink-secondary; the note's lead sentence is ink at 600."
+      },
+      "closing": {
+        "displayName": "Closing",
+        "purpose": "One centred sentence at subhead size and 600 weight in ink that ends a band after a list."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default reading; tile paragraphs and term-list lines in ink-secondary; flow pills at 500."
+      },
+      "prose": {
+        "displayName": "Prose",
+        "purpose": "Documentation articles at max 640px, about 70 to 75 characters per line, 1.1em rhythm."
+      },
+      "pill": {
+        "displayName": "Pill",
+        "purpose": "The words in the pill list; also docs index descriptions, the article foot and prose tables."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Install notes; footer copy is 0.75rem at 400 in the same colour."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase group heading over a list of links in the docs rail and docs index only. Never above a headline."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Pill button labels at 500."
+      },
+      "button-small": {
+        "displayName": "Small Button",
+        "purpose": "The Install pill in the nav."
+      },
+      "nav": {
+        "displayName": "Nav",
+        "purpose": "Nav links at 0.82 opacity and docs rail links at 0.85 opacity (the rail tightens tracking to -0.006em)."
+      },
+      "tab": {
+        "displayName": "Tab",
+        "purpose": "The two segmented-control tabs of the install control."
+      },
+      "command": {
+        "displayName": "Command",
+        "purpose": "The one mono size: the install command panel, the command chip on the docs index, docs code blocks. Inline code in prose is 0.875em."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-window",
+        "value": "0 30px 60px -24px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.2)",
+        "purpose": "The flow figure's window frame, the one dark object on the page, and nothing else."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+        "purpose": "The only easing; every transition and the flow figure's appearance use it."
+      },
+      {
+        "name": "appear",
+        "value": "opacity 0 to 1 over 0.45s var(--ease) forwards; delay calc(var(--i, 0) * 0.15s + 0.15s), --i 0 to 5 top to bottom; finished at about 1.3s",
+        "purpose": "The one authored motion: the flow figure's nodes appear top to bottom in the order the pitch is read. Only .flow .node and .flow-out."
+      },
+      {
+        "name": "hover",
+        "value": "background-color 0.2s, transform 0.2s (buttons); transform 0.2s (link chevron, 2px right); opacity 0.2s (nav links); background-color 0.2s, color 0.2s (segmented tabs)",
+        "purpose": "The whole hover vocabulary."
+      },
+      {
+        "name": "press",
+        "value": "transform: scale(0.98) on .btn:active",
+        "purpose": "Button press."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce): .flow .node, .flow-out animation none, opacity 1; .btn, .link svg, .seg button, .nav-links a transition none; scroll-behavior auto",
+        "purpose": "Shows the finished flow figure at once and removes every transition."
+      },
+      {
+        "name": "shell-output",
+        "value": "0.25s ease, stagger min(45ms, 500ms / lines)",
+        "purpose": "Demo shell output lines fade in as the CLI would print them; none under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "1068px",
+        "purpose": "Containers drop to 692px and 980px; bento to two columns with .span-2 and .span-3 at span 1 and .span-4, .span-6 and the last box tile at span 2; term list to two columns, audiences stay three; docs rail to 200px."
+      },
+      {
+        "name": "phone",
+        "value": "734px",
+        "purpose": "Gutter 16px; nav links 18px apart with Build a plugin hidden; bento, term list and audiences to one column; tiles 20px radius; flow pills 38px at 0.875rem with 0 12px padding; flow gap 8px; command panel stacks at 16px padding; docs rail becomes a horizontal strip."
+      },
+      {
+        "name": "narrow-phone",
+        "value": "374px",
+        "purpose": "Flow figure branch pills become a centred wrapping flex row at 8px gaps with the bar and branch drops hidden; nav gaps tighten to 12px and 14px so the brand stays on one line."
+      }
+    ],
+    "layout": {
+      "content": "980px",
+      "contentWide": "1200px",
+      "contentTablet": "692px",
+      "contentWideTablet": "980px",
+      "gutter": "22px",
+      "gutterMobile": "16px",
+      "section": "clamp(72px, 9vw, 128px)",
+      "sectionAnchor": "scroll-margin-top 48px on .section[id]",
+      "sectionHeadMax": "760px",
+      "sectionLink": "centred text link, margin-top clamp(32px, 4vw, 48px)",
+      "actions": "flex wrap, centred, gap 16px 28px, margin-top 32px; hero and 404",
+      "hero": "padding clamp(40px, 4.5vw, 72px) / clamp(64px, 8vw, 112px); flow figure margin-top clamp(40px, 4vw, 56px); frame min(100%, 560px); branch row min(100%, 640px), 3 columns, gap 12px; connectors 28px, stem 20px",
+      "bento": "repeat(6, minmax(0, 1fr)) gap 16px; spans 3, 3, 2, 2, 2; .bento-box .tile > .tile-links margin-top auto",
+      "termList": "repeat(3, minmax(0, 1fr)) gap 40px 48px; .audiences max-width 980px",
+      "note": "max-width 58ch, margin-top clamp(40px, 5vw, 56px)",
+      "closing": "margin-top clamp(40px, 5vw, 64px)",
+      "pillList": "flex wrap, gap 8px, max-width 780px",
+      "docs": "240px minmax(0, 1fr) gap clamp(32px, 5vw, 72px); article max 640px; rail sticky top 72px",
+      "nav": "48px sticky; backdrop-filter saturate(180%) blur(20px); links inline-flex min-height 32px",
+      "notFound": ".notfound min-height 60vh, grid align-content center; section-head margin-bottom 0",
+      "start": "Start page: section head, two track cards (3+3 of 6), a section link; each track a 760px column with a left-aligned head, steps 28 to 40px apart, and a hairline-topped next-links block.",
+      "shell": "Demo shell inside the 640px frame: 14px 20px body, 168px scrolling screen at 0.8125rem/1.6 mono, input row, then suggestion chips 8px apart; 12px 14px body and 176px screen at 0.75rem under 734px."
+    },
+    "browser": {
+      "selection": "background var(--accent); color #fff",
+      "focusVisible": "outline 3px solid var(--focus); outline-offset 3px; border-radius 4px; on .band-dark outline-color rgba(255, 255, 255, 0.7)",
+      "caretColor": "var(--accent)",
+      "accentColor": "var(--accent)",
+      "colorScheme": "light",
+      "themeColor": "#ffffff",
+      "icons": "rel=icon and rel=apple-touch-icon both /byo-icon.png",
+      "scrollbarColor": "var(--hairline) transparent on .prose pre, .prose table and .rail; scrollbar-width thin",
+      "pressTargets": ".link min-height 24px; .nav-links a inline-flex min-height 32px; .footer a inline-block padding-block 5px margin-block -5px"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Navy pill, 44px, white label at 500. Lightens on hover, scales to 0.98 on press, navy halo on focus. Install in the hero, Home on the not-found page.",
+      "html": "<a class=\"ds-btn\" href=\"#install\">Install</a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 22px; border: 0; border-radius: 980px; background: var(--accent, #203b58); color: #fff; font: 500 1.0625rem/1 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: -0.012em; text-decoration: none; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-btn:hover { background: var(--accent-hover, #2b4d72); } .ds-btn:active { transform: scale(0.98); } .ds-btn:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Small Button",
+      "kind": "button",
+      "refersTo": "button-small",
+      "description": "The same navy pill at 30px with a 13px label; the Install pill in the nav.",
+      "html": "<a class=\"ds-btn-small\" href=\"#install\">Install</a>",
+      "css": ".ds-btn-small { display: inline-flex; align-items: center; justify-content: center; min-height: 30px; padding: 0 12px; border: 0; border-radius: 980px; background: var(--accent, #203b58); color: #fff; font: 500 0.8125rem/1 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: -0.012em; text-decoration: none; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-btn-small:hover { background: var(--accent-hover, #2b4d72); } .ds-btn-small:active { transform: scale(0.98); } .ds-btn-small:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Light Button",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "White pill with ink text for the black band; the Copy button, whose label is a polite live region. Greys on hover; the focus halo turns white at 70% on black.",
+      "html": "<div class=\"ds-dark-stage\"><button class=\"ds-btn-light\" type=\"button\"><span aria-live=\"polite\">Copy</span></button></div>",
+      "css": ".ds-dark-stage { display: inline-block; padding: 24px; background: #000; border-radius: 14px; } .ds-btn-light { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border: 0; border-radius: 980px; background: #fff; color: var(--fg, #1d1d1f); font: 500 1.0625rem/1 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: -0.012em; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-btn-light:hover { background: #e8e8ed; } .ds-btn-light:active { transform: scale(0.98); } .ds-btn-light:focus-visible { outline: 3px solid rgba(255, 255, 255, 0.7); outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Text Link",
+      "kind": "custom",
+      "refersTo": "link-text",
+      "description": "Navy body-size link closed by the 8x13 chevron, the only icon on the site, at least 24px tall to press. Hover underlines and nudges the chevron 2px. Every band's one pointer into the docs.",
+      "html": "<a class=\"ds-link\" href=\"#\">Read the getting started guide <svg viewBox=\"0 0 8 13\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M1.5 1.5 6.5 6.5 1.5 11.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></a>",
+      "css": ".ds-link { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; color: var(--accent, #203b58); font: 400 1.0625rem/1.47 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: -0.012em; text-decoration: none; } .ds-link svg { width: 8px; height: 13px; flex: none; transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-link:hover { text-decoration: underline; text-underline-offset: 0.16em; text-decoration-thickness: 1px; } .ds-link:hover svg { transform: translateX(2px); } .ds-link:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Actions Row",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "A primary pill and one text link, centred in a wrapping row at 16px by 28px gaps; follows the hero subhead and the not-found headline.",
+      "html": "<div class=\"ds-actions\"><a class=\"ds-actions-btn\" href=\"#\">Install</a><a class=\"ds-actions-link\" href=\"#\">Read the getting started guide <svg viewBox=\"0 0 8 13\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M1.5 1.5 6.5 6.5 1.5 11.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></a></div>",
+      "css": ".ds-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px 28px; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; } .ds-actions-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border-radius: 980px; background: var(--accent, #203b58); color: #fff; font-size: 1.0625rem; font-weight: 500; line-height: 1; letter-spacing: -0.012em; text-decoration: none; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-actions-btn:hover { background: var(--accent-hover, #2b4d72); } .ds-actions-btn:active { transform: scale(0.98); } .ds-actions-link { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; color: var(--accent, #203b58); font-size: 1.0625rem; letter-spacing: -0.012em; text-decoration: none; } .ds-actions-link svg { width: 8px; height: 13px; flex: none; transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-actions-link:hover { text-decoration: underline; text-underline-offset: 0.16em; text-decoration-thickness: 1px; } .ds-actions-link:hover svg { transform: translateX(2px); } .ds-actions a:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Frosted Nav",
+      "kind": "nav",
+      "refersTo": "nav-frosted",
+      "description": "Sticky 48px bar, white at 72% over saturate(180%) blur(20px), soft hairline below; brand left on one line, three quiet 32px-tall links and the small Install pill right.",
+      "html": "<header class=\"ds-nav\"><a class=\"ds-nav-brand\" href=\"#\"><span class=\"ds-nav-mark\" aria-hidden=\"true\"></span>BYO CLI</a><nav><ul class=\"ds-nav-links\"><li><a href=\"#\">Docs</a></li><li class=\"ds-nav-hide-mobile\"><a href=\"#\">Build a plugin</a></li><li><a href=\"#\">GitHub</a></li><li><a class=\"ds-nav-pill\" href=\"#\">Install</a></li></ul></nav></header>",
+      "css": ".ds-nav { position: sticky; top: 0; z-index: 50; height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 22px; background: rgba(255, 255, 255, 0.72); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.08); font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; } .ds-nav-brand { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; color: var(--fg, #1d1d1f); font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; } .ds-nav-mark { width: 28px; height: 28px; border-radius: 7px; background: var(--accent, #203b58); } .ds-nav-links { display: flex; align-items: center; gap: 28px; margin: 0; padding: 0; list-style: none; } .ds-nav-links a:not(.ds-nav-pill) { display: inline-flex; align-items: center; min-height: 32px; color: var(--fg, #1d1d1f); font-size: 0.875rem; letter-spacing: -0.012em; opacity: 0.82; text-decoration: none; transition: opacity 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-nav-links a:not(.ds-nav-pill):hover { opacity: 1; } .ds-nav-pill { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: 980px; background: var(--accent, #203b58); color: #fff; font-size: 0.8125rem; font-weight: 500; letter-spacing: -0.012em; text-decoration: none; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-nav-pill:hover { background: var(--accent-hover, #2b4d72); } .ds-nav a:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; } @media (max-width: 734px) { .ds-nav-links { gap: 18px; } .ds-nav-hide-mobile { display: none; } } @media (max-width: 374px) { .ds-nav { gap: 12px; } .ds-nav-links { gap: 14px; } }"
+    },
+    {
+      "name": "Flow Figure",
+      "kind": "card",
+      "refersTo": "flow-frame",
+      "description": "The signature component and the hero's product shot: a hairline pill, a 1px hairline down to a 560px dark window-shaped frame with traffic lights, a stem and bar, and three hairline pills. The one dark object, the one shadow and the one authored motion on the page; under 375px the branches wrap and the bar is hidden. The frame is a typeable demo of the interactive shell: real banner, byo> prompt, three suggested commands, output in the CLI’s own colours.",
+      "html": "<figure class=\"ds-flow\" aria-label=\"Your software becomes a CLI built with BYO, used by developers, automation and AI agents\"><div class=\"ds-flow-node ds-flow-pill\" style=\"--i:0\">Your software</div><div class=\"ds-flow-node ds-flow-cli\" style=\"--i:1\"><div class=\"ds-flow-bar\" aria-hidden=\"true\"><span class=\"ds-light\" style=\"background:#ff5f57\"></span><span class=\"ds-light\" style=\"background:#febc2e\"></span><span class=\"ds-light\" style=\"background:#28c840\"></span></div><div class=\"ds-flow-body\"><p class=\"ds-flow-title\">Your CLI</p><p class=\"ds-flow-sub\">Built with the BYO SDK</p></div></div><ul class=\"ds-flow-out\" role=\"list\" style=\"--i:2\"><li class=\"ds-flow-node ds-flow-pill\" style=\"--i:3\">Developers</li><li class=\"ds-flow-node ds-flow-pill\" style=\"--i:4\">Automation</li><li class=\"ds-flow-node ds-flow-pill\" style=\"--i:5\">AI agents</li></ul></figure>",
+      "css": ".ds-flow { display: grid; justify-items: center; margin: 0; padding: 24px 0; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: var(--fg, #1d1d1f); } .ds-flow-node { position: relative; } .ds-flow-pill { display: inline-flex; align-items: center; min-height: 44px; padding: 0 22px; border: 1px solid var(--hairline, #d2d2d7); border-radius: 980px; background: #fff; font-size: 1.0625rem; font-weight: 500; letter-spacing: -0.012em; } .ds-flow-cli { width: min(100%, 560px); margin-top: 28px; background: var(--bg-dark-panel, #1d1d1f); color: var(--fg-on-dark, #f5f5f7); border-radius: 14px; box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.2); } .ds-flow-cli::before, .ds-flow-out::before, .ds-flow-out li::before { content: ''; position: absolute; left: 50%; top: -28px; width: 1px; height: 28px; background: var(--hairline, #d2d2d7); } .ds-flow-bar { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; background: var(--window-bar, #2c2c2e); border-radius: 14px 14px 0 0; } .ds-light { width: 12px; height: 12px; border-radius: 50%; } .ds-flow-body { display: grid; gap: 6px; padding: 28px 32px 32px; text-align: center; } .ds-flow-title { margin: 0; font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.022em; } .ds-flow-sub { margin: 0; font-size: 1rem; color: var(--fg-on-dark-secondary, #a1a1a6); } .ds-flow-out { --flow-gap: 12px; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--flow-gap); width: min(100%, 640px); margin: 48px 0 0; padding: 0; list-style: none; } .ds-flow-out::before { top: -48px; height: 20px; } .ds-flow-out::after { content: ''; position: absolute; top: -28px; left: calc((100% - 2 * var(--flow-gap)) / 6); right: calc((100% - 2 * var(--flow-gap)) / 6); height: 1px; background: var(--hairline, #d2d2d7); } .ds-flow-out li { justify-self: center; } .ds-flow-node, .ds-flow-out { opacity: 0; animation: ds-appear 0.45s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; animation-delay: calc(var(--i, 0) * 0.15s + 0.15s); } @keyframes ds-appear { to { opacity: 1; } } @media (max-width: 734px) { .ds-flow-pill { min-height: 38px; padding: 0 12px; font-size: 0.875rem; } .ds-flow-body { padding: 24px 20px 28px; } .ds-flow-out { --flow-gap: 8px; } } @media (max-width: 374px) { .ds-flow-out { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; } .ds-flow-out::after, .ds-flow-out li::before { display: none; } } @media (prefers-reduced-motion: reduce) { .ds-flow-node, .ds-flow-out { animation: none; opacity: 1; } }"
+    },
+    {
+      "name": "Bento Tile",
+      "kind": "card",
+      "refersTo": "tile-grey",
+      "description": "Flat band-grey tile on the white band, 28px radius, no border, no shadow, no hover. Sentence-case title, grey paragraph, then one text link pushed to the tile floor.",
+      "html": "<article class=\"ds-tile\"><h3>Never lose a command again.</h3><p>Save the exact commands that worked, and run them instantly whenever you need them.</p><div class=\"ds-tile-links\"><a class=\"ds-tile-link\" href=\"#\">Saved commands <svg viewBox=\"0 0 8 13\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M1.5 1.5 6.5 6.5 1.5 11.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></a></div></article>",
+      "css": ".ds-tile { display: flex; flex-direction: column; gap: 12px; padding: clamp(28px, 3vw, 40px); background: var(--bg-alt, #f5f5f7); border-radius: 28px; min-width: 0; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: var(--fg, #1d1d1f); } .ds-tile h3 { margin: 0; font-size: 1.5rem; font-weight: 600; line-height: 1.17; letter-spacing: -0.022em; } .ds-tile p { margin: 0; font-size: 1.0625rem; line-height: 1.47; letter-spacing: -0.012em; color: var(--fg-secondary, #6e6e73); } .ds-tile-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: auto; padding-top: 8px; } .ds-tile-link { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; color: var(--accent, #203b58); font-size: 1.0625rem; text-decoration: none; } .ds-tile-link svg { width: 8px; height: 13px; flex: none; transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-tile-link:hover { text-decoration: underline; text-underline-offset: 0.16em; text-decoration-thickness: 1px; } .ds-tile-link:hover svg { transform: translateX(2px); } .ds-tile-link:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; } @media (max-width: 734px) { .ds-tile { border-radius: 20px; } }"
+    },
+    {
+      "name": "Term List",
+      "kind": "custom",
+      "refersTo": "tile",
+      "description": "Bold terms with one grey line each and no boxes; a 3-column grid at 40px by 48px gaps, two columns under 1068px, one under 734px. Carries what agents need from a CLI and the three audiences.",
+      "html": "<ul class=\"ds-terms\"><li><strong>Discoverable</strong><p>Agents can understand commands and capabilities.</p></li><li><strong>Composable</strong><p>Commands can be combined into workflows.</p></li><li><strong>Automatable</strong><p>CLIs work naturally with scripts, CI/CD and automation.</p></li></ul>",
+      "css": ".ds-terms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 48px; margin: 0; padding: 0; list-style: none; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; } .ds-terms li { display: grid; gap: 8px; align-content: start; } .ds-terms strong { font-size: 1.5rem; font-weight: 600; line-height: 1.17; letter-spacing: -0.022em; color: var(--fg, #1d1d1f); } .ds-terms p { margin: 0; font-size: 1.0625rem; line-height: 1.47; letter-spacing: -0.012em; color: var(--fg-secondary, #6e6e73); } @media (max-width: 1068px) { .ds-terms { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media (max-width: 734px) { .ds-terms { grid-template-columns: minmax(0, 1fr); } }"
+    },
+    {
+      "name": "Pill List",
+      "kind": "chip",
+      "refersTo": "pill-list-item",
+      "description": "Plain words as 1px hairline pills in ink-secondary, centred in a wrapping row at max 780px; no fill, no state, no icon. Carries the problems the SDK takes care of.",
+      "html": "<ul class=\"ds-pills\"><li>Authentication</li><li>Configuration</li><li>Secrets</li><li>Command parsing</li><li>Validation</li></ul>",
+      "css": ".ds-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 780px; margin: 0 auto; padding: 0; list-style: none; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; } .ds-pills li { padding: 8px 16px; border: 1px solid var(--hairline, #d2d2d7); border-radius: 980px; font-size: 0.9375rem; line-height: 1.47; letter-spacing: -0.006em; color: var(--fg-secondary, #6e6e73); }"
+    },
+    {
+      "name": "Note",
+      "kind": "custom",
+      "refersTo": "tile",
+      "description": "The argument that follows a term list: one short paragraph in the Statement type at max 58ch, centred, its lead sentence in ink at 600.",
+      "html": "<p class=\"ds-note\"><strong>Cheaper in tokens, too.</strong> Agents discover a CLI on demand and filter its output before it reaches the model.</p>",
+      "css": ".ds-note { max-width: 58ch; margin: 0 auto; text-align: center; font: 400 clamp(1.1875rem, 1rem + 0.6vw, 1.5rem)/1.35 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: -0.014em; color: var(--fg-secondary, #6e6e73); } .ds-note strong { color: var(--fg, #1d1d1f); font-weight: 600; }"
+    },
+    {
+      "name": "Closing Line",
+      "kind": "custom",
+      "refersTo": "tile",
+      "description": "One centred sentence at subhead size and 600 weight that ends a band after a list.",
+      "html": "<p class=\"ds-closing\">The CLI isn't going away. It's evolving.</p>",
+      "css": ".ds-closing { margin: 0; text-align: center; font: 600 clamp(1.3125rem, 1.1rem + 0.7vw, 1.75rem)/1.47 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: -0.014em; color: var(--fg, #1d1d1f); }"
+    },
+    {
+      "name": "Statement",
+      "kind": "custom",
+      "refersTo": "tile",
+      "description": "A band of type alone: centred headline at max 18ch, one paragraph at max 46ch in ink-secondary, one tagline at 1.0625rem 500; 24px apart.",
+      "html": "<div class=\"ds-statement\"><h2>Build once. Let humans and AI use it.</h2><p>The next generation of software won't just be consumed through websites and APIs. It will be executed by people, automated by systems, and orchestrated by AI agents. Build the tools they'll need.</p><p class=\"ds-tagline\">From API to CLI. From CLI to AI.</p></div>",
+      "css": ".ds-statement { display: grid; gap: 24px; justify-items: center; text-align: center; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: var(--fg, #1d1d1f); } .ds-statement h2 { margin: 0; max-width: 18ch; font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem); font-weight: 600; line-height: 1.08; letter-spacing: -0.028em; text-wrap: balance; } .ds-statement p { margin: 0; max-width: 46ch; font-size: clamp(1.1875rem, 1rem + 0.6vw, 1.5rem); line-height: 1.35; letter-spacing: -0.014em; color: var(--fg-secondary, #6e6e73); } .ds-statement .ds-tagline { font-size: 1.0625rem; font-weight: 500; color: var(--fg, #1d1d1f); }"
+    },
+    {
+      "name": "Command Chip",
+      "kind": "chip",
+      "refersTo": "command-chip",
+      "description": "One real line in a quiet grey field at 12px radius, Geist Mono 0.875rem. Shipped once, as the grammar line under the Documentation headline on the docs index; never on the landing page. On a grey band the chip turns white; the code variant keeps lines whole and scrolls sideways.",
+      "html": "<pre class=\"ds-cmd\"><code>byo &lt;group&gt; &lt;action&gt; [options]</code></pre>",
+      "css": ".ds-cmd { display: block; width: fit-content; margin: 0; padding: 14px 18px; background: var(--bg-chip, #f0f0f3); color: var(--fg, #1d1d1f); border-radius: 12px; font-family: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-ligatures: none; font-size: 0.875rem; line-height: 1.6; text-align: left; white-space: pre-wrap; overflow-wrap: break-word; letter-spacing: 0; }"
+    },
+    {
+      "name": "Install Control",
+      "kind": "input",
+      "refersTo": "segmented-control",
+      "description": "On the black band: a dark pill tablist with a light selected tab, a roving tabindex and arrow keys, over a dark command panel with a green prompt and the light Copy button whose label is a live region. Focus halos are white at 70% here. The only command on the landing page.",
+      "html": "<div class=\"ds-install\"><div class=\"ds-seg\" role=\"tablist\" aria-label=\"Operating system\"><button class=\"ds-seg-tab\" role=\"tab\" type=\"button\" aria-selected=\"true\" tabindex=\"0\">macOS / Linux</button><button class=\"ds-seg-tab\" role=\"tab\" type=\"button\" aria-selected=\"false\" tabindex=\"-1\">Windows</button></div><div class=\"ds-cmdpanel\" role=\"tabpanel\"><pre><code><span class=\"ds-panel-prompt\">$ </span>curl -fsSL https://github.com/softwareworkercom/byo/releases/latest/download/install.sh | bash</code></pre><button class=\"ds-copy\" type=\"button\"><span aria-live=\"polite\">Copy</span></button></div></div>",
+      "css": ".ds-install { display: grid; gap: 20px; justify-items: center; padding: 32px 24px; background: #000; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; } .ds-seg { display: inline-flex; padding: 3px; border-radius: 980px; background: var(--bg-dark-panel, #1d1d1f); border: 1px solid var(--hairline-dark, #424245); } .ds-seg-tab { border: 0; background: transparent; color: var(--fg-on-dark-secondary, #a1a1a6); font-family: inherit; font-size: 0.875rem; font-weight: 500; line-height: 1; letter-spacing: -0.006em; padding: 9px 16px; border-radius: 980px; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-seg-tab:hover { color: var(--fg-on-dark, #f5f5f7); } .ds-seg-tab[aria-selected='true'] { background: var(--fg-on-dark, #f5f5f7); color: var(--fg, #1d1d1f); } .ds-seg-tab:focus-visible, .ds-copy:focus-visible { outline: 3px solid rgba(255, 255, 255, 0.7); outline-offset: 3px; border-radius: 4px; } .ds-cmdpanel { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px 8px 8px 22px; background: var(--bg-dark-panel, #1d1d1f); border: 1px solid var(--hairline-dark, #424245); border-radius: 14px; } .ds-cmdpanel pre { margin: 0; min-width: 0; font-family: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-ligatures: none; font-size: 0.875rem; line-height: 1.6; color: var(--fg-on-dark, #f5f5f7); text-align: left; white-space: pre-wrap; overflow-wrap: break-word; letter-spacing: 0; } .ds-panel-prompt { color: var(--green, #87bc54); user-select: none; } .ds-copy { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border: 0; border-radius: 980px; background: #fff; color: var(--fg, #1d1d1f); font-family: inherit; font-size: 1.0625rem; font-weight: 500; line-height: 1; letter-spacing: -0.012em; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-copy:hover { background: #e8e8ed; } .ds-copy:active { transform: scale(0.98); } @media (max-width: 734px) { .ds-cmdpanel { grid-template-columns: minmax(0, 1fr); padding: 16px; } }"
+    },
+    {
+      "name": "Docs Rail",
+      "kind": "nav",
+      "refersTo": "rail-link",
+      "description": "Reference-manual register: an uppercase 12px group label over plain ink links in 8px-rounded blocks; hover fills band grey; the current page is navy at 600.",
+      "html": "<nav class=\"ds-rail\" aria-label=\"Documentation\"><section><h2>Start here</h2><ul><li><a href=\"#\">Getting started</a></li></ul></section><section><h2>Command groups</h2><ul><li><a href=\"#\">run</a></li><li><a href=\"#\" aria-current=\"page\">commands</a></li><li><a href=\"#\">secrets</a></li></ul></section></nav>",
+      "css": ".ds-rail { display: grid; gap: 24px; width: 240px; scrollbar-color: var(--hairline, #d2d2d7) transparent; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; } .ds-rail h2 { margin: 0 0 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-secondary, #6e6e73); } .ds-rail ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; } .ds-rail a { display: block; padding: 5px 10px; margin-left: -10px; border-radius: 8px; color: var(--fg, #1d1d1f); font-size: 0.875rem; letter-spacing: -0.006em; opacity: 0.85; text-decoration: none; } .ds-rail a:hover { background: var(--bg-alt, #f5f5f7); opacity: 1; } .ds-rail a[aria-current='page'] { color: var(--accent, #203b58); font-weight: 600; opacity: 1; } .ds-rail a:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Footer",
+      "kind": "nav",
+      "refersTo": "footer-link",
+      "description": "Hairline-soft top edge, 12px ink-secondary copy, six grey links in a wrapping row, each padded 5px above and below and pulled back with negative margins so the press target is about 28px tall without moving the row.",
+      "html": "<footer class=\"ds-footer\"><ul><li><a href=\"#\">GitHub</a></li><li><a href=\"#\">Issues</a></li><li><a href=\"#\">Discussions</a></li><li><a href=\"#\">Latest release</a></li><li><a href=\"#\">BYO.SDK on NuGet</a></li><li><a href=\"#\">MIT license</a></li></ul><p>Copyright 2026 Software Worker. BYO CLI is open source, pre-1.0 software. Everything it saves stays on your machine.</p></footer>",
+      "css": ".ds-footer { display: grid; gap: 14px; border-top: 1px solid rgba(0, 0, 0, 0.08); padding: 28px 22px 40px; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 0.75rem; line-height: 1.47; letter-spacing: -0.012em; color: var(--fg-secondary, #6e6e73); } .ds-footer ul { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; padding: 0; list-style: none; } .ds-footer a { display: inline-block; padding-block: 5px; margin-block: -5px; color: var(--hairline-dark, #424245); text-decoration: none; } .ds-footer a:hover { text-decoration: underline; text-underline-offset: 0.16em; text-decoration-thickness: 1px; } .ds-footer a:focus-visible { outline: 3px solid var(--focus, rgba(32, 59, 88, 0.6)); outline-offset: 3px; border-radius: 4px; } .ds-footer p { margin: 0; }"
+    },
+    {
+      "name": "Track Card",
+      "kind": "card",
+      "refersTo": "track-card",
+      "description": "A grey tile that is a link: title, one grey line and a text link on the tile floor; hover darkens the grey one step.",
+      "html": "<a class=\"ds-track-card\" href=\"#\"><p class=\"ds-track-title\">Automate a workflow.</p><p>About 15 minutes. You finish with two real API calls saved by name and run as one command.</p><span class=\"ds-track-link\">Take this path <svg width=\"8\" height=\"13\" viewBox=\"0 0 8 13\" fill=\"none\" aria-hidden=\"true\"><path d=\"M1.5 1.5 6.5 6.5 1.5 11.5\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></span></a>",
+      "css": ".ds-track-card { display: flex; flex-direction: column; gap: 10px; max-width: 480px; padding: 40px; background: #f5f5f7; border-radius: 28px; color: #1d1d1f; text-decoration: none; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; font-size: 1.0625rem; line-height: 1.47; letter-spacing: -0.012em; transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-track-card:hover { background: #ececf0; } .ds-track-card:focus-visible { outline: 3px solid rgba(32, 59, 88, 0.6); outline-offset: 3px; } .ds-track-card p { margin: 0; color: #6e6e73; } .ds-track-card .ds-track-title { color: #1d1d1f; font-size: 1.5rem; font-weight: 600; line-height: 1.17; letter-spacing: -0.022em; } .ds-track-card .ds-track-link { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; padding-top: 8px; color: #203b58; } .ds-track-card .ds-track-link svg { width: 8px; height: 13px; transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); } .ds-track-card:hover .ds-track-link svg { transform: translateX(2px); }"
+    },
+    {
+      "name": "Step",
+      "kind": "custom",
+      "refersTo": "step",
+      "description": "One first-run step: a hairline circle with the number, a title aligned to it, a grey line, a command chip and a check line quoting what the CLI prints.",
+      "html": "<ol class=\"ds-steps\"><li class=\"ds-step\"><div class=\"ds-step-body\"><h3>Save one setting.</h3><p>A setting is a plain value that commands reference as a token, so the base URL lives in one place.</p><pre class=\"ds-cmd\"><code><span class=\"ds-prompt\">$ </span>byo settings set --key Demo:DataGovApiBaseUrl --value https://www.data.gov.au/data/api/3/action</code></pre><p class=\"ds-check\"><strong>Check:</strong> byo settings list shows the key.</p></div></li></ol>",
+      "css": ".ds-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; color: #1d1d1f; } .ds-step { counter-increment: step; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 20px; min-width: 0; } .ds-step::before { content: counter(step); display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #d2d2d7; border-radius: 50%; font-size: 0.875rem; font-weight: 600; } .ds-step-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; } .ds-step h3 { display: flex; align-items: center; min-height: 32px; margin: 0; font-size: 1.25rem; font-weight: 600; line-height: 1.2; letter-spacing: -0.018em; } .ds-step p { margin: 0; color: #6e6e73; font-size: 1.0625rem; line-height: 1.47; letter-spacing: -0.012em; } .ds-cmd { margin: 0; padding: 14px 18px; background: #f0f0f3; color: #1d1d1f; border-radius: 12px; font: 400 0.875rem/1.6 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: break-word; } .ds-cmd .ds-prompt { color: #6e6e73; user-select: none; } .ds-check { font-size: 0.9375rem; } .ds-check strong { color: #1d1d1f; font-weight: 600; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Showroom",
+    "overview": "byocli.com is a product page for a command-line tool, built the way a hardware product page is built. The ground is white, broken into bands of white and pale grey with one black band at the end for getting started. Each band holds one idea: a large sentence-case headline that ends in a full stop, a one-line grey subhead, and then the idea itself carried by words set in a grid, a row of pills, flat tiles or a single paragraph of large type. The landing page is marketing only: it shows no commands, code, transcripts or file lists, and every section ends in one link into the documentation that holds the detail. The product shot is the hero's flow figure: your software, a dark window-shaped frame that stands for the CLI, and the three audiences it serves. That frame is the one dark object on the light page and the one thing lit like a product on a showroom floor, with a single soft shadow under it and nothing else casting one.\n\nThe treatment is quiet and exact. Inter carries everything a person reads; Geist Mono carries the three places a person would type, the install one-liner, the grammar line on the docs index and the documentation's code, with syntax colouring switched off so a command is one colour. The brand navy is the only colour that acts: buttons, links, the current docs page, the selection highlight, the focus halo. The brand green survives only in the logo and as the prompt of the install command, where it reads as the terminal's own colour rather than as a brand accent. Surfaces are pills, 28px tiles and a 14px window frame; there are no gradients in type or fills, no eyebrows above headlines, no card rows with icons and no metaphor world.\n\nDensity is generous between ideas and tight inside a component. Sections pad 72 to 128px, a section head sits centred at 760px, and the bento's five grey tiles on the white band vary in width (3+3, then 2+2+2 of 6 columns) so a row reads as a composed spread rather than a grid of equals. The documentation takes a reference-manual register: a plain-text left rail with the current page in navy, a white reading column, light grey code blocks with dark text, hairline tables. The not-found page borrows the landing page's section head and actions row and nothing else. The direction is the category standard executed at the highest grade; the earlier pegboard metaphor world was rejected and nothing of it carries over.",
+    "keyCharacteristics": [
+      "White ground with alternating pale grey bands and one black install band; each band carries exactly one headline and one idea, and ends in one link into the docs.",
+      "The product is shown once, as the hero's flow figure: hairline pills and a dark window-shaped frame joined by 1px hairlines; the frame is the only dark object and the only shadow on the page.",
+      "Inter Variable for reading in sentence case with tight negative tracking; Geist Mono for the install command, the docs grammar line and documentation code, in one colour.",
+      "One accent, the brand navy, on anything that acts; the brand green only in the logo and as the install prompt.",
+      "Pill buttons, 28px flat tiles, a 14px window frame, a frosted 48px nav; borders are 1px hairlines and appear only where tone cannot separate.",
+      "Every press target is at least 24px tall, every focus is a 3px halo at 3px offset, and the install switch is a real tablist with arrow keys.",
+      "One authored motion, the flow figure appearing top to bottom in about 1.3s; everything else is a 0.2s hover; reduced motion shows the finished figure at once."
+    ],
+    "rules": [
+      {
+        "name": "The One Accent Rule",
+        "body": "The brand navy is the only colour that acts. If an element can be pressed, followed, selected or focused, it is navy; nothing decorative is navy. The brand green appears in the logo and as the install prompt and nowhere else.",
+        "section": "colors"
+      },
+      {
+        "name": "The Band Rhythm Rule",
+        "body": "The page is white and `band-grey` in alternation, with exactly one black band, reserved for getting started. New sections join the alternation; they do not introduce a third ground colour or a tinted band.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chrome Is Not Status Rule",
+        "body": "The traffic lights, the window bar and the prompt colour belong to the window frame and the install command. They are never borrowed to signal success, warning or error elsewhere on the site.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Every landing-page headline is a sentence: sentence case, ending in a full stop, at 600. The only uppercase on the site is the 12px group label over a list of links; it never introduces a headline.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono Is the Product Rule",
+        "body": "Anything the visitor would type, the install one-liner, the grammar line and every command, path, flag and `{{Token}}` in the docs, is Geist Mono with ligatures off and no tracking, at one size. Syntax highlighting is disabled in the Markdown pipeline; a command is one colour, with only the prompt stepping away from it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Words Not Commands Rule",
+        "body": "The landing page is marketing: it carries no command, code, transcript or file list except the install one-liner. A benefit is a sentence-case title and one grey line, and the command that proves it lives on the docs page the section links to.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Idea Per Screen Rule",
+        "body": "A band carries one headline, one subhead and one proof. If a second idea needs saying, it gets its own band in the alternation, not a second headline in the same one.",
+        "section": "layout"
+      },
+      {
+        "name": "The One Pointer Rule",
+        "body": "Every landing-page band points into the documentation exactly once: a section link under the content, or one link per tile and a section link under the bento. The hero's pointer is the getting started guide beside the Install button.",
+        "section": "layout"
+      },
+      {
+        "name": "The One Shadow Rule",
+        "body": "A cast shadow belongs under the one dark object on the page, the window frame that stands for the CLI, and nowhere else. Buttons, tiles, pills, panels and the nav are flat; they separate by tone, by a hairline or by frost.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Flat Tile Rule",
+        "body": "A tile is grey on white or white on grey, no border, no shadow, no hover lift. If a tile needs more presence, give it more columns, not more depth.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do alternate white and `band-grey` bands and keep exactly one black band, for getting started (The Band Rhythm Rule).",
+      "Do open every band with a centred section head: one sentence-case headline with a full stop, one subhead in `ink-secondary` at max 48ch (The One Idea Per Screen Rule).",
+      "Do keep the landing page to words: a benefit is a title and a grey line, and its command lives on the docs page the section links to (The Words Not Commands Rule).",
+      "Do end every landing-page band with one text link into the documentation, closed by the chevron (The One Pointer Rule).",
+      "Do set the install one-liner, the grammar line and every command in the docs in Geist Mono at 0.875rem with ligatures off, one colour, the install prompt in green (The Mono Is the Product Rule).",
+      "Do use the brand navy for anything that acts and nothing else; the brand green stays in the logo and the install prompt (The One Accent Rule).",
+      "Do keep tiles flat, grey on white or white on grey, at 28px with no border and no shadow, with the link row on the tile floor, and vary their column span to compose a row (The Flat Tile Rule).",
+      "Do reserve the cast shadow for the flow figure's window frame, the one dark object on the page (The One Shadow Rule).",
+      "Do give every focusable element the 3px `navy-halo` outline at 3px offset, switching to `halo-on-dark` on the black band, give tab controls a roving tabindex with arrow-key movement, and show the finished flow figure at once under `prefers-reduced-motion`.",
+      "Do make every press target at least 24px tall, as the text link, the 32px nav links and the padded footer links are, without moving the text around it.",
+      "Do build a new page from the parts that exist, as the not-found page does with a section head and an actions row; the shared nav and footer come with the layout."
+    ],
+    "donts": [
+      "Don't add a third ground colour, a tinted band, or a gradient in any fill or type.",
+      "Don't put a command, code block, transcript, file list or chip on the landing page; the install one-liner is the only command it carries.",
+      "Don't put an eyebrow, kicker or uppercase label above a headline; the only uppercase is the group label over a list of docs links.",
+      "Don't add icons where words do the job; the 8x13 chevron closing a text link is the only icon, and it is decorative.",
+      "Don't use the brand green, the traffic lights or the window bar as a button, link, heading or status colour (The Chrome Is Not Status Rule).",
+      "Don't render fenced code with syntax colours or put a dark code block in the docs; docs code is dark text on `band-grey`.",
+      "Don't add a hover lift, border or shadow to a tile, pill or panel; buttons darken and press, links underline, and that is the whole hover vocabulary.",
+      "Don't add a second entrance animation or any scroll-driven effect; the flow figure appearing top to bottom is the only authored motion, and it never delays reading or copying.",
+      "Don't use a dark hero or a neon accent; the ground is white and the hero's only dark object is the window frame.",
+      "Don't let the flow figure's connectors overflow a narrow column; under 375px the branch pills wrap and the bar and drops are hidden rather than squeezed."
+    ]
+  }
+}

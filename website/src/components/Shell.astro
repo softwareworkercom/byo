@@ -1,0 +1,629 @@
+---
+/**
+ * The hero's frame as a demo of the interactive shell, in the browser. Everything it prints is
+ * what the CLI prints: the help text, the list formats, the confirmations and the errors are the
+ * CLI's own strings, and the only saved commands that "run" are echo commands, which the demo
+ * can run faithfully. Anything the demo cannot do honestly says so in a grey "(demo)" line.
+ */
+const tries = ['--help', 'commands list', 'run --target command --name "Say hello"'];
+---
+
+<div class="node flow-cli shell" id="shell" style="--i:1">
+  <div class="flow-bar" aria-hidden="true">
+    <span class="light red"></span>
+    <span class="light yellow"></span>
+    <span class="light green"></span>
+    <span class="flow-bar-title">Your CLI</span>
+  </div>
+  <div class="shell-body">
+    <div class="shell-screen" id="shell-screen">
+      <div class="shell-log" id="shell-log" role="log" aria-live="polite" aria-label="Demo shell output"></div>
+      <form class="shell-row" id="shell-form" autocomplete="off">
+        <label class="visually-hidden" for="shell-input">Type a byo command and press Enter</label>
+        <span class="shell-prompt" aria-hidden="true">byo<span class="shell-gt">&gt;</span></span>
+        <span class="shell-field">
+          <span class="shell-ghost" id="shell-ghost" aria-hidden="true"></span>
+          <input
+            class="shell-input"
+            id="shell-input"
+            type="text"
+            spellcheck="false"
+            autocapitalize="off"
+            autocorrect="off"
+            autocomplete="off"
+            enterkeyhint="go"
+          />
+        </span>
+      </form>
+    </div>
+    <div class="shell-tries" role="group" aria-label="Commands to try">
+      {tries.map((t) => <button type="button" class="shell-try" data-try={t}>{t}</button>)}
+    </div>
+  </div>
+</div>
+
+<script>
+  type Kind = 'cmd' | 'out' | 'green' | 'yellow' | 'red' | 'cyan' | 'grey' | 'blue' | 'table';
+  interface TableData {
+    headers: string[];
+    rows: string[][];
+    style: 'rounded' | 'square';
+    title?: string;
+  }
+  interface Line {
+    text: string;
+    kind?: Kind;
+    table?: TableData;
+  }
+  interface SavedCommand {
+    name: string;
+    bookmark: string;
+    executable: string;
+    shell: string;
+    directory: string;
+    created: string;
+  }
+
+  const VERSION = '0.41.1';
+  const HINTS = "Tab or Ctrl+Space: complete | Up/Down: history | Right: accept suggestion | Ctrl+D or 'exit': quit";
+
+  // The seven command groups of a clean install, with the descriptions the CLI prints.
+  const GROUPS: Record<string, { desc: string; subs: Record<string, string> | null }> = {
+    alias: { desc: 'Shell alias management', subs: { delete: 'Remove the shell alias for byo', set: 'Set or change the shell alias for byo' } },
+    commands: { desc: 'Saved command management', subs: { delete: 'Delete a saved command', list: 'List all saved commands', set: 'Create a new saved command' } },
+    plugins: { desc: 'Custom plugin management', subs: { install: 'Install BYO CLI Plugin from a local feed or NuGet.org', list: 'List available BYO CLI Plugins', uninstall: 'Uninstall BYO CLI Plugin' } },
+    run: { desc: 'Interactive execution', subs: null },
+    secrets: { desc: 'Encrypted secrets operations', subs: { delete: 'Delete a secret', list: 'Read secrets', reencrypt: 'Re-encrypt all secrets with a new key', set: 'Set a secret' } },
+    settings: { desc: 'Settings operations', subs: { delete: 'Delete a setting', list: 'Read settings', set: 'Set a setting' } },
+    workflows: { desc: 'Workflow management', subs: { delete: 'Delete a workflow', list: 'List all workflows', set: 'Create a new workflow with interactive steps' } },
+  };
+  const BUILTINS = ['help', 'history', 'clear', 'cls', 'exit', 'quit'];
+  const GLOBAL_OPTIONS = [
+    '  --schedule <schedule>  Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.',
+    '  --async                Run command asynchronously in the background and return immediately.',
+    '  -?, -h, --help         Show help and usage information',
+  ];
+  // Help text captured from the CLI for the commands the demo can run.
+  const LEAF_HELP: Record<string, string[]> = {
+    run: [
+      'Description:',
+      '  Interactive execution',
+      '',
+      'Usage:',
+      '  byo run [options]',
+      '',
+      'Options:',
+      '  --target <command|workflow>  What to run (command or workflow)',
+      '  --name <name>                Name of the command/workflow to run',
+      '  --bookmark <bookmark>        Bookmark hierarchy path to locate the command/workflow',
+      '  --schedule <schedule>        Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.',
+      '  --async                      Run command asynchronously in the background and return immediately.',
+      '  -?, -h, --help               Show help and usage information',
+    ],
+    'commands set': [
+      'Description:',
+      '  Create a new saved command',
+      '',
+      'Usage:',
+      '  byo commands set [options]',
+      '',
+      'Options:',
+      '  --name <name>                 Command name',
+      '  --bookmark <bookmark>         Bookmark hierarchy path (e.g. DevOps/Deploy)',
+      '  --executable <executable>     Command executable (use {{tokenName}} for tokens resolved from configuration)',
+      '  --shell <Cmd|PowerShell|Wsl>  Shell type',
+      '  --directory <directory>       Working directory',
+      '  --schedule <schedule>         Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.',
+      '  --async                       Run command asynchronously in the background and return immediately.',
+      '  -?, -h, --help                Show help and usage information',
+    ],
+    'settings set': ['Description:', '  Set a setting', '', 'Usage:', '  byo settings set [options]', '', 'Options:', '  --key <key>            The key to update', '  --value <value>        The new value', ...GLOBAL_OPTIONS],
+    'secrets set': ['Description:', '  Set a secret', '', 'Usage:', '  byo secrets set [options]', '', 'Options:', '  --key <key>            The key to update', '  --value <value>        The new value', ...GLOBAL_OPTIONS],
+  };
+
+  const stamp = () => {
+    const d = new Date();
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+
+  const state = {
+    commands: [{ name: 'Say hello', bookmark: '', executable: 'echo Hello from byo', shell: 'PowerShell', directory: '', created: stamp() }] as SavedCommand[],
+    settings: new Map<string, string>(),
+    history: [] as string[],
+    failed: false,
+  };
+
+  const out = (text: string, kind?: Kind): Line => ({ text, kind });
+  const note = (text: string): Line => ({ text: `(demo) ${text}`, kind: 'grey' });
+  const pad = (s: string, w: number) => s + ' '.repeat(Math.max(0, w - s.length));
+
+  function tokenize(input: string): string[] {
+    const tokens: string[] = [];
+    let current = '';
+    let quote: string | null = null;
+    let has = false;
+    for (const ch of input) {
+      if (quote) {
+        if (ch === quote) quote = null;
+        else current += ch;
+        has = true;
+      } else if (ch === '"' || ch === "'") {
+        quote = ch;
+        has = true;
+      } else if (/\s/.test(ch)) {
+        if (has) {
+          tokens.push(current);
+          current = '';
+          has = false;
+        }
+      } else {
+        current += ch;
+        has = true;
+      }
+    }
+    if (has) tokens.push(current);
+    return tokens;
+  }
+
+  function options(tokens: string[]): Map<string, string | true> {
+    const map = new Map<string, string | true>();
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      if (!t.startsWith('--')) continue;
+      const next = tokens[i + 1];
+      if (next !== undefined && !next.startsWith('--')) {
+        map.set(t.slice(2), next);
+        i++;
+      } else {
+        map.set(t.slice(2), true);
+      }
+    }
+    return map;
+  }
+
+  function rootHelp(): Line[] {
+    const names = Object.keys(GROUPS);
+    const width = Math.max(...names.map((n) => n.length)) + 2;
+    return [
+      'Description:',
+      '',
+      'Usage:',
+      '  byo [command] [options]',
+      '',
+      'Options:',
+      '  -?, -h, --help  Show help and usage information',
+      '  --version       Show version information',
+      '',
+      'Commands:',
+      ...names.map((n) => '  ' + pad(n, width) + GROUPS[n].desc),
+    ].map((text) => out(text));
+  }
+
+  function groupHelp(group: string): Line[] {
+    const g = GROUPS[group];
+    if (!g.subs) return LEAF_HELP[group].map((text) => out(text));
+    const names = Object.keys(g.subs);
+    const width = Math.max(...names.map((n) => n.length)) + 2;
+    const subs = g.subs;
+    return [
+      'Description:',
+      `  ${g.desc}`,
+      '',
+      'Usage:',
+      `  byo ${group} [command] [options]`,
+      '',
+      'Options:',
+      '  -?, -h, --help  Show help and usage information',
+      '',
+      'Commands:',
+      ...names.map((n) => '  ' + pad(n, width) + subs[n]),
+    ].map((text) => out(text));
+  }
+
+  function helpFor(tokens: string[]): Line[] {
+    const [group, sub] = tokens;
+    if (!group || !GROUPS[group]) return rootHelp();
+    const leaf = LEAF_HELP[`${group} ${sub}`];
+    if (sub && leaf) return leaf.map((text) => out(text));
+    return groupHelp(group);
+  }
+
+  // The CLI draws its tables with box characters; here the same table is drawn with borders, so the
+  // lines join at any line height.
+  function table(headers: string[], rows: string[][], style: 'rounded' | 'square', title?: string): Line[] {
+    return [{ text: '', kind: 'table', table: { headers, rows, style, title } }];
+  }
+
+  function missing(opts: Map<string, string | true>, names: string[]): Line[] | null {
+    const absent = names.filter((n) => typeof opts.get(n) !== 'string');
+    if (absent.length === 0) return null;
+    return [out(`Missing required parameter(s): ${absent.map((n) => '--' + n).join(', ')}.`, 'red')];
+  }
+
+  function findCommand(name: string, bookmark: string | undefined): SavedCommand | undefined {
+    const wanted = (bookmark ?? '').replace(/^\/+|\/+$/g, '').toLowerCase();
+    return state.commands.find((c) => c.name.toLowerCase() === name.toLowerCase() && c.bookmark.toLowerCase() === wanted);
+  }
+
+  interface Result {
+    lines: Line[];
+    failed: boolean;
+    clear?: boolean;
+    restart?: boolean;
+  }
+
+  function exec(raw: string): Result {
+    const tokens = tokenize(raw);
+    if (tokens[0] === 'byo') tokens.shift();
+    if (tokens.length === 0) return { lines: [], failed: false };
+    const [first, second] = tokens;
+
+    if (first === 'clear' || first === 'cls') return { lines: [], failed: false, clear: true };
+    if (first === 'exit' || first === 'quit') return { lines: [], failed: false, restart: true };
+    if (first === 'help') return { lines: helpFor(tokens.slice(1)), failed: false };
+    if (first === 'history') {
+      if (second === 'clear') {
+        state.history = [];
+        return { lines: [], failed: false };
+      }
+      return { lines: state.history.slice(-50).map((h) => out(h, 'grey')), failed: false };
+    }
+    if (first === '--version') return { lines: [out(VERSION)], failed: false };
+    if (first === '--help' || first === '-h' || first === '-?') return { lines: rootHelp(), failed: false };
+
+    const group = GROUPS[first];
+    if (!group) {
+      return {
+        lines: [out('Required command was not provided.', 'red'), out(`Unrecognized command or argument '${first}'.`, 'red'), out(''), ...rootHelp()],
+        failed: true,
+      };
+    }
+    if (tokens.some((t) => t === '--help' || t === '-h' || t === '-?')) {
+      return { lines: helpFor(tokens.filter((t) => !t.startsWith('-'))), failed: false };
+    }
+
+    const opts = options(tokens);
+    if (opts.has('schedule') || opts.has('async')) {
+      return { lines: [note('--schedule and --async need a real terminal; they are not part of the demo.')], failed: false };
+    }
+
+    if (first === 'run') return runCommand(opts);
+
+    if (!second) return { lines: [out('Required command was not provided.', 'red'), out(''), ...groupHelp(first)], failed: true };
+    if (!group.subs || !group.subs[second]) {
+      return { lines: [out(`Unrecognized command or argument '${second}'.`, 'red'), out(''), ...groupHelp(first)], failed: true };
+    }
+
+    switch (`${first} ${second}`) {
+      case 'commands list': {
+        if (state.commands.length === 0) return { lines: [out("No commands found. Use 'byo commands create' to create a command.", 'yellow')], failed: false };
+        const lines: Line[] = [];
+        const folders = [...new Set(state.commands.map((c) => c.bookmark))].sort();
+        for (const folder of folders) {
+          lines.push(folder ? out(folder, 'cyan') : out('(root)', 'grey'));
+          const rows = state.commands.filter((c) => c.bookmark === folder).map((c) => [c.name, c.bookmark, c.executable, c.directory, c.created]);
+          lines.push(...table(['Name', 'Bookmark', 'Executable', 'Directory', 'Created'], rows, 'rounded'), out(''));
+        }
+        return { lines, failed: false };
+      }
+      case 'commands set': {
+        const absent = missing(opts, ['name', 'executable']);
+        if (absent) return { lines: absent, failed: true };
+        const name = opts.get('name') as string;
+        const bookmark = ((opts.get('bookmark') as string) ?? '').replace(/^\/+|\/+$/g, '');
+        const existing = findCommand(name, bookmark);
+        const command: SavedCommand = {
+          name,
+          bookmark,
+          executable: opts.get('executable') as string,
+          shell: (opts.get('shell') as string) ?? 'PowerShell',
+          directory: (opts.get('directory') as string) ?? '',
+          created: existing?.created ?? stamp(),
+        };
+        if (existing) state.commands[state.commands.indexOf(existing)] = command;
+        else state.commands.push(command);
+        return { lines: [out(existing ? 'Command updated successfully!' : 'Command added successfully!', 'green')], failed: false };
+      }
+      case 'commands delete': {
+        const absent = missing(opts, ['name']);
+        if (absent) return { lines: absent, failed: true };
+        const name = opts.get('name') as string;
+        const bookmark = opts.get('bookmark') as string | undefined;
+        const existing = findCommand(name, bookmark);
+        if (!existing) return { lines: [out(`Command '${name}' was not found in bookmark '${bookmark || '/'}'.`, 'yellow')], failed: false };
+        state.commands.splice(state.commands.indexOf(existing), 1);
+        return { lines: [out(`Command '${name}' deleted successfully.`, 'green')], failed: false };
+      }
+      case 'settings list': {
+        if (state.settings.size === 0) return { lines: [out("No settings found. Use 'byo settings set --key <key> --value <value>' to add one.", 'yellow')], failed: false };
+        const rows = [...state.settings.entries()].sort(([a], [b]) => a.localeCompare(b));
+        return { lines: table(['Name', 'Value'], rows, 'square', 'Settings'), failed: false };
+      }
+      case 'settings set': {
+        const absent = missing(opts, ['key', 'value']);
+        if (absent) return { lines: absent, failed: true };
+        const key = opts.get('key') as string;
+        const value = opts.get('value') as string;
+        state.settings.set(key, value);
+        return { lines: [out(`Key=${key}, Value=${value}`, 'green')], failed: false };
+      }
+      case 'settings delete': {
+        const absent = missing(opts, ['key']);
+        if (absent) return { lines: absent, failed: true };
+        state.settings.delete(opts.get('key') as string);
+        return { lines: [note('Deleted in the demo. The real command confirms what it removed.')], failed: false };
+      }
+      case 'secrets list':
+        return { lines: [out("No secrets found. Use 'byo secrets set --key <key> --value <value>' to add one.", 'yellow')], failed: false };
+      case 'secrets set':
+      case 'secrets delete':
+      case 'secrets reencrypt':
+        return { lines: [note('Secrets are encrypted with a key bound to your machine. The demo does not store them.')], failed: false };
+      case 'workflows list':
+        return { lines: [out("No workflows found. Use 'byo workflows create' to create a workflow.", 'yellow')], failed: false };
+      case 'workflows set':
+        return { lines: [note('The real command builds the steps with you, one prompt at a time. Try it after installing.')], failed: false };
+      case 'workflows delete':
+        return { lines: [note('No workflows in the demo.')], failed: false };
+      case 'plugins list':
+      case 'plugins install':
+      case 'plugins uninstall':
+        return { lines: [note('Plugins come from NuGet.org or your own feed, on your machine. Not part of the demo.')], failed: false };
+      case 'alias set':
+      case 'alias delete':
+        return { lines: [note('The real command gives the CLI your own name in every shell on your machine.')], failed: false };
+      default:
+        return { lines: [note('Not part of the demo.')], failed: false };
+    }
+  }
+
+  function runCommand(opts: Map<string, string | true>): Result {
+    const target = opts.get('target');
+    if (typeof target !== 'string') {
+      return { lines: [note('The real shell asks what to run here. Try: run --target command --name "Say hello" --bookmark Demo')], failed: false };
+    }
+    if (target === 'workflow') return { lines: [out("No workflows found. Use 'byo workflows create' first.", 'yellow')], failed: false };
+    if (target !== 'command') return { lines: [note("--target takes 'command' or 'workflow'.")], failed: true };
+    const name = opts.get('name');
+    if (typeof name !== 'string') {
+      return { lines: [note('The real shell lets you browse your bookmarks here. Try: run --target command --name "Say hello" --bookmark Demo')], failed: false };
+    }
+    const bookmark = opts.get('bookmark') as string | undefined;
+    const command = findCommand(name, bookmark);
+    if (!command) return { lines: [out(`Command '${name}' was not found in bookmark '${bookmark || '/'}'.`, 'yellow')], failed: false };
+    const started = performance.now();
+    const lines: Line[] = [out(`Command: ${command.executable}`, 'blue'), out(`Directory: ${command.directory || '~'}`, 'blue')];
+    const echo = command.executable.match(/^echo\s+([\s\S]*)$/i);
+    if (echo) lines.push(out(echo[1].replace(/^(["'])([\s\S]*)\1$/, '$2')));
+    else lines.push(note(`On your machine this runs in ${command.shell}. The demo only runs echo commands.`));
+    lines.push(out(`Completed in ${Math.max(1, Math.round(performance.now() - started))} ms.`, 'green'));
+    return { lines, failed: false };
+  }
+
+  // Rendering and input handling.
+  const root = document.getElementById('shell');
+  const screen = document.getElementById('shell-screen');
+  const log = document.getElementById('shell-log');
+  const form = document.getElementById('shell-form') as HTMLFormElement | null;
+  const input = document.getElementById('shell-input') as HTMLInputElement | null;
+  const ghost = document.getElementById('shell-ghost');
+  if (root && screen && log && form && input && ghost) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let historyIndex = -1;
+    let historyPrefix = '';
+    let typing = false;
+
+    const banner = () => print([out(`BYO interactive shell ${VERSION}`, 'cyan'), out(HINTS, 'grey')]);
+
+    function print(lines: Line[]) {
+      const step = Math.min(45, 500 / Math.max(1, lines.length));
+      lines.forEach((line, i) => {
+        const el = document.createElement('div');
+        el.className = 'shell-line' + (line.kind ? ` k-${line.kind}` : '');
+        if (line.table) {
+          const data = line.table;
+          if (data.title) {
+            const title = document.createElement('div');
+            title.className = 'shell-table-title';
+            title.textContent = data.title;
+            el.appendChild(title);
+          }
+          const tableEl = document.createElement('table');
+          tableEl.className = `shell-table ${data.style}`;
+          const head = tableEl.createTHead().insertRow();
+          for (const h of data.headers) {
+            const th = document.createElement('th');
+            th.textContent = h;
+            head.appendChild(th);
+          }
+          const body = tableEl.createTBody();
+          for (const r of data.rows) {
+            const tr = body.insertRow();
+            for (let i = 0; i < data.headers.length; i++) tr.insertCell().textContent = r[i] ?? '';
+          }
+          el.appendChild(tableEl);
+        } else if (line.kind === 'cmd') {
+          const prompt = document.createElement('span');
+          prompt.className = 'shell-prompt';
+          prompt.textContent = 'byo';
+          const gt = document.createElement('span');
+          gt.className = 'shell-gt' + (state.failed ? ' is-failed' : '');
+          gt.textContent = '>';
+          prompt.appendChild(gt);
+          el.appendChild(prompt);
+          el.appendChild(document.createTextNode(' ' + line.text));
+        } else {
+          el.textContent = line.text || ' ';
+        }
+        if (!reduce.matches) {
+          el.classList.add('appear');
+          el.style.animationDelay = `${Math.round(i * step)}ms`;
+        }
+        log!.appendChild(el);
+      });
+      while (log!.childElementCount > 400) log!.removeChild(log!.firstChild!);
+      screen!.scrollTop = screen!.scrollHeight;
+    }
+
+    function suggestion(value: string): string | null {
+      if (!value) return null;
+      for (let i = state.history.length - 1; i >= 0; i--) {
+        const h = state.history[i];
+        if (h.startsWith(value) && h !== value) return h;
+      }
+      return null;
+    }
+
+    function updateGhost() {
+      const value = input!.value;
+      const s = suggestion(value);
+      ghost!.textContent = '';
+      if (!s) return;
+      const typed = document.createElement('span');
+      typed.className = 'typed';
+      typed.textContent = value;
+      const rest = document.createElement('span');
+      rest.className = 'rest';
+      rest.textContent = s.slice(value.length);
+      ghost!.append(typed, rest);
+    }
+
+    function submit(raw: string) {
+      const trimmed = raw.trim();
+      print([{ text: trimmed, kind: 'cmd' }]);
+      const result = exec(trimmed);
+      if (result.clear || result.restart) log!.textContent = '';
+      if (result.restart) banner();
+      print(result.lines);
+      state.failed = result.failed;
+      root!.classList.toggle('is-failed', state.failed);
+      if (trimmed) {
+        const stored = trimmed.replace(/^byo\s+/, '');
+        state.history = state.history.filter((h) => h !== stored);
+        state.history.push(stored);
+      }
+      historyIndex = -1;
+      input!.value = '';
+      updateGhost();
+    }
+
+    function complete() {
+      const value = input!.value;
+      const endsWithSpace = /\s$/.test(value);
+      const tokens = tokenize(value);
+      let candidates: string[] = [];
+      let partial = '';
+      if (tokens.length === 0 || (tokens.length === 1 && !endsWithSpace)) {
+        partial = tokens[0] ?? '';
+        candidates = [...Object.keys(GROUPS), ...BUILTINS].filter((n) => n.startsWith(partial));
+      } else {
+        const group = GROUPS[tokens[0]];
+        if (!group || !group.subs) return;
+        partial = tokens.length === 1 ? '' : tokens[1];
+        if (tokens.length > 2 || (tokens.length === 2 && endsWithSpace)) return;
+        candidates = Object.keys(group.subs).filter((n) => n.startsWith(partial));
+      }
+      if (candidates.length === 0) return;
+      let completion = candidates[0];
+      if (candidates.length > 1) {
+        // Insert the common prefix, as a menu would offer.
+        completion = candidates.reduce((a, b) => {
+          let i = 0;
+          while (i < a.length && i < b.length && a[i] === b[i]) i++;
+          return a.slice(0, i);
+        });
+        if (completion.length <= partial.length) return;
+      }
+      const head = value.slice(0, value.length - partial.length);
+      input!.value = head + completion + (candidates.length === 1 ? ' ' : '');
+      updateGhost();
+    }
+
+    function typeInto(command: string) {
+      if (typing) return;
+      input!.focus();
+      if (reduce.matches) {
+        input!.value = command;
+        submit(command);
+        return;
+      }
+      typing = true;
+      input!.value = '';
+      const step = Math.min(14, 420 / command.length);
+      let i = 0;
+      const tick = () => {
+        i++;
+        input!.value = command.slice(0, i);
+        updateGhost();
+        if (i < command.length) window.setTimeout(tick, step);
+        else window.setTimeout(() => {
+          typing = false;
+          submit(command);
+        }, 140);
+      };
+      window.setTimeout(tick, step);
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (typing) return;
+      submit(input.value);
+    });
+
+    input.addEventListener('input', () => {
+      historyIndex = -1;
+      updateGhost();
+    });
+
+    input.addEventListener('keydown', (event) => {
+      if (typing) {
+        event.preventDefault();
+        return;
+      }
+      const value = input.value;
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        complete();
+      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (historyIndex === -1) historyPrefix = value;
+        const matches = state.history.filter((h) => h.startsWith(historyPrefix));
+        if (matches.length === 0) return;
+        if (event.key === 'ArrowUp') historyIndex = historyIndex === -1 ? matches.length - 1 : Math.max(0, historyIndex - 1);
+        else historyIndex = historyIndex === -1 ? -1 : Math.min(matches.length, historyIndex + 1);
+        input.value = historyIndex === -1 || historyIndex === matches.length ? historyPrefix : matches[historyIndex];
+        if (historyIndex === matches.length) historyIndex = -1;
+        updateGhost();
+      } else if ((event.key === 'ArrowRight' || event.key === 'End') && input.selectionStart === value.length) {
+        const s = suggestion(value);
+        if (s) {
+          event.preventDefault();
+          input.value = s;
+          updateGhost();
+        }
+      } else if (event.key === 'Escape' || (event.key === 'c' && event.ctrlKey)) {
+        event.preventDefault();
+        input.value = '';
+        historyIndex = -1;
+        updateGhost();
+      } else if (event.key === 'l' && event.ctrlKey) {
+        event.preventDefault();
+        log.textContent = '';
+      } else if (event.key === 'd' && event.ctrlKey && value === '') {
+        event.preventDefault();
+        submit('exit');
+      }
+    });
+
+    screen.addEventListener('click', () => {
+      if (!window.getSelection()?.toString()) input.focus({ preventScroll: true });
+    });
+
+    for (const button of root.querySelectorAll<HTMLButtonElement>('.shell-try')) {
+      button.addEventListener('click', () => typeInto(button.dataset.try ?? ''));
+    }
+
+    banner();
+  }
+</script>

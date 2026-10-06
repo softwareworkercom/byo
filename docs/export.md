@@ -154,6 +154,7 @@ For larger values (> 446 bytes):
 - Keys use dot notation for logical grouping (e.g., `Database:Host`, `Database:Port`)
 - Values are strings and unencrypted
 - Use hierarchical naming conventions for organization
+- Keys under the `System:` prefix configure `byo` itself: for example `System:Alias` and `System:SkipAliasPrompt` (see [alias](alias.md)) and `System:Plugins:Sources` (see [plugins](plugins.md#package-sources))
 
 ### Workflows
 

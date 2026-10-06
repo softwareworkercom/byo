@@ -6,7 +6,7 @@ namespace SoftwareWorker.BYO.CLI.Helpers
     /// <summary>
     /// Reads locally published NuGet packages (<c>.nupkg</c> files) from a folder that
     /// acts as a local feed, resolving package metadata directly from the embedded
-    /// <c>.nuspec</c> so callers can list and install packages without contacting NuGet.org.
+    /// <c>.nuspec</c> so callers can list and install packages without contacting a server.
     /// </summary>
     public static class LocalPackageHelper
     {
@@ -23,41 +23,20 @@ namespace SoftwareWorker.BYO.CLI.Helpers
             return GetAllPackages(sourceDirectory)
                 .GroupBy(package => package.Id, StringComparer.OrdinalIgnoreCase)
                 .Select(group => group
-                    .OrderBy(package => package.Version, Comparer<string>.Create(CompareVersions))
+                    .OrderBy(package => package.Version, NuGetVersionHelper.Comparer)
                     .Last())
                 .OrderBy(package => package.Id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
 
         /// <summary>
-        /// Resolves a single package from the local feed by id, honoring an explicit version
-        /// when supplied and otherwise selecting the latest (stable preferred) version.
+        /// Returns every version of one package id found in the local feed folder.
         /// </summary>
-        public static LocalPackageInfo? ResolvePackage(string sourceDirectory, string packageId, string? version)
+        public static List<LocalPackageInfo> GetPackages(string sourceDirectory, string packageId)
         {
-            var matches = GetAllPackages(sourceDirectory)
+            return GetAllPackages(sourceDirectory)
                 .Where(package => package.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-
-            if (matches.Count == 0)
-            {
-                return null;
-            }
-
-            if (!string.IsNullOrWhiteSpace(version))
-            {
-                var requested = version.Trim();
-                return matches.FirstOrDefault(package =>
-                    package.Version.Equals(requested, StringComparison.OrdinalIgnoreCase));
-            }
-
-            var stable = matches
-                .Where(package => !package.Version.Contains('-', StringComparison.Ordinal))
-                .ToList();
-
-            return (stable.Count > 0 ? stable : matches)
-                .OrderBy(package => package.Version, Comparer<string>.Create(CompareVersions))
-                .Last();
         }
 
         private static List<LocalPackageInfo> GetAllPackages(string sourceDirectory)
@@ -128,65 +107,6 @@ namespace SoftwareWorker.BYO.CLI.Helpers
             {
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Compares two NuGet-style version strings in ascending order. Numeric release parts
-        /// are compared segment by segment and a prerelease version sorts below the matching
-        /// release version (e.g. <c>1.0.0-beta</c> &lt; <c>1.0.0</c>).
-        /// </summary>
-        private static int CompareVersions(string left, string right)
-        {
-            var (releaseLeft, prereleaseLeft) = SplitVersion(left);
-            var (releaseRight, prereleaseRight) = SplitVersion(right);
-
-            var length = Math.Max(releaseLeft.Length, releaseRight.Length);
-            for (var index = 0; index < length; index++)
-            {
-                var partLeft = index < releaseLeft.Length ? releaseLeft[index] : 0;
-                var partRight = index < releaseRight.Length ? releaseRight[index] : 0;
-
-                if (partLeft != partRight)
-                {
-                    return partLeft.CompareTo(partRight);
-                }
-            }
-
-            var leftHasPrerelease = !string.IsNullOrEmpty(prereleaseLeft);
-            var rightHasPrerelease = !string.IsNullOrEmpty(prereleaseRight);
-
-            if (leftHasPrerelease != rightHasPrerelease)
-            {
-                return leftHasPrerelease ? -1 : 1;
-            }
-
-            return string.Compare(prereleaseLeft, prereleaseRight, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static (int[] Release, string Prerelease) SplitVersion(string version)
-        {
-            var main = version.Trim();
-
-            var buildMetadataIndex = main.IndexOf('+', StringComparison.Ordinal);
-            if (buildMetadataIndex >= 0)
-            {
-                main = main[..buildMetadataIndex];
-            }
-
-            var prerelease = string.Empty;
-            var prereleaseIndex = main.IndexOf('-', StringComparison.Ordinal);
-            if (prereleaseIndex >= 0)
-            {
-                prerelease = main[(prereleaseIndex + 1)..];
-                main = main[..prereleaseIndex];
-            }
-
-            var release = main
-                .Split('.', StringSplitOptions.RemoveEmptyEntries)
-                .Select(part => int.TryParse(part, out var number) ? number : 0)
-                .ToArray();
-
-            return (release, prerelease);
         }
     }
 }

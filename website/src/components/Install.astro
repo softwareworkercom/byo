@@ -1,0 +1,111 @@
+---
+/**
+ * The install control: a segmented switch between operating systems, the one-line command for
+ * each, and a copy button. Sits on the dark get-started band.
+ */
+interface Props {
+  id?: string;
+}
+
+const { id = 'install' } = Astro.props;
+
+const commands = [
+  {
+    os: 'unix',
+    label: 'macOS / Linux',
+    prompt: '$ ',
+    command: 'curl -fsSL https://github.com/softwareworkercom/byo/releases/latest/download/install.sh | bash',
+  },
+  {
+    os: 'windows',
+    label: 'Windows',
+    prompt: 'PS> ',
+    command: 'iwr -useb https://github.com/softwareworkercom/byo/releases/latest/download/install.ps1 | iex',
+  },
+];
+---
+
+<div class="install" id={id}>
+  <div class="seg" role="tablist" aria-label="Operating system">
+    {
+      commands.map((entry, i) => (
+        <button
+          role="tab"
+          type="button"
+          id={`${id}-tab-${entry.os}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          aria-controls={`${id}-panel-${entry.os}`}
+          tabindex={i === 0 ? 0 : -1}
+          data-os={entry.os}
+        >
+          {entry.label}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    commands.map((entry, i) => (
+      <div
+        class="cmdpanel"
+        role="tabpanel"
+        id={`${id}-panel-${entry.os}`}
+        aria-labelledby={`${id}-tab-${entry.os}`}
+        data-os={entry.os}
+        hidden={i !== 0}
+      >
+        <pre><code><span class="prompt">{entry.prompt}</span>{entry.command}</code></pre>
+        <button class="btn btn-light" type="button" data-copy={entry.command}>
+          <span class="btn-label" aria-live="polite">Copy</span>
+        </button>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  const prefersWindows = /Win/i.test(navigator.platform ?? '');
+
+  for (const root of document.querySelectorAll<HTMLElement>('.install')) {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+
+    const select = (os: string, focus = false) => {
+      for (const tab of tabs) {
+        const selected = tab.dataset.os === os;
+        tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+        tab.tabIndex = selected ? 0 : -1;
+        if (selected && focus) tab.focus();
+      }
+      for (const panel of panels) panel.hidden = panel.dataset.os !== os;
+    };
+
+    for (const [i, tab] of tabs.entries()) {
+      tab.addEventListener('click', () => select(tab.dataset.os ?? 'unix'));
+      tab.addEventListener('keydown', (event) => {
+        const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+        if (!step) return;
+        event.preventDefault();
+        const next = tabs[(i + step + tabs.length) % tabs.length];
+        select(next.dataset.os ?? 'unix', true);
+      });
+    }
+
+    if (prefersWindows) select('windows');
+
+    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+      const label = button.querySelector<HTMLElement>('.btn-label');
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy ?? '');
+          if (label) label.textContent = 'Copied';
+        } catch {
+          if (label) label.textContent = 'Select and copy';
+        }
+        window.setTimeout(() => {
+          if (label) label.textContent = 'Copy';
+        }, 1800);
+      });
+    }
+  }
+</script>

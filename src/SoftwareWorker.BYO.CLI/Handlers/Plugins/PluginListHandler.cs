@@ -1,33 +1,35 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK;
-using SoftwareWorker.BYO.CLI.Helpers;
+using SoftwareWorker.BYO.SDK.Constants;
 using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.CLI.Integrations.NuGet;
+using SoftwareWorker.BYO.CLI.Service;
 using Spectre.Console;
 
 namespace SoftwareWorker.BYO.CLI.Handlers.Plugins
 {
     [TrunkCommand("plugins", "Custom plugin management")]
-    [BranchCommand("list", "List available BYO CLI Plugins")]
-    [Parameter("source", "Local folder (NuGet feed) to include alongside NuGet.org", false, null)]
+    [BranchCommand("list", "List the BYO CLI plugins available in the configured package sources")]
     internal sealed class PluginListHandler : BaseCommandHandler
     {
         private const string PackageIdPrefix = "BYO.Plugin.";
-        private const string Owner = "softwareworkercom";
-        private const string NuGetSource = "NuGet.org";
-        private const string LocalSource = "Local";
-
-        public string? Source { get; set; }
+        private const string NuGetOrgOwner = "softwareworkercom";
 
         public override async Task ExecuteAsync()
         {
-            var plugins = await GetPluginsAsync();
+            var sources = PluginSourceService.GetSources();
+
+            if (sources.Count == 0)
+            {
+                UserInterfaceService.ShowWarning($"No package sources are configured. Add one to the '{SystemConstants.SYSTEM_PluginSources}' setting or set '{SystemConstants.SYSTEM_PluginSourcesUseNuGetOrg}' to true.");
+                return;
+            }
+
+            var plugins = await GetPluginsAsync(sources);
 
             if (plugins.Count == 0)
             {
-                UserInterfaceService.ShowWarning(string.IsNullOrWhiteSpace(Source)
-                    ? "No plugins found on NuGet.org for owner 'softwareworkercom'."
-                    : "No plugins found on NuGet.org or in the provided local source.");
+                UserInterfaceService.ShowWarning($"No plugins found in {string.Join(", ", sources.Select(source => source.Name))}.");
                 return;
             }
 
@@ -52,15 +54,23 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Plugins
             UserInterfaceService.ShowGrey($"Total plugins: {plugins.Count}");
         }
 
-        private async Task<List<ExtensionPackage>> GetPluginsAsync()
+        private static async Task<List<ExtensionPackage>> GetPluginsAsync(IReadOnlyList<IPluginPackageSource> sources)
         {
             var plugins = new List<ExtensionPackage>();
 
-            plugins.AddRange(await GetNuGetPluginsAsync());
-
-            if (!string.IsNullOrWhiteSpace(Source))
+            foreach (var source in sources)
             {
-                plugins.AddRange(GetLocalPlugins(Source.Trim()));
+                var result = await source.SearchAsync(PackageIdPrefix);
+
+                if (!result.Succeeded)
+                {
+                    UserInterfaceService.ShowWarning($"Source '{source.Name}' could not be searched: {result.Error}");
+                    continue;
+                }
+
+                plugins.AddRange(result.Packages
+                    .Where(package => !IsNuGetOrg(source) || IsOwnedBySoftwareWorker(package.Owners))
+                    .Select(package => new ExtensionPackage(package.Id, package.Version, package.Description, source.Name)));
             }
 
             return plugins
@@ -69,57 +79,18 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Plugins
                 .ToList();
         }
 
-        private static async Task<List<ExtensionPackage>> GetNuGetPluginsAsync()
+        /// <summary>
+        /// Anyone can publish a BYO.Plugin.* package on NuGet.org, so only packages owned by SoftwareWorker
+        /// are listed from there. Other sources were configured by the user and are listed in full.
+        /// </summary>
+        private static bool IsNuGetOrg(IPluginPackageSource source)
         {
-            try
-            {
-                var connector = new NuGetConnector(isVerbose: false);
-                var packages = await connector.ListPackagesAsync(PackageIdPrefix);
-
-                if (packages == null)
-                {
-                    return [];
-                }
-
-                return packages
-                    .Where(package =>
-                        !string.IsNullOrWhiteSpace(package.Id) &&
-                        !string.IsNullOrWhiteSpace(package.Version) &&
-                        package.Id.StartsWith(PackageIdPrefix, StringComparison.OrdinalIgnoreCase) &&
-                        IsOwnedBySoftwareWorker(package.Owners.FirstOrDefault()))
-                    .Select(package => new ExtensionPackage(package.Id, package.Version, package.Description ?? string.Empty, NuGetSource))
-                    .ToList();
-            }
-            catch
-            {
-                return [];
-            }
+            return source.Location.TrimEnd('/').Equals(PluginSourceService.NuGetOrgServiceIndex, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static List<ExtensionPackage> GetLocalPlugins(string sourceDirectory)
+        private static bool IsOwnedBySoftwareWorker(IReadOnlyList<string> owners)
         {
-            if (!Directory.Exists(sourceDirectory))
-            {
-                UserInterfaceService.ShowWarning($"Local source '{sourceDirectory}' does not exist.");
-                return [];
-            }
-
-            return LocalPackageHelper.GetLatestPackages(sourceDirectory)
-                .Select(package => new ExtensionPackage(package.Id, package.Version, package.Description, LocalSource))
-                .ToList();
-        }
-
-        private static bool IsOwnedBySoftwareWorker(string owners)
-        {
-            if (string.IsNullOrWhiteSpace(owners))
-            {
-                return false;
-            }
-
-            var ownerCandidates = owners
-                .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-            return ownerCandidates.Any(owner => owner.Equals(Owner, StringComparison.OrdinalIgnoreCase));
+            return owners.Any(owner => owner.Equals(NuGetOrgOwner, StringComparison.OrdinalIgnoreCase));
         }
 
         private sealed record ExtensionPackage(string Id, string Version, string Description, string Source);

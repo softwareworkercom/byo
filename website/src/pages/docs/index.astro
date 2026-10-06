@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import Site from '../../layouts/Site.astro';
+import { docGroups, titleFromBody } from '../../lib/docs-nav';
+
+const entries = await getCollection('docs');
+const titles = new Map(entries.map((entry) => [entry.id, titleFromBody(entry.body, entry.id)]));
+const grammar = 'byo <group> <action> [options]';
+---
+
+<Site
+  title="Documentation. BYO CLI."
+  description="Reference for every byo command group, the interactive shell, token replacement, storage, and the SDK for building plugins."
+>
+  <section class="section" aria-labelledby="docs-title">
+    <div class="wrap-wide">
+      <div class="section-head">
+        <h1 id="docs-title" class="headline">Documentation</h1>
+        <p class="subhead">Start with one of the two paths, then go straight to the group you need. Every command follows one grammar.</p>
+        <pre class="cmd"><code>{grammar}</code></pre>
+      </div>
+      <div class="manual">
+        {
+          docGroups.map((group) => (
+            <section aria-labelledby={`group-${group.label.replace(/\s+/g, '-').toLowerCase()}`}>
+              <h2 id={`group-${group.label.replace(/\s+/g, '-').toLowerCase()}`}>{group.label}</h2>
+              <ul>
+                {group.items.map((item) => (
+                  <li>
+                    <a href={`/docs/${item.slug}/`}>{item.label}</a>
+                    <span>{titles.get(item.slug) ?? item.summary ?? item.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Site>

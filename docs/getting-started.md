@@ -30,6 +30,8 @@ Quick check:
 byo --help
 ```
 
+The first time you run `byo` in a terminal it asks whether you want to give the CLI your own name, its [alias](alias.md). Answer no to skip it. You will not be asked again, and you can set one later with `byo alias set`.
+
 ## 1) Add one setting
 
 ```bash

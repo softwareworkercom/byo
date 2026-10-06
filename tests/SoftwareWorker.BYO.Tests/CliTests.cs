@@ -107,9 +107,8 @@ public class CliTests
         Assert.NotNull(versionParameter);
         Assert.False(versionParameter!.IsRequired);
 
-        var sourceParameter = installCommand.Parameters.SingleOrDefault(parameter => parameter.Name == "source");
-        Assert.NotNull(sourceParameter);
-        Assert.False(sourceParameter!.IsRequired);
+        // Package sources are configured in settings, not passed per command.
+        Assert.DoesNotContain(installCommand.Parameters, parameter => parameter.Name == "source");
     }
 
     [Fact]
@@ -125,9 +124,7 @@ public class CliTests
         Assert.NotNull(listCommand);
         Assert.NotNull(listCommand!.Parameters);
 
-        var sourceParameter = listCommand.Parameters!.SingleOrDefault(parameter => parameter.Name == "source");
-        Assert.NotNull(sourceParameter);
-        Assert.False(sourceParameter!.IsRequired);
+        Assert.DoesNotContain(listCommand.Parameters ?? [], parameter => parameter.Name == "source");
     }
 
     [Fact]
@@ -216,13 +213,7 @@ public class CliTests
 
         try
         {
-            var method = typeof(PluginInstallationService).GetMethod(
-                "EnsureDependencyPackageExtractedAsync",
-                BindingFlags.NonPublic | BindingFlags.Static);
-
-            Assert.NotNull(method);
-
-            var result = await (Task<string?>)method!.Invoke(null, [packageId, version])!;
+            var result = await PluginInstallationService.EnsureDependencyPackageExtractedAsync(packageId, version, []);
 
             Assert.NotNull(result);
             Assert.True(Directory.Exists(Path.Combine(packageRoot, "extracted")));

@@ -200,7 +200,7 @@ namespace SoftwareWorker.BYO.CLI.Engine
                     return;
                 }
 
-                // Ensure all parameters are populated (prompts interactively by default)
+                // Non-interactive runs must supply every required parameter; interactive runs leave missing values to the handler
                 var (updatedOptions, validationError) = BaseCommandHandler.EnsureParameters(handlerType, optionsDict);
                 if (validationError != null)
                 {

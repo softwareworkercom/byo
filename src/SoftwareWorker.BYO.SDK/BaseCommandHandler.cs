@@ -1,6 +1,5 @@
 using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
 using SoftwareWorker.BYO.SDK.Services;
-using Spectre.Console;
 using System.Reflection;
 
 namespace SoftwareWorker.BYO.SDK
@@ -32,133 +31,48 @@ namespace SoftwareWorker.BYO.SDK
         }
 
         /// <summary>
-        /// Ensures all parameters are populated.
-        /// Prompts the user interactively when running in an interactive console session.
-        /// In non-interactive mode, validates that all required parameters are present and returns an error if any are missing.
+        /// Checks that every required parameter was supplied when running non-interactively.
+        /// In an interactive console session nothing is checked, so the handler can resolve missing values itself,
+        /// for example with a selection prompt.
         /// </summary>
         /// <param name="handlerType">The handler type to read parameter attributes from</param>
         /// <param name="options">The options dictionary from command line arguments</param>
         /// <returns>
-        /// A tuple of the updated options dictionary and a (possibly null) validation error message.
+        /// A tuple of the options dictionary and a (possibly null) validation error message.
         /// The caller must display the error and abort execution when the message is non-null.
         /// </returns>
         public static (Dictionary<string, object> Options, string? ValidationError) EnsureParameters(
             Type handlerType,
             Dictionary<string, object> options)
         {
-            var parameters = handlerType.GetCustomAttributes<ParameterAttribute>().ToList();
-
-            if (parameters.Count == 0)
+            if (UserInterfaceService.IsInteractive)
             {
                 return (options, null);
             }
 
-            var updatedOptions = new Dictionary<string, object>(options);
+            var missingParams = new List<string>();
 
-            if (UserInterfaceService.IsInteractive)
+            foreach (var param in handlerType.GetCustomAttributes<ParameterAttribute>())
             {
-                // Interactive mode: prompt for every declared parameter that is not already supplied
-                foreach (var param in parameters)
+                if (!param.IsRequired)
+                    continue;
+
+                var currentValue = options.FirstOrDefault(p =>
+                    string.Equals(p.Key, param.Name, StringComparison.OrdinalIgnoreCase)).Value?.ToString();
+
+                if (string.IsNullOrEmpty(currentValue))
                 {
-                    if (!param.IsPromptable)
-                    {
-                        continue;
-                    }
-
-                    var currentValue = updatedOptions.FirstOrDefault(p =>
-                        string.Equals(p.Key, param.Name, StringComparison.OrdinalIgnoreCase)).Value?.ToString();
-
-                    if (string.IsNullOrEmpty(currentValue))
-                    {
-                        var promptedValue = PromptForParameter(param, handlerType);
-                        if (!string.IsNullOrEmpty(promptedValue))
-                        {
-                            updatedOptions[param.Name] = promptedValue;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Non-interactive mode: validate that all required parameters are present
-                var missingParams = new List<string>();
-
-                foreach (var param in parameters)
-                {
-                    if (!param.IsRequired)
-                        continue;
-
-                    var currentValue = updatedOptions.FirstOrDefault(p =>
-                        string.Equals(p.Key, param.Name, StringComparison.OrdinalIgnoreCase)).Value?.ToString();
-
-                    if (string.IsNullOrEmpty(currentValue))
-                    {
-                        missingParams.Add($"--{param.Name}");
-                    }
-                }
-
-                if (missingParams.Count > 0)
-                {
-                    var missing = string.Join(", ", missingParams);
-                    return (updatedOptions, $"Missing required parameter(s): {missing}.");
+                    missingParams.Add($"--{param.Name}");
                 }
             }
 
-            return (updatedOptions, null);
-        }
-
-        /// <summary>
-        /// Prompts the user for a parameter value using Spectre.Console.
-        /// Handles enumerated options (pipe-separated DefaultValue) with a selection prompt.
-        /// </summary>
-        /// <param name="param">The parameter attribute containing metadata</param>
-        /// <param name="handlerType">The handler type</param>
-        /// <returns>The user-provided value or null if skipped</returns>
-        private static string? PromptForParameter(ParameterAttribute param, Type handlerType)
-        {
-            var defaultValueStr = param.DefaultValue?.ToString();
-            var hasEnumeratedOptions = !string.IsNullOrEmpty(defaultValueStr) && defaultValueStr.Contains('|');
-
-            if (hasEnumeratedOptions)
+            if (missingParams.Count > 0)
             {
-                // Show selection prompt for enumerated options
-                var options = defaultValueStr!.Split('|', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(o => o.Trim())
-                    .ToList();
-
-                return UserInterfaceService.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title($"[cyan]Select {param.Name}[/] [grey]({param.Description}):[/]")
-                        .PageSize(10)
-                        .AddChoices(options));
+                var missing = string.Join(", ", missingParams);
+                return (options, $"Missing required parameter(s): {missing}.");
             }
-            else
-            {
-                // Use text prompt for free-form input
-                var promptTitle = param.IsRequired
-                    ? $"[cyan]{param.Name}[/] [red](required)[/] [grey]({param.Description}):[/]"
-                    : $"[cyan]{param.Name}[/] [grey](optional - {param.Description}):[/]";
 
-                if (param.IsRequired)
-                {
-                    // Required parameter - must have a value
-                    return UserInterfaceService.Prompt(
-                        new TextPrompt<string>(promptTitle)
-                            .PromptStyle("green")
-                            .ValidationErrorMessage("[red]This parameter is required[/]")
-                            .Validate(value => !string.IsNullOrWhiteSpace(value)
-                                ? ValidationResult.Success()
-                                : ValidationResult.Error("[red]Please enter a value[/]")));
-                }
-                else
-                {
-                    // Optional parameter - allow empty
-                    return UserInterfaceService.Prompt(
-                        new TextPrompt<string>(promptTitle)
-                            .PromptStyle("green")
-                            .AllowEmpty());
-                }
-            }
+            return (options, null);
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 using SoftwareWorker.BYO.SDK.Constants;
 using SoftwareWorker.BYO.CLI.Helpers;
+using SoftwareWorker.BYO.CLI.Integrations.NuGet;
 using SoftwareWorker.BYO.SDK;
 using System.IO.Compression;
 using System.Reflection;
@@ -9,9 +10,10 @@ using System.Xml.Linq;
 namespace SoftwareWorker.BYO.CLI.Service
 {
     /// <summary>
-    /// Encapsulates all logic for installing a BYO CLI plugin package (from a local feed or
-    /// NuGet.org), including transitive NuGet dependency resolution. Contains no UI concerns -
-    /// callers render <see cref="PluginInstallResult"/> however they see fit.
+    /// Encapsulates all logic for installing a BYO CLI plugin package from any configured package
+    /// source (a folder of .nupkg files, NuGet.org or another NuGet V3 feed), including transitive
+    /// NuGet dependency resolution. Contains no UI concerns - callers render
+    /// <see cref="PluginInstallResult"/> however they see fit.
     /// </summary>
     public static class PluginInstallationService
     {
@@ -20,52 +22,50 @@ namespace SoftwareWorker.BYO.CLI.Service
             string? ErrorMessage,
             string? PackageId,
             string? Version,
+            string? Source,
             List<string> Warnings,
             List<string> Handlers)
         {
             public static PluginInstallResult Failure(string errorMessage, List<string>? warnings = null) =>
-                new(false, errorMessage, null, null, warnings ?? [], []);
+                new(false, errorMessage, null, null, null, warnings ?? [], []);
         }
 
         /// <summary>
-        /// Installs a plugin package, preferring a local feed (when <paramref name="source"/> is
-        /// provided and contains the package) before falling back to NuGet.org.
+        /// The package picked for an install: where it came from, which version, and the downloaded .nupkg.
         /// </summary>
-        public static async Task<PluginInstallResult> InstallPluginAsync(string packageId, string? version, string? source)
+        internal sealed record ResolvedPackage(IPluginPackageSource Source, string Version, string PackageFilePath);
+
+        /// <summary>
+        /// Installs a plugin package from the first configured package source that has it: the sources
+        /// listed in settings, in order, then NuGet.org. See <see cref="PluginSourceService"/>.
+        /// </summary>
+        public static Task<PluginInstallResult> InstallPluginAsync(string packageId, string? version)
+        {
+            return InstallPluginAsync(packageId, version, PluginSourceService.GetSources());
+        }
+
+        /// <summary>
+        /// Installs a plugin package from the first of <paramref name="sources"/> that has a matching version.
+        /// Dependencies are fetched from that source first and from the remaining sources after it.
+        /// </summary>
+        internal static async Task<PluginInstallResult> InstallPluginAsync(string packageId, string? version, IReadOnlyList<IPluginPackageSource> sources)
         {
             var warnings = new List<string>();
             var packageIdLower = packageId.ToLowerInvariant();
 
-            var localPackage = TryResolveLocalPackage(packageId, version, source, warnings);
-
-            var resolvedVersion = localPackage?.Version
-                ?? (string.IsNullOrWhiteSpace(version)
-                    ? await NugetHelper.ResolveLatestVersionAsync(packageIdLower)
-                    : version.Trim());
-
-            if (string.IsNullOrWhiteSpace(resolvedVersion))
+            var resolved = await ResolveAndDownloadAsync(packageId, version, sources, warnings);
+            if (resolved == null)
             {
-                return PluginInstallResult.Failure($"Unable to resolve a version for package '{packageId}'.", warnings);
+                var requested = string.IsNullOrWhiteSpace(version) ? string.Empty : $" version '{version.Trim()}'";
+                var searched = sources.Count == 0
+                    ? "any package source: none is configured"
+                    : string.Join(", ", sources.Select(candidate => candidate.Name));
+                return PluginInstallResult.Failure($"Package '{packageId}'{requested} was not found in {searched}.", warnings);
             }
 
-            var packageVersion = resolvedVersion.Trim();
-            var packageRootDirectory = Path.Combine(SystemConstants.PLUGINS_PACKAGES_DIRECTORY, packageIdLower, packageVersion);
-            var packageFilePath = Path.Combine(packageRootDirectory, $"{packageIdLower}.{packageVersion}.nupkg");
-            var extractedDirectory = Path.Combine(packageRootDirectory, "extracted");
-
-            Directory.CreateDirectory(packageRootDirectory);
-
-            if (localPackage != null)
-            {
-                if (!CopyLocalPackage(localPackage.FilePath, packageFilePath))
-                {
-                    return PluginInstallResult.Failure($"Failed to copy local package '{localPackage.FilePath}'.", warnings);
-                }
-            }
-            else if (!await NugetHelper.DownloadPackageAsync(packageIdLower, packageVersion, packageFilePath))
-            {
-                return PluginInstallResult.Failure($"Failed to download package '{packageId}' version '{packageVersion}'.", warnings);
-            }
+            var packageVersion = resolved.Version;
+            var packageFilePath = resolved.PackageFilePath;
+            var extractedDirectory = GetPackagePaths(packageIdLower, packageVersion).ExtractedDirectory;
 
             if (!ExtractPackage(packageFilePath, extractedDirectory))
             {
@@ -112,51 +112,90 @@ namespace SoftwareWorker.BYO.CLI.Service
 
             // Plugin nupkgs only contain their own assembly - transitive NuGet dependencies (e.g. EF Core, Npgsql)
             // must be fetched and placed alongside it so the plugin's isolated AssemblyLoadContext can find them.
+            // The source the plugin came from is asked first, so a private feed can supply private dependencies.
+            IReadOnlyList<IPluginPackageSource> dependencySources =
+                [resolved.Source, .. sources.Where(candidate => !ReferenceEquals(candidate, resolved.Source))];
+
             await InstallDependencyAssembliesAsync(
                 extractedDirectory,
                 installedVersionDirectory,
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase),
-                warnings);
+                warnings,
+                dependencySources);
 
-            return new PluginInstallResult(true, null, packageId, packageVersion, warnings, handlers.OrderBy(h => h).ToList());
+            return new PluginInstallResult(true, null, packageId, packageVersion, resolved.Source.Name, warnings, handlers.OrderBy(h => h).ToList());
         }
 
-        private static LocalPackageHelper.LocalPackageInfo? TryResolveLocalPackage(string packageId, string? version, string? source, List<string> warnings)
+        /// <summary>
+        /// Walks <paramref name="sources"/> in order and downloads the package from the first one that has
+        /// a matching version: the requested version, or the latest stable (else latest prerelease) version
+        /// when none was requested. Sources that cannot be queried are reported in <paramref name="warnings"/>
+        /// and skipped, so a feed that is down does not block installs from the others.
+        /// </summary>
+        internal static async Task<ResolvedPackage?> ResolveAndDownloadAsync(
+            string packageId,
+            string? requestedVersion,
+            IReadOnlyList<IPluginPackageSource> sources,
+            List<string> warnings)
         {
-            if (string.IsNullOrWhiteSpace(source))
+            foreach (var source in sources)
             {
-                return null;
+                var lookup = await source.GetVersionsAsync(packageId);
+                if (!lookup.Succeeded)
+                {
+                    warnings.Add($"Source '{source.Name}' could not be queried: {lookup.Error}");
+                    continue;
+                }
+
+                var version = string.IsNullOrWhiteSpace(requestedVersion)
+                    ? NuGetVersionHelper.SelectLatest(lookup.Versions)
+                    : NuGetVersionHelper.FindMatch(lookup.Versions, requestedVersion);
+
+                if (version == null)
+                {
+                    continue;
+                }
+
+                var (rootDirectory, packageFilePath, _) = GetPackagePaths(packageId.ToLowerInvariant(), version);
+                Directory.CreateDirectory(rootDirectory);
+
+                if (!await source.DownloadPackageAsync(packageId, version, packageFilePath))
+                {
+                    warnings.Add($"Source '{source.Name}' lists '{packageId}' {version} but the package could not be downloaded from it.");
+                    continue;
+                }
+
+                return new ResolvedPackage(source, version, packageFilePath);
             }
 
-            var sourceDirectory = source.Trim();
-
-            if (!Directory.Exists(sourceDirectory))
-            {
-                warnings.Add($"Local source '{sourceDirectory}' does not exist. Falling back to NuGet.org.");
-                return null;
-            }
-
-            var localPackage = LocalPackageHelper.ResolvePackage(sourceDirectory, packageId, version);
-
-            if (localPackage == null)
-            {
-                warnings.Add($"Package '{packageId}' was not found in local source '{sourceDirectory}'. Falling back to NuGet.org.");
-            }
-
-            return localPackage;
+            return null;
         }
 
-        private static bool CopyLocalPackage(string sourcePath, string targetPath)
+        private static async Task<bool> TryDownloadFromAnySourceAsync(
+            string packageId,
+            string version,
+            string targetPath,
+            IReadOnlyList<IPluginPackageSource> sources)
         {
-            try
+            foreach (var source in sources)
             {
-                File.Copy(sourcePath, targetPath, overwrite: true);
-                return true;
+                if (await source.DownloadPackageAsync(packageId, version, targetPath))
+                {
+                    return true;
+                }
             }
-            catch
-            {
-                return false;
-            }
+
+            return false;
+        }
+
+        private static (string RootDirectory, string PackageFilePath, string ExtractedDirectory) GetPackagePaths(string packageIdLower, string version)
+        {
+            var rootDirectory = Path.Combine(SystemConstants.PLUGINS_PACKAGES_DIRECTORY, packageIdLower, version);
+
+            return (
+                rootDirectory,
+                Path.Combine(rootDirectory, $"{packageIdLower}.{version}.nupkg"),
+                Path.Combine(rootDirectory, "extracted"));
         }
 
         /// <summary>
@@ -168,7 +207,8 @@ namespace SoftwareWorker.BYO.CLI.Service
             string extractedDirectory,
             string installedVersionDirectory,
             HashSet<string> visitedPackageIds,
-            List<string> warnings)
+            List<string> warnings,
+            IReadOnlyList<IPluginPackageSource> sources)
         {
             var nuspecPath = Directory.GetFiles(extractedDirectory, "*.nuspec", SearchOption.TopDirectoryOnly).FirstOrDefault();
             if (nuspecPath == null)
@@ -189,7 +229,7 @@ namespace SoftwareWorker.BYO.CLI.Service
                     continue;
                 }
 
-                var dependencyExtractedDirectory = await EnsureDependencyPackageExtractedAsync(id, version);
+                var dependencyExtractedDirectory = await EnsureDependencyPackageExtractedAsync(id, version, sources);
                 if (dependencyExtractedDirectory == null)
                 {
                     warnings.Add($"Could not resolve dependency '{id}' {version}; the plugin may fail to load at runtime.");
@@ -205,16 +245,17 @@ namespace SoftwareWorker.BYO.CLI.Service
                     }
                 }
 
-                await InstallDependencyAssembliesAsync(dependencyExtractedDirectory, installedVersionDirectory, visitedPackageIds, warnings);
+                await InstallDependencyAssembliesAsync(dependencyExtractedDirectory, installedVersionDirectory, visitedPackageIds, warnings, sources);
             }
         }
 
-        private static async Task<string?> EnsureDependencyPackageExtractedAsync(string packageId, string version)
+        /// <summary>
+        /// Makes sure a dependency package is downloaded and extracted under the packages folder,
+        /// fetching it from the first of <paramref name="sources"/> that has the exact version.
+        /// </summary>
+        internal static async Task<string?> EnsureDependencyPackageExtractedAsync(string packageId, string version, IReadOnlyList<IPluginPackageSource> sources)
         {
-            var packageIdLower = packageId.ToLowerInvariant();
-            var packageRootDirectory = Path.Combine(SystemConstants.PLUGINS_PACKAGES_DIRECTORY, packageIdLower, version);
-            var packageFilePath = Path.Combine(packageRootDirectory, $"{packageIdLower}.{version}.nupkg");
-            var extractedDirectory = Path.Combine(packageRootDirectory, "extracted");
+            var (packageRootDirectory, packageFilePath, extractedDirectory) = GetPackagePaths(packageId.ToLowerInvariant(), version);
 
             Directory.CreateDirectory(packageRootDirectory);
 
@@ -224,12 +265,10 @@ namespace SoftwareWorker.BYO.CLI.Service
                 return extractedDirectory;
             }
 
-            if (!File.Exists(packageFilePath))
+            if (!File.Exists(packageFilePath) &&
+                !await TryDownloadFromAnySourceAsync(packageId, version, packageFilePath, sources))
             {
-                if (!await NugetHelper.DownloadPackageAsync(packageIdLower, version, packageFilePath))
-                {
-                    return null;
-                }
+                return null;
             }
 
             return ExtractPackage(packageFilePath, extractedDirectory) ? extractedDirectory : null;

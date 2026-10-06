@@ -39,8 +39,9 @@ The CLI is free, MIT-licensed, and open source. There is no paid tier, no pricin
 ## Operating Context
 
 - **Install** is a single piped command: `curl ... install.sh | bash` on macOS/Linux, `iwr ... install.ps1 | iex` on Windows. The installers detect OS/architecture, download the matching binary, verify a SHA256 checksum, and add it to PATH. Installation is also possible as a .NET tool (`ToolCommandName: byo`).
-- **Everything follows one grammar:** `byo <group> <action> [options]`. The six groups are `run`, `commands`, `settings`, `secrets`, `workflows`, and `plugins`.
+- **Everything follows one grammar:** `byo <group> <action> [options]`. The seven groups are `run`, `commands`, `settings`, `secrets`, `workflows`, `plugins`, and `alias`.
 - **Running `byo` with no arguments opens an interactive shell** with autocompletion, syntax highlighting, inline history suggestions, and a prompt whose `>` turns red when the last command failed. It only starts in a real TTY; redirected input falls back to usage output.
+- **Users can give the CLI their own name.** An alias is a custom CLI name, such as a product or team name. On the first interactive run `byo` asks for one and writes it to the profile of every shell it finds on the machine (PowerShell, cmd, bash, zsh, fish), so every command runs under that name. The interactive shell prompt shows it too. `byo alias set` and `byo alias delete` manage it later.
 - **Data lives in `~/byo`** as `commands.json`, `settings.json`, `workflows.json`, `secrets.json`, and `shell_history.txt` (lines that look sensitive are not written to history).
 - The audience is in a terminal when they arrive and will be in a terminal thirty seconds later. The site is read in a browser but every outcome it drives happens in a shell.
 
@@ -54,14 +55,15 @@ The CLI is free, MIT-licensed, and open source. There is no paid tier, no pricin
 - Token replacement resolves `{{Key}}` against settings and secrets when a command runs.
 - `--schedule` to repeat a command on a schedule and `--async` to run it in the background, available on executable commands.
 - Interactive selection: omitting `--name` on `byo run` lets the user pick from the bookmark hierarchy.
-- Plugin discovery, install, and uninstall against NuGet.org, filtered to `BYO.Plugin.*` packages owned by `softwareworkercom`, with a `--source` option for a local `.nupkg` folder.
+- Plugin discovery, install, and uninstall from NuGet.org (filtered to `BYO.Plugin.*` packages owned by `softwareworkercom`), from any other NuGet V3 feed such as Azure Artifacts or GitHub Packages, and from local `.nupkg` folders. Sources are configured in settings with credentials kept in secrets. Dependencies are fetched from the same sources.
+- `alias set` and `alias delete` to manage a custom name for the CLI, chosen by the user and deployed as a shell alias to the profiles of the shells installed on the machine.
 - `BYO.SDK` for plugin authors, including `ExportService` for writing `DataTable` results to a timestamped JSON export. `BYO.Integrations` ships API connectors (Jira, Confluence, GitHub, Azure DevOps, Google Calendar, Microsoft Graph, Stripe, Telegram, Toggl, Auth0, Bitwarden, HashiCorp Vault, Raindrop, AgentMail, Turso) for SDK consumers.
 
 **Constraints**
 
 - The site must be static. GitHub Pages hosting rules out anything requiring a server at request time.
 - Requires .NET 10 to build; the shipped binaries are self-contained per platform.
-- Version is **0.38.0** — pre-1.0. The site must not imply a stable 1.0 release or long production track record.
+- Version is **0.41.1** — pre-1.0. The site must not imply a stable 1.0 release or long production track record.
 - **Linux and macOS are explicitly under-tested.** The README currently opens with a call for testers on those platforms. Any cross-platform claim on the site must stay honest about this.
 - Terminology to use exactly as the product does: *commands*, *workflows*, *settings*, *secrets*, *bookmarks*, *plugins*, *steps*, *token replacement*, *interactive shell*.
 
@@ -76,7 +78,9 @@ The CLI is free, MIT-licensed, and open source. There is no paid tier, no pricin
 - **Company:** Software Worker (`softwareworkercom` on GitHub and NuGet). Author: Leandro Monaco.
 - **Domain:** `www.byocli.com`. No live site exists yet, so nothing visual carries over.
 - **Existing assets:** [docs/Images/byo-logo.png](docs/Images/byo-logo.png) and [docs/Images/byo-icon.png](docs/Images/byo-icon.png). These are the only committed brand marks; the icon already ships as the NuGet package icon across all three projects.
-- **Voice, as written today:** direct, second-person, benefit-first, and short. "Never lose a command again." "Secrets stay local." Developer-to-developer, not marketing-to-buyer. No visual direction has been established or constrained — that is deliberately left to later design work.
+- **Voice, as written today:** direct, second-person, benefit-first, and short. "Never lose a command again." "Secrets stay local." Developer-to-developer, not marketing-to-buyer. The visual direction and the landing page scope are pinned below.
+- **Visual direction, pinned by the user on 2026-10-06:** the category standard executed at Apple grade. The apple.com product page sets the bar, with Raycast, Warp, Linear and Vercel as supporting references: light ground, large sentence-case headlines, one accent (the brand navy), pill buttons, bento tiles and a window-shaped frame standing for the CLI. This replaced an earlier pegboard metaphor world, which the user rejected. The reference sites are the user's own bar for quality and stay in this file only: DESIGN.md, the stylesheet comments and the site copy never name Apple or any other company's website (user ruling, 2026-10-06).
+- **Landing page scope, set by the user on 2026-10-06:** marketing only. No commands, code, transcripts or file lists on the landing page; every section points to the documentation page that holds the detail. The install one-liner stays as the call to action. One exception, added by the user the same day: the hero frame is a typeable demo of the interactive shell, which prints only what the CLI itself prints. Technical detail belongs in the docs.
 
 ## Evidence on Hand
 

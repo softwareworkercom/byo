@@ -45,6 +45,7 @@ byo settings set --key Teams:Channels --value ["general","engineering","alerts"]
 ### Behavior
 
 - Prompts before replacing an existing key
+- In an interactive session, omitting `--key` lets you pick an existing setting and omitting `--value` prompts for the new value
 - Stores values in local configuration
 - If `--value` is a valid JSON array, it is saved as a real JSON array in `settings.json`
 - In PowerShell, prefer single quotes around JSON values to avoid escaping double quotes

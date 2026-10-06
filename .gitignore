@@ -19,3 +19,13 @@
 /.local-nuget
 /.plugin-publish
 /nupkgs
+
+# Website (Astro)
+/website/node_modules
+/website/dist
+/website/.astro
+/website/package-lock.json
+
+# Impeccable review captures and mocks
+/.impeccable/review
+/.impeccable/mocks

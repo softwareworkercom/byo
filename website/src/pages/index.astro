@@ -1,0 +1,247 @@
+---
+import Site from '../layouts/Site.astro';
+import Install from '../components/Install.astro';
+import Chevron from '../components/Chevron.astro';
+import Shell from '../components/Shell.astro';
+
+// A marketing page: the README's argument, section by section, with no commands, code or
+// transcripts. Each section ends in a link to the documentation page that holds the detail.
+
+const repo = 'https://github.com/softwareworkercom/byo';
+
+const qualities = [
+  { term: 'Discoverable', text: 'Agents can understand commands and capabilities.' },
+  { term: 'Composable', text: 'Commands can be combined into workflows.' },
+  { term: 'Automatable', text: 'CLIs work naturally with scripts, CI/CD and automation.' },
+  { term: 'Deterministic', text: 'The same command produces predictable results.' },
+  { term: 'Readable by machines', text: 'Structured output makes results easy for software and agents to consume.' },
+  { term: 'Local and secure', text: 'CLIs run alongside the developer, their code and their existing authentication environment.' },
+];
+
+const plumbing = [
+  'Authentication',
+  'Configuration',
+  'Secrets',
+  'Command parsing',
+  'Validation',
+  'Logging',
+  'Error handling',
+  'Output formatting',
+  'Updates',
+  'Platform support',
+];
+
+const audiences = [
+  { term: 'Developers', text: 'A powerful interface to your platform.' },
+  { term: 'Automation', text: 'Your capabilities in scripts, CI/CD and workflows.' },
+  { term: 'AI agents', text: 'Deterministic, executable tools that agents can discover and use.' },
+];
+
+const box = [
+  {
+    span: 'span-3',
+    title: 'Never lose a command again.',
+    text: 'Save the exact commands that worked, and run them instantly whenever you need them.',
+    href: '/docs/commands/',
+    link: 'Saved commands',
+  },
+  {
+    span: 'span-3',
+    title: 'Less context switching.',
+    text: 'No more digging through notes, Slack messages, or shell history to remember flags and scripts.',
+    href: '/docs/shell/',
+    link: 'The interactive shell',
+  },
+  {
+    span: 'span-2',
+    title: 'Secrets stay local.',
+    text: 'Sensitive values are collected by workflows and stored in the local, encrypted secrets store. No account, no sync service, no hosted backend.',
+    href: '/docs/secrets/',
+    link: 'Secrets',
+  },
+  {
+    span: 'span-2',
+    title: 'Automate the boring stuff.',
+    text: 'Turn repetitive setup, deployment, and debugging steps into reusable workflows in seconds.',
+    href: '/docs/workflows/',
+    link: 'Workflows',
+  },
+  {
+    span: 'span-2',
+    title: 'Extend it.',
+    text: 'Add new command groups through plugins built with the BYO SDK, from NuGet.org or your own feed.',
+    href: '/docs/building-a-plugin/',
+    link: 'Building a plugin',
+  },
+];
+---
+
+<Site
+  title="BYO CLI. Build CLIs for the AI era."
+  description="Turn your software into tools that humans, automation, and AI agents can use. The BYO SDK takes care of the plumbing; the BYO CLI is the reference for what you get."
+>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <h1 id="hero-title" class="display">Build CLIs for the AI era.</h1>
+      <p class="subhead">Turn your software into tools that humans, automation, and AI agents can use.</p>
+      <div class="actions">
+        <a class="btn" href="#install">Install</a>
+        <a class="link" href="/docs/start/">Pick a path and start <Chevron /></a>
+      </div>
+    </div>
+    <figure
+      class="wrap flow"
+      aria-label="Your software becomes a CLI built with BYO, shown here as a demo shell you can type into, used by developers, automation and AI agents"
+    >
+      <div class="node flow-pill" style="--i:0">Your software</div>
+      <Shell />
+      <ul class="flow-out" role="list" style="--i:2">
+        <li class="node flow-pill" style="--i:3">Developers</li>
+        <li class="node flow-pill" style="--i:4">Automation</li>
+        <li class="node flow-pill" style="--i:5">AI agents</li>
+      </ul>
+      <figcaption class="caption flow-caption">
+        A demo of the interactive shell, in your browser. Everything it prints is what the CLI prints. Nothing runs on
+        your machine.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="section band-alt" aria-labelledby="interface-title">
+    <div class="wrap-wide">
+      <div class="section-head">
+        <h2 id="interface-title" class="headline">The CLI is becoming an interface for AI.</h2>
+        <p class="subhead">
+          AI agents need reliable, deterministic tools to actually get things done. A good CLI is already designed for
+          what they need.
+        </p>
+      </div>
+      <ul class="qualities">
+        {
+          qualities.map((item) => (
+            <li>
+              <strong>{item.term}</strong>
+              <p>{item.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="note">
+        <strong>Cheaper in tokens, too.</strong> Agents discover a CLI on demand and filter its output before it reaches
+        the model. A typical MCP setup loads every tool definition into the context up front and passes every result
+        through it.
+      </p>
+      <p class="closing">The CLI isn't going away. It's evolving.</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="plumbing-title">
+    <div class="wrap-wide">
+      <div class="section-head">
+        <h2 id="plumbing-title" class="headline">Build the capability, not the plumbing.</h2>
+        <p class="subhead">
+          Every production-ready CLI has to solve the same problems. The BYO SDK takes care of them so you can focus on
+          what actually matters: your software's capabilities.
+        </p>
+      </div>
+      <ul class="plumbing" aria-label="What the SDK takes care of">
+        {plumbing.map((item) => <li>{item}</li>)}
+      </ul>
+      <p class="section-link">
+        <a class="link" href="/docs/building-a-plugin/">Learn how to build with the SDK <Chevron /></a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section band-alt" aria-labelledby="interfaces-title">
+    <div class="wrap-wide">
+      <div class="section-head">
+        <h2 id="interfaces-title" class="headline">One CLI. Multiple interfaces.</h2>
+        <p class="subhead">
+          Instead of building separate experiences for every consumer, create one executable interface that serves them all.
+        </p>
+      </div>
+      <ul class="qualities audiences">
+        {
+          audiences.map((item) => (
+            <li>
+              <strong>{item.term}</strong>
+              <p>{item.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="box-title">
+    <div class="wrap-wide">
+      <div class="section-head">
+        <h2 id="box-title" class="headline">What's in the box.</h2>
+        <p class="subhead">
+          The BYO CLI is built with the BYO SDK and is the reference for what you get. It turns messy terminal habits
+          into reliable automation.
+        </p>
+      </div>
+      <div class="bento bento-box">
+        {
+          box.map((tile) => (
+            <article class:list={['tile', 'tile-grey', tile.span]}>
+              <h3>{tile.title}</h3>
+              <p>{tile.text}</p>
+              <div class="tile-links">
+                <a class="link" href={tile.href}>
+                  {tile.link} <Chevron />
+                </a>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+      <p class="section-link">
+        <a class="link" href="/docs/">Browse the documentation <Chevron /></a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section band-alt" aria-labelledby="once-title">
+    <div class="wrap statement">
+      <h2 id="once-title" class="headline">Build once. Let humans and AI use it.</h2>
+      <p>
+        The next generation of software won't just be consumed through websites and APIs. It will be executed by people,
+        automated by systems, and orchestrated by AI agents. Build the tools they'll need.
+      </p>
+      <p class="tagline">From API to CLI. From CLI to AI.</p>
+    </div>
+  </section>
+
+  <section id="install" class="section band-dark on-dark" aria-labelledby="install-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="install-title" class="headline">Get started in seconds.</h2>
+        <p class="subhead">
+          Run a single command to install. It detects your operating system and architecture and verifies the download.
+        </p>
+      </div>
+      <Install id="installer" />
+      <div class="install-notes">
+        <p class="caption">
+          Then pick a path: about 15 minutes to automate a workflow, about 20 to build a plugin an agent can run. BYO CLI
+          is open source and pre-1.0; we are looking for testers on Linux and macOS, so if you try it there, please tell
+          us what you find.
+        </p>
+        <div class="install-links">
+          <a class="link" href="/docs/start/#automate">Automate a workflow <Chevron /></a>
+          <a class="link" href="/docs/start/#plugin">Build a plugin for agents <Chevron /></a>
+          <a class="link" href={`${repo}/issues`}>Open an issue <Chevron /></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Site>
+
+<style>
+  .install-notes {
+    margin-top: 28px;
+  }
+</style>

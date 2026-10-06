@@ -1,0 +1,281 @@
+---
+import Site from '../../layouts/Site.astro';
+import Chevron from '../../components/Chevron.astro';
+
+// The first-run path: two tracks, one sitting each. Every command is the one the linked guide
+// uses, word for word, and each checkpoint quotes what the CLI itself prints, so a reader knows
+// the step worked before moving on.
+
+const handler = `using SoftwareWorker.BYO.SDK;
+using SoftwareWorker.BYO.SDK.Abstractions.Attributes;
+using SoftwareWorker.BYO.SDK.Services;
+
+namespace BYO.Plugin.Weather.Handlers
+{
+    [TrunkCommand("weather", "Weather operations")]
+    [BranchCommand("forecast", "Show the forecast for a city")]
+    [Parameter("city", "City to look up", true, null)]
+    [Parameter("units", "Unit system", false, "metric|imperial")]
+    public class WeatherForecastHandler : BaseCommandHandler
+    {
+        public string? City { get; set; }
+        public string? Units { get; set; }
+
+        public override async Task ExecuteAsync()
+        {
+            // Non-interactive runs stop before this when --city is missing,
+            // so only a terminal user is asked.
+            if (string.IsNullOrWhiteSpace(City))
+            {
+                City = UserInterfaceService.Ask<string>("City to look up:");
+            }
+
+            var forecast = await GetForecastAsync(City, Units ?? "metric");
+
+            UserInterfaceService.ShowGreen($"{City}: {forecast}");
+        }
+
+        // Stands in for your own data source, so the command works
+        // before you wire anything up.
+        private static Task<string> GetForecastAsync(string city, string units)
+        {
+            var forecast = units == "imperial" ? "72°F, clear" : "22°C, clear";
+            return Task.FromResult(forecast);
+        }
+    }
+}`;
+
+const searchCommand =
+  'byo commands set --name "Data.gov.au Package Search" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe  --ssl-no-revoke -H \'X-API-Key: {{Demo:DataGovApiKey}}\' \'{{Demo:DataGovApiBaseUrl}}/package_search?q=transport&rows=3\'"';
+const listCommand =
+  'byo commands set --name "Data.gov.au Organization List" --bookmark "Examples/GettingStarted" --shell PowerShell --executable "curl.exe --ssl-no-revoke  -H \'X-API-Key: {{Demo:DataGovApiKey}}\' \'{{Demo:DataGovApiBaseUrl}}/organization_list?limit=10\'"';
+---
+
+<Site
+  title="Start here. BYO CLI documentation."
+  description="Two paths through BYO CLI, one sitting each: automate a workflow in about 15 minutes, or build a plugin an AI agent can run in about 20."
+>
+  <section class="section" aria-labelledby="start-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h1 id="start-title" class="headline">Start here.</h1>
+        <p class="subhead">Two paths, one sitting each. Both end with something you can run, and leave the detail to the reference.</p>
+      </div>
+      <div class="bento tracks">
+        <a class="tile tile-grey track-card span-3" href="#automate">
+          <p class="track-title">Automate a workflow.</p>
+          <p>About 15 minutes. You finish with two real API calls saved by name and run as one command.</p>
+          <span class="link">Take this path <Chevron /></span>
+        </a>
+        <a class="tile tile-grey track-card span-3" href="#plugin">
+          <p class="track-title">Build a plugin for agents.</p>
+          <p>About 20 minutes. You finish with your own command inside <code>byo</code>, and an AI agent running it.</p>
+          <span class="link">Take this path <Chevron /></span>
+        </a>
+      </div>
+      <p class="section-link">
+        <a class="link" href="/docs/">Already know the CLI? Go straight to the reference <Chevron /></a>
+      </p>
+    </div>
+  </section>
+
+  <section id="automate" class="section band-alt track" aria-labelledby="automate-title">
+    <div class="wrap track-body">
+      <header class="track-head">
+        <h2 id="automate-title">Automate a workflow.</h2>
+        <p class="track-lede">
+          You finish with two API calls saved by name, a secret collected once and kept encrypted, and a workflow that
+          runs all of it as one command. The same shape fits your deploy script, your database refresh, or the curl
+          line you keep losing.
+        </p>
+        <p class="track-meta">
+          About 15 minutes. Needs BYO CLI on your PATH and nothing else. The commands are the getting started guide's,
+          word for word.
+        </p>
+      </header>
+
+      <ol class="steps">
+        <li class="step">
+          <div class="step-body">
+            <h3>Check the install.</h3>
+            <p>
+              The first time you run <code>byo</code> it asks whether to give the CLI your own name. Answer no for now;
+              <code>byo alias set</code> does it later.
+            </p>
+            <pre class="cmd"><code><span class="prompt">$ </span>byo --help</code></pre>
+            <p class="check"><strong>Check:</strong> the help lists the seven command groups.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Save one setting.</h3>
+            <p>A setting is a plain value that commands reference as a token, so the base URL lives in one place.</p>
+            <pre class="cmd"><code><span class="prompt">$ </span>byo settings set --key Demo:DataGovApiBaseUrl --value https://www.data.gov.au/data/api/3/action</code></pre>
+            <p class="check"><strong>Check:</strong> <code>byo settings list</code> shows <code>Demo:DataGovApiBaseUrl</code>.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Save two commands.</h3>
+            <p>
+              A saved command keeps the shell, the exact flags and the tokens. <code>{'{{Demo:DataGovApiKey}}'}</code> is
+              a secret that does not exist yet; the workflow collects it in the next step. On macOS or Linux, run these
+              in PowerShell and replace <code>curl.exe --ssl-no-revoke</code> with <code>curl</code>.
+            </p>
+            <pre class="cmd"><code><span class="prompt">$ </span>{searchCommand}</code></pre>
+            <pre class="cmd"><code><span class="prompt">$ </span>{listCommand}</code></pre>
+            <p class="check"><strong>Check:</strong> <code>Command added successfully!</code> after each.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Build the workflow.</h3>
+            <p>It asks for steps. Add these four in order, then choose Done.</p>
+            <pre class="cmd"><code><span class="prompt">$ </span>byo workflows set --name "Data.gov.au API Smoke Test" --bookmark "Examples/GettingStarted"</code></pre>
+            <ul class="prompts">
+              <li><strong>Message</strong>: Starting data.gov.au API smoke test, colour Cyan, do not wait for Enter.</li>
+              <li><strong>Input As Secret</strong>: prompt Enter data.gov.au API key, secret key <code>Demo:DataGovApiKey</code>.</li>
+              <li><strong>Execute Command</strong>: Data.gov.au Package Search, not asynchronous.</li>
+              <li><strong>Execute Command</strong>: Data.gov.au Organization List, not asynchronous.</li>
+            </ul>
+            <p class="check">
+              <strong>Check:</strong> <code>Workflow 'Data.gov.au API Smoke Test' created successfully with 4 step(s).</code>
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Run it.</h3>
+            <p>
+              It shows the message, asks once for the API key and stores it encrypted, runs both calls and ends with its
+              Completed in line. The public endpoints answer even to a placeholder key, so type anything to see the flow;
+              a real key matters when the API is yours.
+            </p>
+            <pre class="cmd"><code><span class="prompt">$ </span>byo run --target workflow --name "Data.gov.au API Smoke Test" --bookmark "Examples/GettingStarted"</code></pre>
+            <p class="check">
+              <strong>Check:</strong> two JSON results, then <code>Completed in</code>. That is the moment: two calls, a
+              secret and a message, behind one name.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="track-end">
+        <h3>Where to next.</h3>
+        <ul class="next-links">
+          <li><a class="link" href="/docs/schedule/">Run it every five minutes with --schedule <Chevron /></a></li>
+          <li><a class="link" href="/docs/async/">Run it in the background with --async <Chevron /></a></li>
+          <li><a class="link" href="/docs/shell/">Stay in the interactive shell <Chevron /></a></li>
+          <li><a class="link" href="/docs/workflows/">Everything a workflow step can do <Chevron /></a></li>
+          <li><a class="link" href="/docs/getting-started/">The full getting started guide <Chevron /></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="plugin" class="section track" aria-labelledby="plugin-title">
+    <div class="wrap track-body">
+      <header class="track-head">
+        <h2 id="plugin-title">Build a plugin for agents.</h2>
+        <p class="track-lede">
+          You finish with your own command inside <code>byo</code>, listed in its help, and an AI agent running it. The
+          plumbing an agent needs, deterministic flags, help text and failing fast when something is missing, comes from
+          the SDK.
+        </p>
+        <p class="track-meta">
+          About 20 minutes. Needs the .NET SDK 10 or later and BYO CLI. The commands and the handler are the plugin
+          guide's quick start.
+        </p>
+      </header>
+
+      <ol class="steps">
+        <li class="step">
+          <div class="step-body">
+            <h3>Check the tools.</h3>
+            <p>Note the version <code>byo</code> prints: the SDK package you reference must match it.</p>
+            <pre class="cmd"><code><span class="prompt">$ </span>dotnet --version
+<span class="prompt">$ </span>byo --version</code></pre>
+            <p class="check"><strong>Check:</strong> both print a version.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Create the project.</h3>
+            <p>
+              The <code>BYO.Plugin.</code> prefix is required; it is how <code>byo</code> tells plugin assemblies from
+              their dependencies. Replace 0.41.1 with the version <code>byo --version</code> printed.
+            </p>
+            <pre class="cmd"><code><span class="prompt">$ </span>dotnet new classlib -n BYO.Plugin.Weather
+<span class="prompt">$ </span>cd BYO.Plugin.Weather
+<span class="prompt">$ </span>dotnet add package BYO.SDK --version 0.41.1</code></pre>
+            <p class="check"><strong>Check:</strong> a class library with a BYO.SDK package reference.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Add the handler.</h3>
+            <p>
+              Replace the generated <code>Class1.cs</code> with this. Three attributes make it a command:
+              <code>weather</code> is the group, <code>forecast</code> the action, <code>city</code> a required parameter.
+              The last method stands in for your data source so the command works before you wire anything up.
+            </p>
+            <pre class="cmd cmd-code"><code>{handler}</code></pre>
+            <p class="check"><strong>Check:</strong> <code>dotnet build</code> succeeds.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Pack and install.</h3>
+            <p>
+              Use an absolute path for the folder. It is searched before NuGet.org, so you can test before you publish.
+            </p>
+            <pre class="cmd"><code><span class="prompt">$ </span>byo settings set --key System:Plugins:Sources --value '["&lt;local feed folder&gt;"]'
+<span class="prompt">$ </span>dotnet pack -c Release -o &lt;local feed folder&gt;
+<span class="prompt">$ </span>byo plugins install --package BYO.Plugin.Weather</code></pre>
+            <p class="check">
+              <strong>Check:</strong> <code>Installed plugin 'BYO.Plugin.Weather' version '1.0.0' from</code> your folder.
+            </p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Run it yourself.</h3>
+            <p>Your command works like the built-in ones: it is in <code>byo --help</code>, in the shell with completion, and it takes --schedule and --async.</p>
+            <pre class="cmd"><code><span class="prompt">$ </span>byo weather forecast --city Sydney --units metric</code></pre>
+            <p class="check"><strong>Check:</strong> <code>Sydney: 22°C, clear</code>.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <h3>Let an agent run it.</h3>
+            <p>
+              Open an agent that can run shell commands, for example Claude Code, in any folder. Ask it to use
+              <code>byo</code> to get the forecast for Sydney, starting from <code>byo --help</code>. It finds
+              <code>weather forecast</code> in the help text and calls it with the flags, the way it runs any other
+              command-line tool. Then ask it to run the command without a city: an automated call fails fast with
+              <code>Missing required parameter(s): --city.</code> instead of waiting on a prompt, which is what lets an
+              agent notice and recover.
+            </p>
+            <p class="check">
+              <strong>Check:</strong> the agent's transcript shows <code>byo weather forecast --city Sydney</code> and the
+              forecast. That is the moment: your software is a tool an agent can discover, call and compose, with nothing
+              but a CLI.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="track-end">
+        <h3>Where to next.</h3>
+        <ul class="next-links">
+          <li><a class="link" href="/docs/building-a-plugin/#parameters">Parameters, enumerated values and type conversion <Chevron /></a></li>
+          <li><a class="link" href="/docs/building-a-plugin/#services-available-to-handlers">Settings, secrets, REST and the other services a handler can use <Chevron /></a></li>
+          <li><a class="link" href="/docs/building-a-plugin/#packaging-and-distribution">Publish to NuGet.org or your own feed <Chevron /></a></li>
+          <li><a class="link" href="/docs/plugins/#package-sources">Package sources <Chevron /></a></li>
+        </ul>
+        <p>When you are done with the sample:</p>
+        <pre class="cmd"><code><span class="prompt">$ </span>byo plugins uninstall --package BYO.Plugin.Weather</code></pre>
+      </div>
+    </div>
+  </section>
+</Site>
