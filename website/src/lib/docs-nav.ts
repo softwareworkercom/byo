@@ -24,6 +24,7 @@ export const docGroups: DocGroup[] = [
         summary: 'Two paths, one sitting each: automate a workflow, or build a plugin an agent can run',
       },
       { slug: 'getting-started', label: 'Getting started' },
+      { slug: 'ai-agent-skill', label: 'AI agent skill' },
     ],
   },
   {

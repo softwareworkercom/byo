@@ -1,6 +1,4 @@
 using SoftwareWorker.BYO.SDK.Services;
-using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.MicrosoftGraph.Model;
 
 namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
@@ -9,12 +7,10 @@ namespace SoftwareWorker.BYO.Integrations.MicrosoftGraph
     {
         private readonly IMicrosoftGraphAPI _api;
         private readonly string _accessToken;
-        private readonly bool _isVerbose;
 
         public MicrosoftGraphConnector(string accessToken, bool isVerbose = false)
         {
             _accessToken = accessToken;
-            _isVerbose = isVerbose;
             _api = RestService.For<IMicrosoftGraphAPI>("https://graph.microsoft.com");
         }
 

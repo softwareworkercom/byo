@@ -20,11 +20,12 @@
   --accent-hover: #2b4d72;
   --focus: rgba(32, 59, 88, 0.6);
   --green: #87bc54;
-  --window-bar: #2c2c2e;
+  --window-bar: #202020;
   --radius-pill: 980px;
   --radius-tile: 28px;
   --radius-chip: 12px;
   --radius-window: 14px;
+  --radius-frame: 8px;
   --shadow-window: 0 30px 60px -24px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.2);
   --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -412,13 +413,14 @@ pre {
   color: var(--fg);
 }
 
-/* The one dark object on the page: a window-shaped frame that stands for the CLI, and is one. */
+/* The one dark object on the page: a PowerShell window on Windows that stands for the CLI, and is one. */
 .flow-cli {
   width: min(100%, 640px);
   margin-top: 28px;
-  background: var(--bg-dark-panel);
-  color: var(--fg-on-dark);
-  border-radius: var(--radius-window);
+  background: var(--ps-bg);
+  color: var(--ps-fg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-frame);
   box-shadow: var(--shadow-window);
 }
 
@@ -434,64 +436,83 @@ pre {
   background: var(--hairline);
 }
 
-.flow-bar {
+/* The frame is a PowerShell window on Windows 11: a dark title bar with the caption buttons at the
+   right, and the console's blue screen in the terminal's own font. The screen colours are the
+   Campbell PowerShell scheme the terminal ships with; they belong to the frame alone. */
+.shell {
+  --ps-bg: #012456;
+  --ps-fg: #cccccc;
+  --ps-black: #0c0c0c;
+  --ps-grey: #808080;
+  --ps-red: #e74856;
+  --ps-green: #16c60c;
+  --ps-yellow: #f9f1a5;
+  --ps-blue: #3b78ff;
+  --ps-magenta: #b4009e;
+  --ps-cyan: #61d6d6;
+  --ps-cyan-dim: #3a96dd;
+  --ps-white: #f2f2f2;
+  --font-term: Consolas, 'Cascadia Mono', var(--font-mono);
+}
+
+.win-bar {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
-  padding: 0 16px;
+  height: 32px;
+  padding-left: 12px;
   background: var(--window-bar);
-  border-radius: var(--radius-window) var(--radius-window) 0 0;
-}
-
-.flow-bar .light {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.flow-bar .red {
-  background: #ff5f57;
-}
-
-.flow-bar .yellow {
-  background: #febc2e;
-}
-
-.flow-bar .green {
-  background: #28c840;
-}
-
-.flow-bar-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8125rem;
-  color: var(--fg-on-dark-secondary);
+  border-radius: calc(var(--radius-frame) - 1px) calc(var(--radius-frame) - 1px) 0 0;
+  color: #ffffff;
+  font-size: 0.75rem;
   letter-spacing: 0;
 }
 
-.flow-bar {
-  position: relative;
+.win-icon {
+  flex: none;
 }
 
-/* The demo shell inside the frame: a real session's colours, the CLI's own words. ---------- */
-
-.shell-body {
-  padding: 14px 20px 16px;
+.win-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: left;
 }
 
+.win-controls {
+  display: flex;
+  align-self: stretch;
+}
+
+.win-btn {
+  display: grid;
+  place-items: center;
+  width: 46px;
+}
+
+.win-btn svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+/* The screen: the console's blue, scrolled only by the replay. */
 .shell-screen {
-  height: 168px;
-  overflow: auto;
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  line-height: 1.6;
+  position: relative;
+  height: 288px;
+  padding: 6px 12px 8px;
+  overflow: hidden;
+  border-radius: 0 0 calc(var(--radius-frame) - 1px) calc(var(--radius-frame) - 1px);
+  font-family: var(--font-term);
+  font-size: 0.875rem;
+  line-height: 1.4;
   letter-spacing: 0;
-  color: var(--fg-on-dark);
-  scrollbar-color: var(--hairline-dark) transparent;
-  cursor: text;
+  text-align: left;
+  color: var(--ps-fg);
 }
 
 .shell-line {
@@ -500,26 +521,18 @@ pre {
   overflow-wrap: anywhere;
 }
 
-.shell-line.k-table {
-  margin: 2px 0 6px;
-  overflow-x: auto;
+.shell-probe {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre;
 }
 
-.shell-table-title {
-  text-align: center;
-}
-
-/* The CLI's tables, drawn with borders instead of box characters: rounded for lists of
-   commands, square with a title for settings. */
+/* The CLI's tables, drawn with borders instead of box characters, in the cyan the CLI draws them. */
 .shell-table {
+  max-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid var(--fg-on-dark-secondary);
-  color: var(--fg-on-dark);
-  white-space: nowrap;
-}
-
-.shell-table.rounded {
+  border: 1px solid var(--ps-cyan-dim);
   border-radius: 6px;
 }
 
@@ -527,8 +540,13 @@ pre {
 .shell-table td {
   padding: 0 1ch;
   text-align: left;
-  font-weight: 400;
-  border-right: 1px solid var(--fg-on-dark-secondary);
+  vertical-align: top;
+  border-right: 1px solid var(--ps-cyan-dim);
+}
+
+.shell-table th {
+  font-weight: 700;
+  border-bottom: 1px solid var(--ps-cyan-dim);
 }
 
 .shell-table th:last-child,
@@ -536,118 +554,122 @@ pre {
   border-right: 0;
 }
 
-.shell-table th {
-  border-bottom: 1px solid var(--fg-on-dark-secondary);
-}
-
-.shell-line.k-grey {
-  color: var(--fg-on-dark-secondary);
+/* Output, in the colours the CLI prints with. */
+.shell-line.k-grey,
+.shell-table .k-grey {
+  color: var(--ps-grey);
 }
 
 .shell-line.k-green {
-  color: var(--green);
+  color: var(--ps-green);
 }
 
 .shell-line.k-yellow {
-  color: #e3b341;
+  color: var(--ps-yellow);
 }
 
 .shell-line.k-red {
-  color: #ff6b6b;
+  color: var(--ps-red);
 }
 
 .shell-line.k-cyan {
-  color: #6cc5e0;
+  color: var(--ps-cyan);
 }
 
 .shell-line.k-blue {
-  color: #8ab4f8;
+  color: var(--ps-blue);
 }
 
-.shell-line.appear {
-  animation: appear 0.25s var(--ease) both;
+.shell-line.k-head {
+  color: var(--ps-cyan);
+  font-weight: 700;
 }
 
-.shell-prompt {
-  color: var(--green);
-  user-select: none;
+/* The line being typed, in the shell's own highlighting: PowerShell colours the command it
+   launches yellow; the shell colours its prompt green, commands cyan, options yellow, values
+   white, quoted text green and anything it does not know red. */
+.t-ps-cmd {
+  color: var(--ps-yellow);
 }
 
-.shell-gt.is-failed,
-.is-failed .shell-row .shell-gt {
-  color: #ff6b6b;
+.t-prompt {
+  color: var(--ps-green);
 }
 
-.shell-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6ch;
-  margin: 0;
+.t-gt,
+.t-tool,
+.t-ghost {
+  color: var(--ps-grey);
 }
 
-.shell-field {
-  position: relative;
-  flex: 1;
-  min-width: 0;
+.t-gt.is-failed {
+  color: var(--ps-red);
 }
 
-.shell-input {
-  position: relative;
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--fg-on-dark);
-  font: inherit;
-  letter-spacing: 0;
-  caret-color: var(--green);
-  outline: none;
+.t-builtin {
+  color: var(--ps-magenta);
 }
 
-.shell-ghost {
-  position: absolute;
-  inset: 0;
+.t-command {
+  color: var(--ps-cyan);
+}
+
+.t-option {
+  color: var(--ps-yellow);
+}
+
+.t-value {
+  color: var(--ps-white);
+}
+
+.t-quoted {
+  color: var(--ps-green);
+}
+
+.t-unknown {
+  color: var(--ps-red);
+}
+
+/* The console's underscore caret, blinking at the Windows rate while the replay waits. */
+.shell-cursor {
+  display: inline-block;
+  min-width: 1ch;
+  box-shadow: inset 0 -2px 0 currentColor;
+  animation: caret 1.06s steps(1, end) infinite;
+}
+
+.shell.is-typing .shell-cursor {
+  animation: none;
+}
+
+@keyframes caret {
+  50% {
+    box-shadow: none;
+  }
+}
+
+/* The completion menu, drawn the shell's way under the word being completed. */
+.shell-menu {
   white-space: pre;
-  overflow: hidden;
-  pointer-events: none;
 }
 
-.shell-ghost .typed {
-  color: transparent;
+.menu-row {
+  width: fit-content;
+  color: var(--ps-fg);
 }
 
-.shell-ghost .rest {
-  color: #6e6e73;
+.menu-row.is-selected {
+  color: var(--ps-black);
+  background: var(--ps-cyan-dim);
 }
 
-.shell-tries {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+.menu-desc,
+.menu-more {
+  color: var(--ps-grey);
 }
 
-.shell-try {
-  padding: 7px 11px;
-  border: 1px solid var(--hairline-dark);
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--fg-on-dark-secondary);
-  font: 400 0.75rem/1 var(--font-mono);
-  letter-spacing: 0;
-  cursor: pointer;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
-}
-
-.shell-try:hover {
-  color: var(--fg-on-dark);
-  border-color: #6e6e73;
-}
-
-.shell :focus-visible {
-  outline-color: rgba(255, 255, 255, 0.7);
+.menu-row.is-selected .menu-desc {
+  color: inherit;
 }
 
 .flow-caption {
@@ -1535,13 +1557,14 @@ pre {
     font-size: 0.875rem;
   }
 
-  .shell-body {
-    padding: 12px 14px 14px;
+  .shell-screen {
+    height: 232px;
+    padding: 6px 10px 8px;
+    font-size: 0.75rem;
   }
 
-  .shell-screen {
-    height: 176px;
-    font-size: 0.75rem;
+  .win-btn {
+    width: 40px;
   }
 
   .flow-out {
@@ -1635,7 +1658,13 @@ pre {
     opacity: 1;
   }
 
-  .shell-line.appear {
+  /* The replay shows its whole session at once, so the screen scrolls by hand instead. */
+  .shell-screen {
+    overflow: auto;
+    scrollbar-color: var(--ps-grey) transparent;
+  }
+
+  .shell-cursor {
     animation: none;
   }
 

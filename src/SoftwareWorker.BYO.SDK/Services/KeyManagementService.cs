@@ -1,4 +1,4 @@
-using SoftwareWorker.BYO.SDK.Secrets;
+using SoftwareWorker.BYO.SDK.Vault;
 using System.Security.Cryptography;
 
 namespace SoftwareWorker.BYO.SDK.Services
@@ -23,7 +23,7 @@ namespace SoftwareWorker.BYO.SDK.Services
         /// </summary>
         public static string? Get()
         {
-            var key = TryGetSecretFromStore();
+            var key = TryGetSecretFromVault();
 
             if (string.IsNullOrWhiteSpace(key))
             {
@@ -33,7 +33,7 @@ namespace SoftwareWorker.BYO.SDK.Services
             if (string.IsNullOrEmpty(key))
             {
                 Initialize();
-                key = TryGetSecretFromStore();
+                key = TryGetSecretFromVault();
 
                 if (string.IsNullOrWhiteSpace(key))
                 {
@@ -49,7 +49,7 @@ namespace SoftwareWorker.BYO.SDK.Services
         /// </summary>
         public static void Save(string keyPair)
         {
-            if (!TrySaveSecretToStore(keyPair))
+            if (!TrySaveSecretToVault(keyPair))
             {
                 SaveFallbackKey(keyPair);
             }
@@ -64,11 +64,11 @@ namespace SoftwareWorker.BYO.SDK.Services
             Save(rsaKeyPair);
         }
 
-        private static string? TryGetSecretFromStore()
+        private static string? TryGetSecretFromVault()
         {
             try
             {
-                return SecretStore.Instance.GetSecret(SecretKeyName);
+                return VaultProvider.Instance.GetSecret(SecretKeyName);
             }
             catch
             {
@@ -76,11 +76,11 @@ namespace SoftwareWorker.BYO.SDK.Services
             }
         }
 
-        private static bool TrySaveSecretToStore(string keyPair)
+        private static bool TrySaveSecretToVault(string keyPair)
         {
             try
             {
-                SecretStore.Instance.SetSecret(SecretKeyName, keyPair);
+                VaultProvider.Instance.SetSecret(SecretKeyName, keyPair);
                 return true;
             }
             catch

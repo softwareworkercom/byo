@@ -2,7 +2,6 @@ using SoftwareWorker.BYO.SDK.Abstractions.Model.Command;
 using SoftwareWorker.BYO.SDK.Constants;
 using SoftwareWorker.BYO.CLI.Service;
 using SoftwareWorker.BYO.CLI.Engine;
-using SoftwareWorker.BYO.SDK.Services;
 using System.CommandLine;
 using System.IO.Compression;
 using System.Reflection;
@@ -595,24 +594,6 @@ public class CliTests
         Assert.DoesNotContain("async", dynamicParameters.Keys, StringComparer.OrdinalIgnoreCase);
     }
 
-    [Fact]
-    public void BuildReplayCommand_ShouldRebuildCommandWithKnownOptions()
-    {
-        var rawTokens = new[] { "commands", "run", "--unknown", "x" };
-        var options = new Dictionary<string, object>
-        {
-            ["name"] = "demo",
-            ["schedule"] = "5m"
-        };
-
-        var replay = InvokeBuildReplayCommand(rawTokens, options);
-
-        Assert.StartsWith("byo commands run", replay, StringComparison.Ordinal);
-        Assert.Contains("--name 'demo'", replay, StringComparison.Ordinal);
-        Assert.Contains("--schedule '5m'", replay, StringComparison.Ordinal);
-        Assert.DoesNotContain("--unknown", replay, StringComparison.Ordinal);
-    }
-
     private static RootCommand BuildRootCommand(List<TrunkCommand> trunkCommands)
     {
         var rootCommand = new RootCommand();
@@ -684,15 +665,6 @@ public class CliTests
         var method = GetPrivateMethod("ExtractDynamicParameters");
         var result = method.Invoke(null, [rawTokens, optionsMap]);
         return Assert.IsType<Dictionary<string, string>>(result);
-    }
-
-    private static string InvokeBuildReplayCommand(
-        IEnumerable<string> rawTokens,
-        IReadOnlyDictionary<string, object> options)
-    {
-        var method = GetPrivateMethod("BuildReplayCommand");
-        var result = method.Invoke(null, [rawTokens, options]);
-        return Assert.IsType<string>(result);
     }
 
     private static MethodInfo GetPrivateMethod(string name)

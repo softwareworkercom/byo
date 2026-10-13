@@ -121,8 +121,7 @@ public sealed class SettingsServiceTests : IDisposable
         var key = NewKey("array");
         var value = "[\"one\",\"two\"]";
 
-        var result = SettingsService.Update(key, value);
-        var storedValue = SettingsService.Get(key, showErrorIfNotFound: false);
+        SettingsService.Update(key, value);
 
         var content = File.ReadAllText(SettingsService.SettingsFilePath);
         using var document = JsonDocument.Parse(content);

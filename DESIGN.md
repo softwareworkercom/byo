@@ -20,10 +20,9 @@ colors:
   navy-halo: "rgba(32, 59, 88, 0.6)"
   halo-on-dark: "rgba(255, 255, 255, 0.7)"
   brand-green: "#87bc54"
-  window-bar: "#2c2c2e"
-  light-red: "#ff5f57"
-  light-yellow: "#febc2e"
-  light-green: "#28c840"
+  window-bar: "#202020"
+  console-blue: "#012456"
+  console-text: "#cccccc"
   nav-frost: "rgba(255, 255, 255, 0.72)"
 typography:
   display:
@@ -57,18 +56,12 @@ typography:
     fontWeight: 600
     lineHeight: 1.1
     letterSpacing: "-0.025em"
-  frame-title:
+  window-title:
     fontFamily: "Inter Variable, -apple-system, BlinkMacSystemFont, SF Pro Text, Helvetica Neue, Helvetica, Arial, sans-serif"
-    fontSize: "clamp(1.5rem, 1.2rem + 1vw, 2rem)"
-    fontWeight: 600
-    lineHeight: 1.1
-    letterSpacing: "-0.022em"
-  frame-sub:
-    fontFamily: "Inter Variable, -apple-system, BlinkMacSystemFont, SF Pro Text, Helvetica Neue, Helvetica, Arial, sans-serif"
-    fontSize: "1rem"
+    fontSize: "0.75rem"
     fontWeight: 400
     lineHeight: 1.47
-    letterSpacing: "-0.012em"
+    letterSpacing: "0"
   statement:
     fontFamily: "Inter Variable, -apple-system, BlinkMacSystemFont, SF Pro Text, Helvetica Neue, Helvetica, Arial, sans-serif"
     fontSize: "clamp(1.1875rem, 1rem + 0.6vw, 1.5rem)"
@@ -142,10 +135,17 @@ typography:
     fontWeight: 400
     lineHeight: 1.6
     letterSpacing: "0"
+  console:
+    fontFamily: "Consolas, Cascadia Mono, Geist Mono Variable, ui-monospace, SF Mono, Menlo, monospace"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    lineHeight: 1.4
+    letterSpacing: "0"
 rounded:
   focus: "4px"
   inline-code: "6px"
   rail-link: "8px"
+  frame: "8px"
   chip: "12px"
   window: "14px"
   tile-mobile: "20px"
@@ -213,16 +213,16 @@ components:
     padding: "0 22px"
     height: "44px"
   flow-frame:
-    backgroundColor: "{colors.dark-panel}"
-    textColor: "{colors.ink-on-dark}"
-    typography: "{typography.frame-title}"
-    rounded: "{rounded.window}"
-    padding: "28px 32px 32px"
-    width: "560px"
+    backgroundColor: "{colors.console-blue}"
+    textColor: "{colors.console-text}"
+    typography: "{typography.console}"
+    rounded: "{rounded.frame}"
+    padding: "6px 12px 8px"
+    width: "640px"
   flow-frame-bar:
     backgroundColor: "{colors.window-bar}"
-    padding: "0 16px"
-    height: "36px"
+    padding: "0 0 0 12px"
+    height: "32px"
   tile:
     backgroundColor: "{colors.white}"
     textColor: "{colors.ink}"
@@ -310,7 +310,7 @@ components:
 
 byocli.com is a product page for a command-line tool, built the way a hardware product page is built. The ground is white, broken into bands of white and pale grey with one black band at the end for getting started. Each band holds one idea: a large sentence-case headline that ends in a full stop, a one-line grey subhead, and then the idea itself carried by words set in a grid, a row of pills, flat tiles or a single paragraph of large type. The landing page is marketing only: it shows no commands, code, transcripts or file lists, and every section ends in one link into the documentation that holds the detail. The product shot is the hero's flow figure: your software, a dark window-shaped frame that stands for the CLI, and the three audiences it serves. That frame is the one dark object on the light page and the one thing lit like a product on a showroom floor, with a single soft shadow under it and nothing else casting one.
 
-The treatment is quiet and exact. Inter carries everything a person reads; Geist Mono carries the three places a person would type, the install one-liner, the grammar line on the docs index and the documentation's code, with syntax colouring switched off so a command is one colour. The brand navy is the only colour that acts: buttons, links, the current docs page, the selection highlight, the focus halo. The brand green survives only in the logo and as the prompt of the install command, where it reads as the terminal's own colour rather than as a brand accent. Surfaces are pills, 28px tiles and a 14px window frame; there are no gradients in type or fills, no eyebrows above headlines, no card rows with icons and no metaphor world.
+The treatment is quiet and exact. Inter carries everything a person reads; Geist Mono carries the three places a person would type, the install one-liner, the grammar line on the docs index and the documentation's code, with syntax colouring switched off so a command is one colour; the one exception is the hero's shell replay, a PowerShell window on Windows set in the terminal's own face and colours. The brand navy is the only colour that acts: buttons, links, the current docs page, the selection highlight, the focus halo. The brand green survives only in the logo and as the prompt of the install command, where it reads as the terminal's own colour rather than as a brand accent. Surfaces are pills, 28px tiles and an 8px window frame; there are no gradients in type or fills, no eyebrows above headlines, no card rows with icons and no metaphor world.
 
 Density is generous between ideas and tight inside a component. Sections pad 72 to 128px, a section head sits centred at 760px, and the bento's five grey tiles on the white band vary in width (3+3, then 2+2+2 of 6 columns) so a row reads as a composed spread rather than a grid of equals. The documentation takes a reference-manual register: a plain-text left rail with the current page in navy, a white reading column, light grey code blocks with dark text, hairline tables. The not-found page borrows the landing page's section head and actions row and nothing else. The direction is the category standard executed at the highest grade; the earlier pegboard metaphor world was rejected and nothing of it carries over.
 
@@ -319,7 +319,7 @@ Density is generous between ideas and tight inside a component. Sections pad 72 
 - The product is shown once, as the hero's flow figure: hairline pills and a dark window-shaped frame joined by 1px hairlines; the frame is the only dark object and the only shadow on the page.
 - Inter Variable for reading in sentence case with tight negative tracking; Geist Mono for the install command, the docs grammar line and documentation code, in one colour.
 - One accent, the brand navy, on anything that acts; the brand green only in the logo and as the install prompt.
-- Pill buttons, 28px flat tiles, a 14px window frame, a frosted 48px nav; borders are 1px hairlines and appear only where tone cannot separate.
+- Pill buttons, 28px flat tiles, an 8px window frame, a frosted 48px nav; borders are 1px hairlines and appear only where tone cannot separate.
 - Every press target is at least 24px tall, every focus is a 3px halo at 3px offset, and the install switch is a real tablist with arrow keys.
 - One authored motion, the flow figure appearing top to bottom in about 1.3s; everything else is a 0.2s hover; reduced motion shows the finished figure at once.
 
@@ -337,7 +337,7 @@ The palette is a neutral ladder (white, a pale grey, a near-black) with the bran
 - **White** (`white`): The page ground, the flow figure's pills, button text on navy, the light Copy button on the black band, and tile faces when a tile sits on a grey band.
 - **Band Grey** (`band-grey`): Alternating section bands, the grey tile (`tile-grey`) on a white band, docs rail hover fill, docs code blocks, blockquotes and inline code in prose.
 - **Band Black** (`band-black`): The one black section, Get started in seconds. Text on it is `ink-on-dark`.
-- **Dark Panel** (`dark-panel`): The flow figure's window frame, the segmented control and the command panel on the black band. Same value as `ink`, kept distinct by role: it is a surface here, not text.
+- **Dark Panel** (`dark-panel`): The segmented control and the command panel on the black band. Same value as `ink`, kept distinct by role: it is a surface here, not text.
 - **Ink** (`ink`): Primary text everywhere on light ground, including inside tiles, pills, the command chip and the selected segment.
 - **Ink Secondary** (`ink-secondary`): Subheads, tile paragraphs, term-list lines, pill-list words, the statement and note paragraphs, captions, rail and index group labels, table heads, footer copy.
 - **Ink on Dark** (`ink-on-dark`): The frame title, headlines, text links, the install command and the selected segment face on dark surfaces.
@@ -347,8 +347,8 @@ The palette is a neutral ladder (white, a pale grey, a near-black) with the bran
 - **Hairline Dark** (`hairline-dark`): 1px edges of the segmented control and command panel on the black band; also the footer link colour.
 - **Chip Field** (`chip-field`): The quiet grey field behind the command chip on the docs index.
 - **Light Button Hover** (`light-button-hover`): The grey the white Copy button turns on hover.
-- **Window Bar** (`window-bar`): The 36px title bar of the flow figure's frame.
-- **Traffic Lights** (`light-red`, `light-yellow`, `light-green`): The three 12px macOS window lights in the frame's bar. Decorative chrome only; never used as status colours.
+- **Window Bar** (`window-bar`): The 32px title bar of the flow figure's frame, the dark title bar of a Windows 11 window.
+- **Console** (`console-blue`, `console-text`): The screen of the flow figure's frame, in the blue and grey of PowerShell's Campbell scheme on Windows. The scheme's other colours (red, green, yellow, blue, magenta, cyan, white, grey) are scoped to the frame for the shell's own output and highlighting. Decorative chrome only; never used as status colours elsewhere.
 - **Nav Frost** (`nav-frost`): The nav background, paired with `backdrop-filter: saturate(180%) blur(20px)`.
 - **Brand Green** (`brand-green`): The logo's green, used in the stylesheet only for the `$` and `PS>` prompt of the install command. Never a button, link, heading or status.
 
@@ -357,7 +357,7 @@ The palette is a neutral ladder (white, a pale grey, a near-black) with the bran
 
 **The Band Rhythm Rule.** The page is white and `band-grey` in alternation, with exactly one black band, reserved for getting started. New sections join the alternation; they do not introduce a third ground colour or a tinted band.
 
-**The Chrome Is Not Status Rule.** The traffic lights, the window bar and the prompt colour belong to the window frame and the install command. They are never borrowed to signal success, warning or error elsewhere on the site.
+**The Chrome Is Not Status Rule.** The caption buttons, the title bar, the console colours and the prompt colour belong to the window frame and the install command. They are never borrowed to signal success, warning or error elsewhere on the site.
 
 ## Typography
 
@@ -375,7 +375,7 @@ Both families are self-hosted through fontsource packages imported in the site l
 - **Subhead** (400, clamp(1.3125rem, 1.1rem + 0.7vw, 1.75rem), 1.25, -0.014em, `ink-secondary`): The explanation under a display or headline, max 48ch, centred, three lines or fewer on desktop.
 - **Title** (600, 1.5rem, 1.17, -0.022em): Bento tile headings and the terms of a term list.
 - **Article Title** (600, clamp(2rem, 1.6rem + 1.5vw, 2.75rem), 1.1, -0.025em): The h1 of every documentation article, over a hairline.
-- **Frame Title** (600, clamp(1.5rem, 1.2rem + 1vw, 2rem), 1.1, -0.022em, `ink-on-dark`): "Your CLI" inside the flow figure's frame, over a Frame Sub at 1rem in `ink-on-dark-secondary`, 6px apart.
+- **Window Title** (400, 0.75rem, 1.47, 0, white): "Your CLI" in the title bar of the flow figure's frame, left of centre after the window glyph, as a Windows title bar sets it.
 - **Statement** (400, clamp(1.1875rem, 1rem + 0.6vw, 1.5rem), 1.35, -0.014em, `ink-secondary`): The one paragraph of the statement band, max 46ch, closed by a tagline at 1.0625rem 500 in `ink`; also the note that follows the qualities list (`note`, max 58ch, its lead sentence in `ink` at 600).
 - **Closing** (600, subhead size, body line-height, -0.014em, `ink`): One centred sentence that ends a band after a list.
 - **Body** (400, 1.0625rem, 1.47, -0.012em): Default reading. Tile paragraphs and term-list lines are body size in `ink-secondary`; flow pills are body size at 500.
@@ -393,7 +393,7 @@ Both families are self-hosted through fontsource packages imported in the site l
 
 **The Mono Is the Product Rule.** Anything the visitor would type, the install one-liner, the grammar line and every command, path, flag and `{{Token}}` in the docs, is Geist Mono with ligatures off and no tracking, at one size. Syntax highlighting is disabled in the Markdown pipeline; a command is one colour, with only the prompt stepping away from it.
 
-**The Words Not Commands Rule.** The landing page is marketing: it carries no command, code, transcript or file list except the install one-liner and the hero's demo shell, where the commands are the visitor's own. A benefit is a sentence-case title and one grey line, and the command that proves it lives on the docs page the section links to.
+**The Words Not Commands Rule.** The landing page is marketing: it carries no command, code, transcript or file list except the install one-liner and the hero's shell replay, which plays one scripted session of the CLI's own commands and output. A benefit is a sentence-case title and one grey line, and the command that proves it lives on the docs page the section links to.
 
 ## Layout
 
@@ -429,9 +429,9 @@ Depth is tonal first and cast second. Bands alternate white and grey; tiles are 
 
 ## Shapes
 
-Three radii describe nearly everything: the pill (980px) for anything pressable or badge-like (buttons, the segmented control and its tabs, the flow pills, the pill-list items, the skip link); 28px for tiles (20px under 734px); and 14px for the window frame and the install command panel. The command chip, docs code blocks and blockquotes are 12px; docs rail links 8px; inline code 6px; the focus outline rounds at 4px; the traffic lights are circles.
+Three radii describe nearly everything: the pill (980px) for anything pressable or badge-like (buttons, the segmented control and its tabs, the flow pills, the pill-list items, the skip link); 28px for tiles (20px under 734px); 14px for the install command panel; and 8px for the window frame, the corner radius of a Windows 11 window. The command chip, docs code blocks and blockquotes are 12px; docs rail links 8px; inline code 6px; the focus outline rounds at 4px.
 
-Borders are 1px `hairline` and appear only where tone cannot separate: around the flow pills and pill-list items, as the flow figure's connectors, under the nav, above the footer, around the dark controls on the black band, under the docs index group labels, and in docs tables and article head and foot. The flow figure's connectors are the same 1px hairline as its pill borders, so the figure reads as one line drawing with a dark frame set into it. There are no 2px borders, no outlines other than focus, and no clipped or angled shapes; the frame's bar takes the 14px radius on its top corners so it meets the frame's edge cleanly. The only icon is an 8x13 chevron drawn with a 1.6px round-capped stroke in `currentColor`, closing a text link.
+Borders are 1px `hairline` and appear only where tone cannot separate: around the flow pills and pill-list items, as the flow figure's connectors, under the nav, above the footer, around the dark controls on the black band, under the docs index group labels, and in docs tables and article head and foot. The flow figure's connectors are the same 1px hairline as its pill borders, so the figure reads as one line drawing with a dark frame set into it. There are no 2px borders, no outlines other than focus, and no clipped or angled shapes; the frame's title bar takes the 8px radius on its top corners so it meets the frame's edge cleanly. The only icon is an 8x13 chevron drawn with a 1.6px round-capped stroke in `currentColor`, closing a text link.
 
 ## Components
 
@@ -458,13 +458,13 @@ The pair that follows a hero or page headline: a primary pill and one text link,
 ### Section head and section link
 Centred stack at max 760px: headline, subhead at max 48ch, and on the docs index a command chip at `fit-content` with 8px extra above. 16px gaps, clamp(40px, 5vw, 64px) below. Every band on the landing page, the docs index and the not-found page opens with one. A section link is one centred text link clamp(32px, 4vw, 48px) below a band's content, pointing to the docs page that holds the detail.
 
-### Demo shell (signature)
-The hero frame is a working demo of the interactive shell (`shell`). Inside the dark frame, under a bar titled "Your CLI": a 168px screen in Geist Mono at 0.8125rem/1.6 that scrolls, the CLI's real banner in cyan and grey, a `byo>` prompt in the brand green whose `>` turns #ff6b6b after a failed command, and an input with no border, a green caret and a grey inline suggestion drawn behind the text. Output takes the CLI's own colours: green confirmations, yellow warnings, red errors, blue "Command:" and "Directory:" lines, grey notes prefixed "(demo)" for anything the demo cannot do honestly. Tables are drawn with 1px borders in `ink-on-dark-secondary`, rounded for command lists and square with a centred title for settings. Three suggested commands sit under the screen as 0.75rem mono pills with a `hairline-dark` border that brighten on hover; a click types the command at up to 14ms a character and runs it. Output lines fade in with a stagger capped at half a second; under reduced motion they simply appear. Focus inside the frame uses the white halo. These terminal colours belong to the demo alone (The Chrome Is Not Status Rule).
+### Shell replay (signature)
+The hero frame is a replay of the interactive shell (`shell`), played like a video: a PowerShell window on Windows opens at `PS C:\Users\dev>`, `byo` is typed and launches the shell with its real banner, and a scripted session runs by itself (save a command, list it, complete `--target` from the menu, run it, mistype a command, accept the inline suggestion, exit), then loops. Nothing in the frame takes input; the screen is `aria-hidden` and the figure's label carries the sentence. The chrome is a Windows 11 window: a 32px `window-bar` with a 16px terminal glyph and the title "Your CLI" at the left and three 46px caption buttons (minimize, maximize, close) drawn as 10px 1px strokes at the right, over a 288px screen (232px under 734px) in `console-blue` with 6px 12px 8px padding, set in the terminal's own face (Consolas, then Cascadia Mono, then the site mono) at 0.875rem/1.4 (0.75rem under 734px), which gives an 80-column console at full width. The typed line uses the shell's own highlighting: the prompt bright green with a grey `>` that turns red after a failed command, commands cyan, options yellow, values white, quoted text green, unknown words red, and PowerShell's yellow for the command it launches. The completion menu opens on its own as a word is typed, in the shell's layout (label and description columns, the selected row black on cyan, placed under the word) and closes when the word is complete; the inline history suggestion appears in grey after the caret and is accepted whole. Output takes the CLI's own colours: green confirmations, yellow warnings, red errors, blue "Command:" and "Directory:" lines, grey hints, and tables drawn with 1px cyan borders and 6px corners in place of the CLI's box characters. The caret is the console's blinking underscore (1.06s, steady while typing). Typing runs at 28 to 70ms a character and output at up to 36ms a line, with a pause of about a second after each command; the screen only ever scrolls forward, as a terminal does, so a closing menu leaves blank rows rather than jumping back. Playback pauses while the frame is off screen or the tab is hidden. Under `prefers-reduced-motion` the whole session is shown at once in a scrollable screen with no caret blink. These console colours belong to the frame alone (The Chrome Is Not Status Rule).
 
 ### Flow figure (signature)
 The hero's product shot: your software becomes a CLI built with BYO, used by developers, automation and AI agents. A `figure` with an `aria-label` carrying the sentence; the parts are decorative.
 - **Pills:** `inline-flex`, 44px minimum height, 0 by 22px, 1px `hairline` border on white, body size at 500 in `ink`. Under 734px 38px, 0 by 12px, 0.875rem. One above the frame ("Your software"), three below ("Developers", "Automation", "AI agents").
-- **Frame:** min(100%, 560px), `dark-panel`, 14px radius, the window shadow, 28px below the first pill. A 36px `window-bar` with three 12px traffic lights 8px apart at 16px inset and no title; a body padded 28px 32px 32px (24px 20px 28px under 734px) holding the Frame Title "Your CLI" over the Frame Sub "Built with the BYO SDK", 6px apart.
+- **Frame:** min(100%, 640px), `console-blue` with a 1px white edge at 12% and an 8px radius, the window shadow, 28px below the first pill: the Windows 11 title bar and console screen of the shell replay above.
 - **Connectors:** 1px `hairline` pseudo-elements: 28px from the first pill to the frame; a 20px stem from the frame; a 1px bar spanning from the centre of the first branch to the centre of the last (`calc((100% - 2 * gap) / 6)` inset each side); 28px drops to each of the three pills in a 3-column 640px row with 12px gaps (8px under 734px), 48px below the frame. Under 375px the row becomes a centred wrapping flex row at 8px gaps and the bar and drops are hidden; the stem stays.
 - **Motion:** Each node and the branch row start at opacity 0 and appear over 0.45s on the standard ease, delayed `var(--i) * 0.15s + 0.15s` with `--i` running 0 to 5 top to bottom; the last pill is in place at about 1.3s. Under `prefers-reduced-motion` the figure is simply present.
 
@@ -533,7 +533,7 @@ None are shipped. Browser controls inherit `accent-color` navy, the navy caret a
 - **Don't** put a command, code block, transcript, file list or chip on the landing page; the install one-liner is the only command it carries.
 - **Don't** put an eyebrow, kicker or uppercase label above a headline; the only uppercase is the group label over a list of docs links.
 - **Don't** add icons where words do the job; the 8x13 chevron closing a text link is the only icon, and it is decorative.
-- **Don't** use the brand green, the traffic lights or the window bar as a button, link, heading or status colour (The Chrome Is Not Status Rule).
+- **Don't** use the brand green, the console colours, the caption buttons or the title bar as a button, link, heading or status colour (The Chrome Is Not Status Rule).
 - **Don't** render fenced code with syntax colours or put a dark code block in the docs; docs code is dark text on `band-grey`.
 - **Don't** add a hover lift, border or shadow to a tile, pill or panel; buttons darken and press, links underline, and that is the whole hover vocabulary.
 - **Don't** add a second entrance animation or any scroll-driven effect; the flow figure appearing top to bottom is the only authored motion, and it never delays reading or copying.

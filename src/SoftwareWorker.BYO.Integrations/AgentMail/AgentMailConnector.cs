@@ -1,7 +1,6 @@
 using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.AgentMail.Model;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.SDK.Http;
 
 namespace SoftwareWorker.BYO.Integrations.AgentMail
 {

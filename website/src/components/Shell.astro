@@ -1,186 +1,249 @@
 ---
 /**
- * The hero's frame as a demo of the interactive shell, in the browser. Everything it prints is
- * what the CLI prints: the help text, the list formats, the confirmations and the errors are the
- * CLI's own strings, and the only saved commands that "run" are echo commands, which the demo
- * can run faithfully. Anything the demo cannot do honestly says so in a grey "(demo)" line.
+ * The hero's frame: a replay of the interactive shell, played like a video. A PowerShell window on
+ * Windows opens, `byo` starts the shell, and a scripted session runs by itself: typed with the
+ * shell's own highlighting, completion menu and inline suggestion, answered with the CLI's own
+ * strings, then looped. Nothing here takes input and nothing runs on the visitor's machine.
  */
-const tries = ['--help', 'commands list', 'run --target command --name "Say hello"'];
 ---
 
 <div class="node flow-cli shell" id="shell" style="--i:1">
-  <div class="flow-bar" aria-hidden="true">
-    <span class="light red"></span>
-    <span class="light yellow"></span>
-    <span class="light green"></span>
-    <span class="flow-bar-title">Your CLI</span>
+  <div class="win-bar" aria-hidden="true">
+    <svg class="win-icon" viewBox="0 0 16 16" width="16" height="16">
+      <rect x="0.5" y="0.5" width="15" height="15" rx="3" fill="#3b78ff" />
+      <path d="M4 5l3 3-3 3" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M8.5 11.5H12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+    </svg>
+    <span class="win-title">Your CLI</span>
+    <span class="win-controls">
+      <span class="win-btn"><svg viewBox="0 0 10 10"><path d="M0 5.5h10" /></svg></span>
+      <span class="win-btn"><svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" /></svg></span>
+      <span class="win-btn"><svg viewBox="0 0 10 10"><path d="M0.5 0.5l9 9M9.5 0.5l-9 9" /></svg></span>
+    </span>
   </div>
-  <div class="shell-body">
-    <div class="shell-screen" id="shell-screen">
-      <div class="shell-log" id="shell-log" role="log" aria-live="polite" aria-label="Demo shell output"></div>
-      <form class="shell-row" id="shell-form" autocomplete="off">
-        <label class="visually-hidden" for="shell-input">Type a byo command and press Enter</label>
-        <span class="shell-prompt" aria-hidden="true">byo<span class="shell-gt">&gt;</span></span>
-        <span class="shell-field">
-          <span class="shell-ghost" id="shell-ghost" aria-hidden="true"></span>
-          <input
-            class="shell-input"
-            id="shell-input"
-            type="text"
-            spellcheck="false"
-            autocapitalize="off"
-            autocorrect="off"
-            autocomplete="off"
-            enterkeyhint="go"
-          />
-        </span>
-      </form>
-    </div>
-    <div class="shell-tries" role="group" aria-label="Commands to try">
-      {tries.map((t) => <button type="button" class="shell-try" data-try={t}>{t}</button>)}
-    </div>
+  <div class="shell-screen" id="shell-screen" aria-hidden="true">
+    <div class="shell-log" id="shell-log"></div>
+    <div class="shell-line shell-live" id="shell-live"></div>
+    <div class="shell-menu" id="shell-menu"></div>
+    <div class="shell-spacer" id="shell-spacer"></div>
   </div>
 </div>
 
 <script>
-  type Kind = 'cmd' | 'out' | 'green' | 'yellow' | 'red' | 'cyan' | 'grey' | 'blue' | 'table';
-  interface TableData {
-    headers: string[];
-    rows: string[][];
-    style: 'rounded' | 'square';
-    title?: string;
+  type Kind = 'out' | 'green' | 'yellow' | 'red' | 'cyan' | 'grey' | 'blue' | 'head';
+  interface Cell {
+    text: string;
+    grey?: boolean;
   }
   interface Line {
-    text: string;
+    text?: string;
     kind?: Kind;
-    table?: TableData;
+    table?: { headers: string[]; rows: Cell[][] };
   }
-  interface SavedCommand {
-    name: string;
-    bookmark: string;
-    executable: string;
-    shell: string;
-    directory: string;
-    created: string;
+  interface Item {
+    label: string;
+    desc?: string;
   }
+  type Mode = 'ps' | 'byo';
+  type Act =
+    | { kind: 'type'; text: string }
+    | { kind: 'accept' }
+    | { kind: 'suggest' }
+    | { kind: 'enter'; out: () => Line[]; failed?: boolean; mode?: Mode; delay?: number }
+    | { kind: 'wait'; ms: number };
 
   const VERSION = '0.41.1';
   const HINTS = "Tab or Ctrl+Space: complete | Up/Down: history | Right: accept suggestion | Ctrl+D or 'exit': quit";
+  const HOME = 'C:\\Users\\dev';
+  const PS_PROMPT = `PS ${HOME}> `;
+  const BYO_PROMPT_LENGTH = 'byo> '.length;
 
-  // The seven command groups of a clean install, with the descriptions the CLI prints.
-  const GROUPS: Record<string, { desc: string; subs: Record<string, string> | null }> = {
+  // The command tree of a clean install, with the descriptions the CLI prints and completes with.
+  const HELP: Item = { label: '--help', desc: 'Show help and usage information' };
+  const COMMON: Item[] = [
+    { label: '--schedule', desc: 'Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.' },
+    { label: '--async', desc: 'Run command asynchronously in the background and return immediately.' },
+    HELP,
+  ];
+  interface Group {
+    desc: string;
+    subs?: Record<string, string>;
+    options?: Item[];
+    values?: Record<string, string[]>;
+  }
+  const GROUPS: Record<string, Group> = {
     alias: { desc: 'Shell alias management', subs: { delete: 'Remove the shell alias for byo', set: 'Set or change the shell alias for byo' } },
     commands: { desc: 'Saved command management', subs: { delete: 'Delete a saved command', list: 'List all saved commands', set: 'Create a new saved command' } },
     plugins: { desc: 'Custom plugin management', subs: { install: 'Install BYO CLI Plugin from a local feed or NuGet.org', list: 'List available BYO CLI Plugins', uninstall: 'Uninstall BYO CLI Plugin' } },
-    run: { desc: 'Interactive execution', subs: null },
+    run: {
+      desc: 'Interactive execution',
+      options: [
+        { label: '--target', desc: 'What to run (command or workflow)' },
+        { label: '--name', desc: 'Name of the command/workflow to run' },
+        { label: '--bookmark', desc: 'Bookmark hierarchy path to locate the command/workflow' },
+      ],
+      values: { '--target': ['command', 'workflow'] },
+    },
     secrets: { desc: 'Encrypted secrets operations', subs: { delete: 'Delete a secret', list: 'Read secrets', reencrypt: 'Re-encrypt all secrets with a new key', set: 'Set a secret' } },
     settings: { desc: 'Settings operations', subs: { delete: 'Delete a setting', list: 'Read settings', set: 'Set a setting' } },
     workflows: { desc: 'Workflow management', subs: { delete: 'Delete a workflow', list: 'List all workflows', set: 'Create a new workflow with interactive steps' } },
   };
-  const BUILTINS = ['help', 'history', 'clear', 'cls', 'exit', 'quit'];
-  const GLOBAL_OPTIONS = [
-    '  --schedule <schedule>  Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.',
-    '  --async                Run command asynchronously in the background and return immediately.',
-    '  -?, -h, --help         Show help and usage information',
-  ];
-  // Help text captured from the CLI for the commands the demo can run.
-  const LEAF_HELP: Record<string, string[]> = {
-    run: [
-      'Description:',
-      '  Interactive execution',
-      '',
-      'Usage:',
-      '  byo run [options]',
-      '',
-      'Options:',
-      '  --target <command|workflow>  What to run (command or workflow)',
-      '  --name <name>                Name of the command/workflow to run',
-      '  --bookmark <bookmark>        Bookmark hierarchy path to locate the command/workflow',
-      '  --schedule <schedule>        Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.',
-      '  --async                      Run command asynchronously in the background and return immediately.',
-      '  -?, -h, --help               Show help and usage information',
-    ],
+  const LEAF_OPTIONS: Record<string, Item[]> = {
     'commands set': [
-      'Description:',
-      '  Create a new saved command',
-      '',
-      'Usage:',
-      '  byo commands set [options]',
-      '',
-      'Options:',
-      '  --name <name>                 Command name',
-      '  --bookmark <bookmark>         Bookmark hierarchy path (e.g. DevOps/Deploy)',
-      '  --executable <executable>     Command executable (use {{tokenName}} for tokens resolved from configuration)',
-      '  --shell <Cmd|PowerShell|Wsl>  Shell type',
-      '  --directory <directory>       Working directory',
-      '  --schedule <schedule>         Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.',
-      '  --async                       Run command asynchronously in the background and return immediately.',
-      '  -?, -h, --help                Show help and usage information',
+      { label: '--name', desc: 'Command name' },
+      { label: '--bookmark', desc: 'Bookmark hierarchy path (e.g. DevOps/Deploy)' },
+      { label: '--executable', desc: 'Command executable (use {{tokenName}} for tokens resolved from configuration)' },
+      { label: '--shell', desc: 'Shell type' },
+      { label: '--directory', desc: 'Working directory' },
     ],
-    'settings set': ['Description:', '  Set a setting', '', 'Usage:', '  byo settings set [options]', '', 'Options:', '  --key <key>            The key to update', '  --value <value>        The new value', ...GLOBAL_OPTIONS],
-    'secrets set': ['Description:', '  Set a secret', '', 'Usage:', '  byo secrets set [options]', '', 'Options:', '  --key <key>            The key to update', '  --value <value>        The new value', ...GLOBAL_OPTIONS],
+    'commands delete': [
+      { label: '--name', desc: 'Command name' },
+      { label: '--bookmark', desc: 'Bookmark hierarchy path (e.g. DevOps/Deploy)' },
+    ],
   };
+  const BUILTINS: Item[] = [
+    { label: 'exit', desc: 'Exit the interactive shell' },
+    { label: 'quit', desc: 'Exit the interactive shell' },
+    { label: 'clear', desc: 'Clear the screen' },
+    { label: 'cls', desc: 'Clear the screen' },
+    { label: 'history', desc: 'Show the command history or clear it (history clear)' },
+    { label: 'help', desc: 'Show help for BYO or for a command (help <command>)' },
+  ];
 
+  interface Scope {
+    subs: Item[];
+    options: Item[];
+    values: Record<string, string[]>;
+  }
+  function scopeFor(path: string[]): Scope {
+    if (path.length === 0) {
+      return {
+        subs: Object.entries(GROUPS).map(([label, g]) => ({ label, desc: g.desc })),
+        options: [HELP, { label: '--version', desc: 'Show version information' }],
+        values: {},
+      };
+    }
+    const group = GROUPS[path[0]];
+    if (path.length === 1) {
+      if (group.subs) return { subs: Object.entries(group.subs).map(([label, desc]) => ({ label, desc })), options: [HELP], values: {} };
+      return { subs: [], options: [...(group.options ?? []), ...COMMON], values: group.values ?? {} };
+    }
+    return { subs: [], options: [...(LEAF_OPTIONS[path.join(' ')] ?? []), ...COMMON], values: {} };
+  }
+  const takesValue = (label: string) => label !== '--async' && label !== '--help' && label !== '--version';
+
+  // The shell's tokenizer and classifier, as far as the replay needs them: the same kinds, the same colours.
+  interface Token {
+    value: string;
+    start: number;
+    end: number;
+    quoted: boolean;
+  }
+  function tokenize(text: string): Token[] {
+    const tokens: Token[] = [];
+    let i = 0;
+    while (i < text.length) {
+      if (/\s/.test(text[i])) {
+        i++;
+        continue;
+      }
+      const start = i;
+      let value = '';
+      let quote: string | null = null;
+      let quoted = false;
+      while (i < text.length) {
+        const ch = text[i];
+        if (quote) {
+          if (ch === quote) quote = null;
+          else value += ch;
+          i++;
+        } else if (ch === '"' || ch === "'") {
+          quote = ch;
+          quoted = true;
+          i++;
+        } else if (/\s/.test(ch)) {
+          break;
+        } else {
+          value += ch;
+          i++;
+        }
+      }
+      tokens.push({ value, start, end: i, quoted });
+    }
+    return tokens;
+  }
+
+  type TokenKind = 'tool' | 'builtin' | 'command' | 'option' | 'value' | 'quoted' | 'unknown';
+  interface Walk {
+    path: string[];
+    pending: string | null;
+    words: number;
+  }
+  function step(state: Walk, token: Token, index: number): TokenKind {
+    if (index === 0 && token.value.toLowerCase() === 'byo') return 'tool';
+    const first = state.words === 0;
+    state.words++;
+    if (state.pending) {
+      state.pending = null;
+      return token.quoted ? 'quoted' : 'value';
+    }
+    const scope = scopeFor(state.path);
+    if (token.value.length > 1 && token.value[0] === '-') {
+      const option = scope.options.find((o) => o.label === token.value);
+      if (!option) return 'unknown';
+      state.pending = takesValue(option.label) ? option.label : null;
+      return 'option';
+    }
+    if (scope.subs.some((s) => s.label === token.value)) {
+      state.path.push(token.value);
+      return 'command';
+    }
+    if (first && BUILTINS.some((b) => b.label === token.value)) return 'builtin';
+    return 'unknown';
+  }
+
+  // The completion menu opens on its own as a word is typed and closes once the word is complete.
+  interface Completion {
+    start: number;
+    items: Item[];
+  }
+  function completions(text: string): Completion | null {
+    const tokens = tokenize(text);
+    const open = tokens.length > 0 && !/\s$/.test(text);
+    const current = open ? tokens[tokens.length - 1] : null;
+    if (current?.quoted) return null;
+    const before = open ? tokens.slice(0, -1) : tokens;
+    const state: Walk = { path: [], pending: null, words: 0 };
+    before.forEach((t, i) => step(state, t, i));
+    const word = current?.value ?? '';
+    const scope = scopeFor(state.path);
+    let items: Item[];
+    if (state.pending) {
+      const values = scope.values[state.pending];
+      if (!values) return null;
+      items = values.map((label) => ({ label }));
+    } else if (word.startsWith('-')) {
+      items = scope.options;
+    } else if (state.words === 0) {
+      items = [...scope.subs, ...BUILTINS];
+    } else {
+      items = scope.subs;
+    }
+    items = items.filter((i) => i.label.startsWith(word));
+    if (items.length === 0 || word.length === 0 || (items.length === 1 && items[0].label === word)) return null;
+    return { start: current ? current.start : text.length, items };
+  }
+
+  // Output, in the CLI's words.
+  const out = (text: string, kind: Kind = 'out'): Line => ({ text, kind });
+  const blank = (): Line => ({ text: '' });
+  const between = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1));
+  const pad = (s: string, w: number) => s + ' '.repeat(Math.max(0, w - s.length));
   const stamp = () => {
     const d = new Date();
     const p = (n: number) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   };
-
-  const state = {
-    commands: [{ name: 'Say hello', bookmark: '', executable: 'echo Hello from byo', shell: 'PowerShell', directory: '', created: stamp() }] as SavedCommand[],
-    settings: new Map<string, string>(),
-    history: [] as string[],
-    failed: false,
-  };
-
-  const out = (text: string, kind?: Kind): Line => ({ text, kind });
-  const note = (text: string): Line => ({ text: `(demo) ${text}`, kind: 'grey' });
-  const pad = (s: string, w: number) => s + ' '.repeat(Math.max(0, w - s.length));
-
-  function tokenize(input: string): string[] {
-    const tokens: string[] = [];
-    let current = '';
-    let quote: string | null = null;
-    let has = false;
-    for (const ch of input) {
-      if (quote) {
-        if (ch === quote) quote = null;
-        else current += ch;
-        has = true;
-      } else if (ch === '"' || ch === "'") {
-        quote = ch;
-        has = true;
-      } else if (/\s/.test(ch)) {
-        if (has) {
-          tokens.push(current);
-          current = '';
-          has = false;
-        }
-      } else {
-        current += ch;
-        has = true;
-      }
-    }
-    if (has) tokens.push(current);
-    return tokens;
-  }
-
-  function options(tokens: string[]): Map<string, string | true> {
-    const map = new Map<string, string | true>();
-    for (let i = 0; i < tokens.length; i++) {
-      const t = tokens[i];
-      if (!t.startsWith('--')) continue;
-      const next = tokens[i + 1];
-      if (next !== undefined && !next.startsWith('--')) {
-        map.set(t.slice(2), next);
-        i++;
-      } else {
-        map.set(t.slice(2), true);
-      }
-    }
-    return map;
-  }
 
   function rootHelp(): Line[] {
     const names = Object.keys(GROUPS);
@@ -200,430 +263,337 @@ const tries = ['--help', 'commands list', 'run --target command --name "Say hell
     ].map((text) => out(text));
   }
 
-  function groupHelp(group: string): Line[] {
-    const g = GROUPS[group];
-    if (!g.subs) return LEAF_HELP[group].map((text) => out(text));
-    const names = Object.keys(g.subs);
-    const width = Math.max(...names.map((n) => n.length)) + 2;
-    const subs = g.subs;
-    return [
-      'Description:',
-      `  ${g.desc}`,
-      '',
-      'Usage:',
-      `  byo ${group} [command] [options]`,
-      '',
-      'Options:',
-      '  -?, -h, --help  Show help and usage information',
-      '',
-      'Commands:',
-      ...names.map((n) => '  ' + pad(n, width) + subs[n]),
-    ].map((text) => out(text));
-  }
+  const banner = (): Line[] => [out(`BYO interactive shell ${VERSION}`, 'cyan'), out(HINTS, 'grey'), blank()];
+  const completed = (from: number, to: number): Line[] => [blank(), out(`Completed in ${between(from, to)} ms.`, 'green')];
 
-  function helpFor(tokens: string[]): Line[] {
-    const [group, sub] = tokens;
-    if (!group || !GROUPS[group]) return rootHelp();
-    const leaf = LEAF_HELP[`${group} ${sub}`];
-    if (sub && leaf) return leaf.map((text) => out(text));
-    return groupHelp(group);
-  }
+  let createdAt = stamp();
+  const list = (): Line[] => [
+    out('Demo', 'head'),
+    {
+      table: {
+        headers: ['Name', 'Bookmark', 'Executable', 'Directory', 'Created'],
+        rows: [[{ text: 'Say hello' }, { text: 'Demo' }, { text: 'echo Hello from byo' }, { text: '-', grey: true }, { text: createdAt }]],
+      },
+    },
+    blank(),
+    ...completed(5, 14),
+  ];
 
-  // The CLI draws its tables with box characters; here the same table is drawn with borders, so the
-  // lines join at any line height.
-  function table(headers: string[], rows: string[][], style: 'rounded' | 'square', title?: string): Line[] {
-    return [{ text: '', kind: 'table', table: { headers, rows, style, title } }];
-  }
+  const SCRIPT: Act[] = [
+    { kind: 'type', text: 'byo' },
+    { kind: 'enter', out: banner, mode: 'byo', delay: 480 },
+    { kind: 'type', text: 'commands set --name "Say hello" --bookmark Demo --executable "echo Hello from byo"' },
+    { kind: 'enter', out: () => [out('Command added successfully!', 'green'), ...completed(3, 9)] },
+    { kind: 'type', text: 'commands list' },
+    { kind: 'enter', out: list },
+    { kind: 'type', text: 'run --t' },
+    { kind: 'accept' },
+    { kind: 'type', text: 'command --name "Say hello" --bookmark Demo' },
+    {
+      kind: 'enter',
+      delay: 320,
+      out: () => [out('Command: echo Hello from byo', 'blue'), out(`Directory: ${HOME}`, 'blue'), out('Hello from byo'), ...completed(84, 140)],
+    },
+    { kind: 'type', text: 'comands list' },
+    {
+      kind: 'enter',
+      failed: true,
+      out: () => [
+        out('Required command was not provided.', 'red'),
+        out("Unrecognized command or argument 'comands'.", 'red'),
+        out("Unrecognized command or argument 'list'.", 'red'),
+        blank(),
+        ...rootHelp(),
+      ],
+    },
+    { kind: 'type', text: 'comm' },
+    { kind: 'suggest' },
+    { kind: 'enter', out: list },
+    { kind: 'type', text: 'exit' },
+    { kind: 'enter', out: () => [], mode: 'ps' },
+    { kind: 'wait', ms: 2600 },
+  ];
 
-  function missing(opts: Map<string, string | true>, names: string[]): Line[] | null {
-    const absent = names.filter((n) => typeof opts.get(n) !== 'string');
-    if (absent.length === 0) return null;
-    return [out(`Missing required parameter(s): ${absent.map((n) => '--' + n).join(', ')}.`, 'red')];
-  }
-
-  function findCommand(name: string, bookmark: string | undefined): SavedCommand | undefined {
-    const wanted = (bookmark ?? '').replace(/^\/+|\/+$/g, '').toLowerCase();
-    return state.commands.find((c) => c.name.toLowerCase() === name.toLowerCase() && c.bookmark.toLowerCase() === wanted);
-  }
-
-  interface Result {
-    lines: Line[];
-    failed: boolean;
-    clear?: boolean;
-    restart?: boolean;
-  }
-
-  function exec(raw: string): Result {
-    const tokens = tokenize(raw);
-    if (tokens[0] === 'byo') tokens.shift();
-    if (tokens.length === 0) return { lines: [], failed: false };
-    const [first, second] = tokens;
-
-    if (first === 'clear' || first === 'cls') return { lines: [], failed: false, clear: true };
-    if (first === 'exit' || first === 'quit') return { lines: [], failed: false, restart: true };
-    if (first === 'help') return { lines: helpFor(tokens.slice(1)), failed: false };
-    if (first === 'history') {
-      if (second === 'clear') {
-        state.history = [];
-        return { lines: [], failed: false };
-      }
-      return { lines: state.history.slice(-50).map((h) => out(h, 'grey')), failed: false };
-    }
-    if (first === '--version') return { lines: [out(VERSION)], failed: false };
-    if (first === '--help' || first === '-h' || first === '-?') return { lines: rootHelp(), failed: false };
-
-    const group = GROUPS[first];
-    if (!group) {
-      return {
-        lines: [out('Required command was not provided.', 'red'), out(`Unrecognized command or argument '${first}'.`, 'red'), out(''), ...rootHelp()],
-        failed: true,
-      };
-    }
-    if (tokens.some((t) => t === '--help' || t === '-h' || t === '-?')) {
-      return { lines: helpFor(tokens.filter((t) => !t.startsWith('-'))), failed: false };
-    }
-
-    const opts = options(tokens);
-    if (opts.has('schedule') || opts.has('async')) {
-      return { lines: [note('--schedule and --async need a real terminal; they are not part of the demo.')], failed: false };
-    }
-
-    if (first === 'run') return runCommand(opts);
-
-    if (!second) return { lines: [out('Required command was not provided.', 'red'), out(''), ...groupHelp(first)], failed: true };
-    if (!group.subs || !group.subs[second]) {
-      return { lines: [out(`Unrecognized command or argument '${second}'.`, 'red'), out(''), ...groupHelp(first)], failed: true };
-    }
-
-    switch (`${first} ${second}`) {
-      case 'commands list': {
-        if (state.commands.length === 0) return { lines: [out("No commands found. Use 'byo commands create' to create a command.", 'yellow')], failed: false };
-        const lines: Line[] = [];
-        const folders = [...new Set(state.commands.map((c) => c.bookmark))].sort();
-        for (const folder of folders) {
-          lines.push(folder ? out(folder, 'cyan') : out('(root)', 'grey'));
-          const rows = state.commands.filter((c) => c.bookmark === folder).map((c) => [c.name, c.bookmark, c.executable, c.directory, c.created]);
-          lines.push(...table(['Name', 'Bookmark', 'Executable', 'Directory', 'Created'], rows, 'rounded'), out(''));
-        }
-        return { lines, failed: false };
-      }
-      case 'commands set': {
-        const absent = missing(opts, ['name', 'executable']);
-        if (absent) return { lines: absent, failed: true };
-        const name = opts.get('name') as string;
-        const bookmark = ((opts.get('bookmark') as string) ?? '').replace(/^\/+|\/+$/g, '');
-        const existing = findCommand(name, bookmark);
-        const command: SavedCommand = {
-          name,
-          bookmark,
-          executable: opts.get('executable') as string,
-          shell: (opts.get('shell') as string) ?? 'PowerShell',
-          directory: (opts.get('directory') as string) ?? '',
-          created: existing?.created ?? stamp(),
-        };
-        if (existing) state.commands[state.commands.indexOf(existing)] = command;
-        else state.commands.push(command);
-        return { lines: [out(existing ? 'Command updated successfully!' : 'Command added successfully!', 'green')], failed: false };
-      }
-      case 'commands delete': {
-        const absent = missing(opts, ['name']);
-        if (absent) return { lines: absent, failed: true };
-        const name = opts.get('name') as string;
-        const bookmark = opts.get('bookmark') as string | undefined;
-        const existing = findCommand(name, bookmark);
-        if (!existing) return { lines: [out(`Command '${name}' was not found in bookmark '${bookmark || '/'}'.`, 'yellow')], failed: false };
-        state.commands.splice(state.commands.indexOf(existing), 1);
-        return { lines: [out(`Command '${name}' deleted successfully.`, 'green')], failed: false };
-      }
-      case 'settings list': {
-        if (state.settings.size === 0) return { lines: [out("No settings found. Use 'byo settings set --key <key> --value <value>' to add one.", 'yellow')], failed: false };
-        const rows = [...state.settings.entries()].sort(([a], [b]) => a.localeCompare(b));
-        return { lines: table(['Name', 'Value'], rows, 'square', 'Settings'), failed: false };
-      }
-      case 'settings set': {
-        const absent = missing(opts, ['key', 'value']);
-        if (absent) return { lines: absent, failed: true };
-        const key = opts.get('key') as string;
-        const value = opts.get('value') as string;
-        state.settings.set(key, value);
-        return { lines: [out(`Key=${key}, Value=${value}`, 'green')], failed: false };
-      }
-      case 'settings delete': {
-        const absent = missing(opts, ['key']);
-        if (absent) return { lines: absent, failed: true };
-        state.settings.delete(opts.get('key') as string);
-        return { lines: [note('Deleted in the demo. The real command confirms what it removed.')], failed: false };
-      }
-      case 'secrets list':
-        return { lines: [out("No secrets found. Use 'byo secrets set --key <key> --value <value>' to add one.", 'yellow')], failed: false };
-      case 'secrets set':
-      case 'secrets delete':
-      case 'secrets reencrypt':
-        return { lines: [note('Secrets are encrypted with a key bound to your machine. The demo does not store them.')], failed: false };
-      case 'workflows list':
-        return { lines: [out("No workflows found. Use 'byo workflows create' to create a workflow.", 'yellow')], failed: false };
-      case 'workflows set':
-        return { lines: [note('The real command builds the steps with you, one prompt at a time. Try it after installing.')], failed: false };
-      case 'workflows delete':
-        return { lines: [note('No workflows in the demo.')], failed: false };
-      case 'plugins list':
-      case 'plugins install':
-      case 'plugins uninstall':
-        return { lines: [note('Plugins come from NuGet.org or your own feed, on your machine. Not part of the demo.')], failed: false };
-      case 'alias set':
-      case 'alias delete':
-        return { lines: [note('The real command gives the CLI your own name in every shell on your machine.')], failed: false };
-      default:
-        return { lines: [note('Not part of the demo.')], failed: false };
-    }
-  }
-
-  function runCommand(opts: Map<string, string | true>): Result {
-    const target = opts.get('target');
-    if (typeof target !== 'string') {
-      return { lines: [note('The real shell asks what to run here. Try: run --target command --name "Say hello" --bookmark Demo')], failed: false };
-    }
-    if (target === 'workflow') return { lines: [out("No workflows found. Use 'byo workflows create' first.", 'yellow')], failed: false };
-    if (target !== 'command') return { lines: [note("--target takes 'command' or 'workflow'.")], failed: true };
-    const name = opts.get('name');
-    if (typeof name !== 'string') {
-      return { lines: [note('The real shell lets you browse your bookmarks here. Try: run --target command --name "Say hello" --bookmark Demo')], failed: false };
-    }
-    const bookmark = opts.get('bookmark') as string | undefined;
-    const command = findCommand(name, bookmark);
-    if (!command) return { lines: [out(`Command '${name}' was not found in bookmark '${bookmark || '/'}'.`, 'yellow')], failed: false };
-    const started = performance.now();
-    const lines: Line[] = [out(`Command: ${command.executable}`, 'blue'), out(`Directory: ${command.directory || '~'}`, 'blue')];
-    const echo = command.executable.match(/^echo\s+([\s\S]*)$/i);
-    if (echo) lines.push(out(echo[1].replace(/^(["'])([\s\S]*)\1$/, '$2')));
-    else lines.push(note(`On your machine this runs in ${command.shell}. The demo only runs echo commands.`));
-    lines.push(out(`Completed in ${Math.max(1, Math.round(performance.now() - started))} ms.`, 'green'));
-    return { lines, failed: false };
-  }
-
-  // Rendering and input handling.
   const root = document.getElementById('shell');
-  const screen = document.getElementById('shell-screen');
+  const view = document.getElementById('shell-screen');
   const log = document.getElementById('shell-log');
-  const form = document.getElementById('shell-form') as HTMLFormElement | null;
-  const input = document.getElementById('shell-input') as HTMLInputElement | null;
-  const ghost = document.getElementById('shell-ghost');
-  if (root && screen && log && form && input && ghost) {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let historyIndex = -1;
-    let historyPrefix = '';
-    let typing = false;
+  const live = document.getElementById('shell-live');
+  const menu = document.getElementById('shell-menu');
+  const spacer = document.getElementById('shell-spacer');
+  if (root && view && log && live && menu && spacer) {
+    const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const banner = () => print([out(`BYO interactive shell ${VERSION}`, 'cyan'), out(HINTS, 'grey')]);
+    let mode: Mode = 'ps';
+    let text = '';
+    let failed = false;
+    let history: string[] = [];
+    let current: Completion | null = null;
+    let floor = 0;
+    let spacerHeight = 0;
 
-    function print(lines: Line[]) {
-      const step = Math.min(45, 500 / Math.max(1, lines.length));
-      lines.forEach((line, i) => {
-        const el = document.createElement('div');
-        el.className = 'shell-line' + (line.kind ? ` k-${line.kind}` : '');
-        if (line.table) {
-          const data = line.table;
-          if (data.title) {
-            const title = document.createElement('div');
-            title.className = 'shell-table-title';
-            title.textContent = data.title;
-            el.appendChild(title);
-          }
-          const tableEl = document.createElement('table');
-          tableEl.className = `shell-table ${data.style}`;
-          const head = tableEl.createTHead().insertRow();
-          for (const h of data.headers) {
-            const th = document.createElement('th');
-            th.textContent = h;
-            head.appendChild(th);
-          }
-          const body = tableEl.createTBody();
-          for (const r of data.rows) {
-            const tr = body.insertRow();
-            for (let i = 0; i < data.headers.length; i++) tr.insertCell().textContent = r[i] ?? '';
-          }
-          el.appendChild(tableEl);
-        } else if (line.kind === 'cmd') {
-          const prompt = document.createElement('span');
-          prompt.className = 'shell-prompt';
-          prompt.textContent = 'byo';
-          const gt = document.createElement('span');
-          gt.className = 'shell-gt' + (state.failed ? ' is-failed' : '');
-          gt.textContent = '>';
-          prompt.appendChild(gt);
-          el.appendChild(prompt);
-          el.appendChild(document.createTextNode(' ' + line.text));
-        } else {
-          el.textContent = line.text || ' ';
-        }
-        if (!reduce.matches) {
-          el.classList.add('appear');
-          el.style.animationDelay = `${Math.round(i * step)}ms`;
-        }
-        log!.appendChild(el);
-      });
-      while (log!.childElementCount > 400) log!.removeChild(log!.firstChild!);
-      screen!.scrollTop = screen!.scrollHeight;
+    // Playback pauses while the frame is off screen or the tab is hidden, and resumes where it was.
+    let paused = false;
+    let resume: (() => void) | null = null;
+    const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
+    async function wait(ms: number) {
+      if (instant) return;
+      if (ms > 0) await sleep(ms);
+      while (paused) await new Promise<void>((r) => (resume = r));
     }
-
-    function suggestion(value: string): string | null {
-      if (!value) return null;
-      for (let i = state.history.length - 1; i >= 0; i--) {
-        const h = state.history[i];
-        if (h.startsWith(value) && h !== value) return h;
+    let visible = true;
+    function updatePaused() {
+      paused = !visible || document.hidden;
+      if (!paused && resume) {
+        const r = resume;
+        resume = null;
+        r();
       }
-      return null;
+    }
+    new IntersectionObserver(
+      (entries) => {
+        visible = entries.some((e) => e.isIntersecting);
+        updatePaused();
+      },
+      { threshold: 0.1 },
+    ).observe(root);
+    document.addEventListener('visibilitychange', updatePaused);
+
+    const span = (className: string, content: string) => {
+      const el = document.createElement('span');
+      el.className = className;
+      el.textContent = content;
+      return el;
+    };
+
+    // A terminal only scrolls forward. When content shrinks (a menu closes), the rows it used stay
+    // blank below the prompt until output fills them, so the screen never jumps back.
+    function settle() {
+      const natural = view!.scrollHeight - spacerHeight;
+      spacerHeight = Math.max(0, floor + view!.clientHeight - natural);
+      spacer!.style.height = `${spacerHeight}px`;
+      view!.scrollTop = view!.scrollHeight;
+      floor = Math.max(floor, view!.scrollTop);
     }
 
-    function updateGhost() {
-      const value = input!.value;
-      const s = suggestion(value);
-      ghost!.textContent = '';
-      if (!s) return;
-      const typed = document.createElement('span');
-      typed.className = 'typed';
-      typed.textContent = value;
-      const rest = document.createElement('span');
-      rest.className = 'rest';
-      rest.textContent = s.slice(value.length);
-      ghost!.append(typed, rest);
-    }
-
-    function submit(raw: string) {
-      const trimmed = raw.trim();
-      print([{ text: trimmed, kind: 'cmd' }]);
-      const result = exec(trimmed);
-      if (result.clear || result.restart) log!.textContent = '';
-      if (result.restart) banner();
-      print(result.lines);
-      state.failed = result.failed;
-      root!.classList.toggle('is-failed', state.failed);
-      if (trimmed) {
-        const stored = trimmed.replace(/^byo\s+/, '');
-        state.history = state.history.filter((h) => h !== stored);
-        state.history.push(stored);
-      }
-      historyIndex = -1;
-      input!.value = '';
-      updateGhost();
-    }
-
-    function complete() {
-      const value = input!.value;
-      const endsWithSpace = /\s$/.test(value);
-      const tokens = tokenize(value);
-      let candidates: string[] = [];
-      let partial = '';
-      if (tokens.length === 0 || (tokens.length === 1 && !endsWithSpace)) {
-        partial = tokens[0] ?? '';
-        candidates = [...Object.keys(GROUPS), ...BUILTINS].filter((n) => n.startsWith(partial));
+    function renderInput(target: HTMLElement, withCursor: boolean) {
+      target.textContent = '';
+      let ghost = '';
+      if (mode === 'ps') {
+        target.append(span('t-ps', PS_PROMPT));
+        const m = text.match(/^(\s*)(\S+)([\s\S]*)$/);
+        if (m) target.append(m[1], span('t-ps-cmd', m[2]), m[3]);
+        else target.append(text);
       } else {
-        const group = GROUPS[tokens[0]];
-        if (!group || !group.subs) return;
-        partial = tokens.length === 1 ? '' : tokens[1];
-        if (tokens.length > 2 || (tokens.length === 2 && endsWithSpace)) return;
-        candidates = Object.keys(group.subs).filter((n) => n.startsWith(partial));
-      }
-      if (candidates.length === 0) return;
-      let completion = candidates[0];
-      if (candidates.length > 1) {
-        // Insert the common prefix, as a menu would offer.
-        completion = candidates.reduce((a, b) => {
-          let i = 0;
-          while (i < a.length && i < b.length && a[i] === b[i]) i++;
-          return a.slice(0, i);
+        const prompt = span('t-prompt', 'byo');
+        prompt.append(span('t-gt' + (failed ? ' is-failed' : ''), '>'));
+        target.append(prompt, ' ');
+        const state: Walk = { path: [], pending: null, words: 0 };
+        let at = 0;
+        tokenize(text).forEach((token, i) => {
+          const kind = step(state, token, i);
+          if (token.start > at) target.append(text.slice(at, token.start));
+          target.append(span(`t-${kind}`, text.slice(token.start, token.end)));
+          at = token.end;
         });
-        if (completion.length <= partial.length) return;
+        if (at < text.length) target.append(text.slice(at));
+        if (withCursor) ghost = suggestion(text);
       }
-      const head = value.slice(0, value.length - partial.length);
-      input!.value = head + completion + (candidates.length === 1 ? ' ' : '');
-      updateGhost();
+      if (withCursor) {
+        // The caret sits on the first character of the inline suggestion, as in the shell.
+        target.append(span('shell-cursor' + (ghost ? ' t-ghost' : ''), ghost ? ghost[0] : '\u00a0'));
+        if (ghost.length > 1) target.append(span('t-ghost', ghost.slice(1)));
+      }
     }
 
-    function typeInto(command: string) {
-      if (typing) return;
-      input!.focus();
-      if (reduce.matches) {
-        input!.value = command;
-        submit(command);
-        return;
+    function suggestion(value: string): string {
+      if (!value) return '';
+      for (let i = history.length - 1; i >= 0; i--) {
+        if (history[i].startsWith(value) && history[i] !== value) return history[i].slice(value.length);
       }
-      typing = true;
-      input!.value = '';
-      const step = Math.min(14, 420 / command.length);
-      let i = 0;
-      const tick = () => {
-        i++;
-        input!.value = command.slice(0, i);
-        updateGhost();
-        if (i < command.length) window.setTimeout(tick, step);
-        else window.setTimeout(() => {
-          typing = false;
-          submit(command);
-        }, 140);
+      return '';
+    }
+
+    function columns(): number {
+      const probe = span('shell-probe', 'M'.repeat(20));
+      view!.append(probe);
+      const ch = probe.getBoundingClientRect().width / 20;
+      probe.remove();
+      const style = getComputedStyle(view!);
+      const inner = view!.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      return Math.max(20, Math.floor(inner / Math.max(1, ch)));
+    }
+
+    const fit = (s: string, width: number) => (width <= 0 ? '' : s.length <= width ? pad(s, width) : width <= 3 ? s.slice(0, width) : s.slice(0, width - 3) + '...');
+
+    // The shell's menu, drawn its way: label and description columns, the selected row black on cyan,
+    // placed under the word being completed.
+    function renderMenu() {
+      menu!.textContent = '';
+      current = mode === 'byo' ? completions(text) : null;
+      if (!current) return;
+      const items = current.items;
+      const cols = columns();
+      const maxRowWidth = cols - 1;
+      let labelWidth = Math.min(Math.max(...items.map((i) => i.label.length)), Math.max(10, Math.floor(maxRowWidth / 2)));
+      let descWidth = Math.min(Math.max(...items.map((i) => i.desc?.length ?? 0)), 60);
+      descWidth = Math.max(0, Math.min(descWidth, maxRowWidth - labelWidth - 5));
+      let rowWidth = labelWidth + 2 + (descWidth > 0 ? descWidth + 2 : 0);
+      if (rowWidth > maxRowWidth) {
+        labelWidth = Math.max(1, maxRowWidth - 2);
+        descWidth = 0;
+        rowWidth = labelWidth + 2;
+      }
+      const column = Math.min((BYO_PROMPT_LENGTH + current.start) % cols, Math.max(0, maxRowWidth - rowWidth));
+      const visibleCount = Math.min(8, items.length);
+      const row = (className: string) => {
+        const el = document.createElement('div');
+        el.className = 'menu-row ' + className;
+        el.style.marginLeft = `${column}ch`;
+        menu!.append(el);
+        return el;
       };
-      window.setTimeout(tick, step);
+      for (let i = 0; i < visibleCount; i++) {
+        const el = row(i === 0 ? 'is-selected' : '');
+        el.append(' ' + fit(items[i].label, labelWidth) + ' ');
+        if (descWidth > 0) el.append(span('menu-desc', fit(items[i].desc ?? '', descWidth) + '  '));
+      }
+      const selected = items[0].desc ?? '';
+      if (selected.length > descWidth && maxRowWidth - column > 10) {
+        row('menu-more').textContent = ' ' + fit(selected, maxRowWidth - column - 1).trimEnd();
+      }
+      if (items.length > visibleCount) row('menu-more').textContent = ` 1/${items.length}`;
     }
 
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      if (typing) return;
-      submit(input.value);
-    });
-
-    input.addEventListener('input', () => {
-      historyIndex = -1;
-      updateGhost();
-    });
-
-    input.addEventListener('keydown', (event) => {
-      if (typing) {
-        event.preventDefault();
-        return;
-      }
-      const value = input.value;
-      if (event.key === 'Tab') {
-        event.preventDefault();
-        complete();
-      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-        event.preventDefault();
-        if (historyIndex === -1) historyPrefix = value;
-        const matches = state.history.filter((h) => h.startsWith(historyPrefix));
-        if (matches.length === 0) return;
-        if (event.key === 'ArrowUp') historyIndex = historyIndex === -1 ? matches.length - 1 : Math.max(0, historyIndex - 1);
-        else historyIndex = historyIndex === -1 ? -1 : Math.min(matches.length, historyIndex + 1);
-        input.value = historyIndex === -1 || historyIndex === matches.length ? historyPrefix : matches[historyIndex];
-        if (historyIndex === matches.length) historyIndex = -1;
-        updateGhost();
-      } else if ((event.key === 'ArrowRight' || event.key === 'End') && input.selectionStart === value.length) {
-        const s = suggestion(value);
-        if (s) {
-          event.preventDefault();
-          input.value = s;
-          updateGhost();
+    function lineElement(line: Line): HTMLElement {
+      const el = document.createElement('div');
+      el.className = 'shell-line' + (line.kind && line.kind !== 'out' ? ` k-${line.kind}` : '');
+      if (line.table) {
+        el.classList.add('k-table');
+        const table = document.createElement('table');
+        table.className = 'shell-table';
+        const head = table.createTHead().insertRow();
+        for (const h of line.table.headers) {
+          const th = document.createElement('th');
+          th.textContent = h;
+          head.append(th);
         }
-      } else if (event.key === 'Escape' || (event.key === 'c' && event.ctrlKey)) {
-        event.preventDefault();
-        input.value = '';
-        historyIndex = -1;
-        updateGhost();
-      } else if (event.key === 'l' && event.ctrlKey) {
-        event.preventDefault();
-        log.textContent = '';
-      } else if (event.key === 'd' && event.ctrlKey && value === '') {
-        event.preventDefault();
-        submit('exit');
+        const body = table.createTBody();
+        for (const r of line.table.rows) {
+          const tr = body.insertRow();
+          for (const cell of r) {
+            const td = tr.insertCell();
+            td.textContent = cell.text;
+            if (cell.grey) td.className = 'k-grey';
+          }
+        }
+        el.append(table);
+      } else {
+        el.textContent = line.text || ' ';
       }
-    });
-
-    screen.addEventListener('click', () => {
-      if (!window.getSelection()?.toString()) input.focus({ preventScroll: true });
-    });
-
-    for (const button of root.querySelectorAll<HTMLButtonElement>('.shell-try')) {
-      button.addEventListener('click', () => typeInto(button.dataset.try ?? ''));
+      return el;
     }
 
-    banner();
+    async function print(lines: Line[]) {
+      const stagger = Math.min(36, 420 / Math.max(1, lines.length));
+      for (const line of lines) {
+        log!.append(lineElement(line));
+        settle();
+        await wait(stagger);
+      }
+      while (log!.childElementCount > 400) log!.firstChild!.remove();
+    }
+
+    function show() {
+      renderInput(live!, true);
+      renderMenu();
+      settle();
+    }
+
+    async function perform(act: Act) {
+      switch (act.kind) {
+        case 'type': {
+          root!.classList.add('is-typing');
+          await wait(140);
+          for (const ch of act.text) {
+            text += ch;
+            show();
+            await wait(between(28, 70) + (ch === ' ' ? 40 : 0));
+          }
+          root!.classList.remove('is-typing');
+          return;
+        }
+        case 'accept': {
+          if (!current) return;
+          await wait(520);
+          text = text.slice(0, current.start) + current.items[0].label + ' ';
+          menu!.textContent = '';
+          current = null;
+          renderInput(live!, true);
+          settle();
+          await wait(160);
+          return;
+        }
+        case 'suggest': {
+          const rest = suggestion(text);
+          await wait(650);
+          text += rest;
+          show();
+          await wait(260);
+          return;
+        }
+        case 'enter': {
+          await wait(380);
+          menu!.textContent = '';
+          current = null;
+          const frozen = document.createElement('div');
+          frozen.className = 'shell-line';
+          renderInput(frozen, false);
+          log!.append(frozen);
+          if (mode === 'byo' && text.trim()) {
+            const entry = text.trim();
+            history = history.filter((h) => h !== entry);
+            history.push(entry);
+          }
+          live!.hidden = true;
+          settle();
+          await wait(act.delay ?? 220);
+          await print(act.out());
+          failed = act.failed ?? false;
+          if (act.mode) mode = act.mode;
+          text = '';
+          live!.hidden = false;
+          show();
+          await wait(1000);
+          return;
+        }
+        case 'wait':
+          await wait(act.ms);
+      }
+    }
+
+    function reset() {
+      log!.textContent = '';
+      menu!.textContent = '';
+      spacerHeight = 0;
+      spacer!.style.height = '0px';
+      floor = 0;
+      history = [];
+      failed = false;
+      mode = 'ps';
+      text = '';
+      createdAt = stamp();
+      live!.hidden = false;
+      show();
+    }
+
+    async function play() {
+      for (;;) {
+        reset();
+        for (const act of SCRIPT) await perform(act);
+        if (instant) return;
+      }
+    }
+
+    void play();
   }
 </script>

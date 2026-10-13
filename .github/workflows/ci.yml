@@ -45,3 +45,54 @@ jobs:
           name: test-results-${{ matrix.os }}
           path: '**/TestResults/*.trx'
           if-no-files-found: ignore
+
+  coverage:
+    name: Code coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # publishes the badge data to the "badges" branch
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # required by Nerdbank.GitVersioning
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Install dotnet-coverage
+        run: dotnet tool install --global dotnet-coverage
+
+      # The test project is a Microsoft.Testing.Platform app, so it is run directly under the collector.
+      - name: Test with coverage
+        run: dotnet-coverage collect --output coverage/coverage.cobertura.xml --output-format cobertura -- dotnet tests/SoftwareWorker.BYO.Tests/bin/Release/net10.0/SoftwareWorker.BYO.Tests.dll
+
+      - name: Summarize coverage
+        shell: pwsh
+        run: ./.github/scripts/coverage-badge.ps1 -ReportPath coverage/coverage.cobertura.xml -BadgePath badge/coverage.json -SummaryPath $env:GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/coverage.cobertura.xml
+
+      # The README badge reads badges/coverage.json through img.shields.io/endpoint, so only pushes to main update it.
+      - name: Publish coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --orphan badges
+          mv badge/coverage.json coverage.json
+          git add coverage.json
+          git commit -m "Update coverage badge for ${GITHUB_SHA::7}"
+          git push --force origin badges

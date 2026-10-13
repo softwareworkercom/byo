@@ -1,6 +1,4 @@
 using SoftwareWorker.BYO.SDK.Services;
-using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.Stripe.Model;
 
 namespace SoftwareWorker.BYO.Integrations.Stripe
@@ -8,12 +6,9 @@ namespace SoftwareWorker.BYO.Integrations.Stripe
     public class StripeConnector
     {
         private readonly IStripeAPI _api;
-        private readonly bool _isVerbose;
 
         public StripeConnector(string secretKey, bool isVerbose = false)
         {
-            _isVerbose = isVerbose;
-
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://api.stripe.com")

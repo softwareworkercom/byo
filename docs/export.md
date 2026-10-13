@@ -91,7 +91,7 @@ For larger values (> 446 bytes):
 - Secrets are decrypted when referenced during workflow execution via token replacement
 - The encryption key is machine-bound and cannot be transferred to another machine
 - Access to secrets requires access to the local machine where the key is stored
-- To inspect the stored key, open the operating system credentials store and look for `byo-key`:
+- To inspect the stored key, open the operating system vault (its credentials store) and look for `byo-key`:
   - **Windows:** Open **Credential Manager** from Start, then check **Windows Credentials** and **Generic Credentials**.
   - **macOS:** Open **Keychain Access** from Applications > Utilities, then search for `byo-key`.
   - **Linux:** Open your desktop keyring or secret service manager, then search for `byo-key`.

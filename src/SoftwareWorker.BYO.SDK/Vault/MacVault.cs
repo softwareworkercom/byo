@@ -1,29 +1,29 @@
 ﻿using System.Diagnostics;
 
-namespace SoftwareWorker.BYO.SDK.Secrets
+namespace SoftwareWorker.BYO.SDK.Vault
 {
-    public class LinuxSecretStore : ISecretStore
+    internal class MacVault : IVault
     {
         public void SetSecret(string key, string secret)
         {
-            RunWithInput($"store --label=\"app\" service app key {key}", secret);
+            Run($"add-generic-password -a \"app\" -s \"{key}\" -w \"{secret}\" -U");
         }
 
         public string GetSecret(string key)
         {
-            return RunOutput($"lookup service app key {key}");
+            return RunOutput($"find-generic-password -a \"app\" -s \"{key}\" -w");
         }
 
         public void DeleteSecret(string key)
         {
-            Run($"clear service app key {key}");
+            Run($"delete-generic-password -a \"app\" -s \"{key}\"");
         }
 
         private void Run(string args)
         {
             var p = Process.Start(new ProcessStartInfo
             {
-                FileName = "secret-tool",
+                FileName = "security",
                 Arguments = args,
                 RedirectStandardError = true,
                 UseShellExecute = false
@@ -32,38 +32,14 @@ namespace SoftwareWorker.BYO.SDK.Secrets
             p.WaitForExit();
 
             if (p.ExitCode != 0)
-                throw new Exception("Keyring command failed");
-        }
-
-        private void RunWithInput(string args, string input)
-        {
-            var p = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "secret-tool",
-                    Arguments = args,
-                    RedirectStandardInput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false
-                }
-            };
-
-            p.Start();
-            p.StandardInput.Write(input);
-            p.StandardInput.Close();
-
-            p.WaitForExit();
-
-            if (p.ExitCode != 0)
-                throw new Exception("Keyring store failed");
+                throw new Exception("Keychain command failed");
         }
 
         private string RunOutput(string args)
         {
             var p = Process.Start(new ProcessStartInfo
             {
-                FileName = "secret-tool",
+                FileName = "security",
                 Arguments = args,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,

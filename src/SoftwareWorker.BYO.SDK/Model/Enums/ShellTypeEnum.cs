@@ -21,6 +21,11 @@ namespace SoftwareWorker.BYO.SDK.Model.Enums
         Wsl,
 
         /// <summary>
+        /// MXC container execution
+        /// </summary>
+        Mxc,
+
+        /// <summary>
         /// Bash shell (default on Linux/macOS)
         /// </summary>
         Bash,

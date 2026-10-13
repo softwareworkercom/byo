@@ -55,12 +55,5 @@ namespace SoftwareWorker.BYO.Integrations.GitHub
 
         [Get("/repos/{organization}/{repository}/actions/runs/{runId}")]
         Task<GitHubWorkflowRun> GetWorkflowRun([HeaderCollection] IDictionary<string, string> headers, [AliasAs("organization")] string organization, [AliasAs("repository")] string repository, [AliasAs("runId")] long runId);
-
-        //[Get("/repos/humanforce/hf-cli/commits?sha=HF-19503&author=leandromonaco")]
-        //Task<GitHubPullRequests> GetPullRequestsByUserId([HeaderCollection] IDictionary<string, string> headers);
-
-
-        //[Post("/graphql")]
-        //Task<GraphQLResponse> RunGraphQLQuery([HeaderCollection] IDictionary<string, string> headers, [Body] GitHubGraphQLRequest request);
     }
 }

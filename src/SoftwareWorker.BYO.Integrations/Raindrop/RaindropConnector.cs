@@ -1,6 +1,5 @@
 using SoftwareWorker.BYO.SDK.Services;
 using SoftwareWorker.BYO.Integrations.Helpers;
-using SoftwareWorker.BYO.SDK.Http;
 using SoftwareWorker.BYO.Integrations.Raindrop.Model;
 using SoftwareWorker.BYO.Integrations.Raindrop.Model.Request;
 

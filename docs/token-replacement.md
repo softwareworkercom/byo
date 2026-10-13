@@ -76,14 +76,12 @@ Behavior details:
 
 ## Command-line overrides
 
-Any CLI option that starts with `--` and has a value is available as a token override.
+Only space-separated CLI overrides are supported.
 
 Supported forms:
 
 - `--Tenant prod`
-- `--Tenant=prod`
 - `--context:region westus`
-- `--context:region=westus`
 
 Examples:
 

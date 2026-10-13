@@ -1,6 +1,6 @@
-﻿namespace SoftwareWorker.BYO.SDK.Secrets
+﻿namespace SoftwareWorker.BYO.SDK.Vault
 {
-    public interface ISecretStore
+    internal interface IVault
     {
         void SetSecret(string key, string secret);
         string GetSecret(string key);

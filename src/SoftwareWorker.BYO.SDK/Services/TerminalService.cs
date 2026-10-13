@@ -1,3 +1,5 @@
+using Microsoft.Mxc.Sdk;
+using Microsoft.Mxc.Sdk.V1;
 using SoftwareWorker.BYO.SDK.Constants;
 using SoftwareWorker.BYO.SDK.Model.Enums;
 using System.Diagnostics;
@@ -22,6 +24,11 @@ namespace SoftwareWorker.BYO.SDK.Services
                 directory = directory != null ? TokenService.ResolveTokens(directory) : null;
 
                 DisplayCommandInformation(command, directory);
+
+                if (shell == ShellTypeEnum.Mxc)
+                {
+                    return RunWithMxc(command, directory, runAsync);
+                }
 
                 //Configure Prompt based on shell parameter (default to PowerShell)
                 var (filename, arguments) = DetermineShell(command, shell);
@@ -105,6 +112,75 @@ namespace SoftwareWorker.BYO.SDK.Services
             };
         }
 
+        private static int? RunWithMxc(string command, string? directory, bool runAsync)
+        {
+            var support = MxcPlatform.GetPlatformSupport();
+            if (!support.IsSupported)
+            {
+                UserInterfaceService.ShowError($"MXC is not supported: {support.Reason ?? "unknown reason"}");
+                return null;
+            }
+
+            if (runAsync)
+            {
+                UserInterfaceService.ShowGrey("MXC commands run synchronously through the SDK.");
+            }
+
+            var requestCommand = ApplyWorkingDirectory(command, directory);
+            var request = new ContainerRequest(requestCommand)
+            {
+                Containment = new Containment.Process()
+            };
+
+            var result = MxcContainer.RunAsync(request).GetAwaiter().GetResult();
+
+            WriteCapturedOutput(result.Stdout, result.Stderr);
+            AppendToLogFile(command, result.Stdout ?? string.Empty, result.Stderr ?? string.Empty);
+
+            return result.ExitCode;
+        }
+
+        private static string ApplyWorkingDirectory(string command, string? directory)
+        {
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                return command;
+            }
+
+            var escapedDirectory = directory.Replace("\"", "\\\"");
+
+            return OperatingSystem.IsWindows()
+                ? $"cd /d \"{escapedDirectory}\" && {command}"
+                : $"cd \"{escapedDirectory}\" && {command}";
+        }
+
+        private static void WriteCapturedOutput(string? output, string? error)
+        {
+            if (!string.IsNullOrWhiteSpace(output))
+            {
+                using (var outputReader = new StringReader(output))
+                {
+                    string? line;
+                    while ((line = outputReader.ReadLine()) != null)
+                    {
+                        UserInterfaceService.WriteLine(line);
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                using (var errorReader = new StringReader(error))
+                {
+                    string? line;
+                    while ((line = errorReader.ReadLine()) != null)
+                    {
+                        UserInterfaceService.ShowError(line);
+                    }
+                }
+            }
+        }
+
         private static ShellTypeEnum GetDefaultShell()
         {
             if (OperatingSystem.IsWindows())
@@ -148,13 +224,14 @@ namespace SoftwareWorker.BYO.SDK.Services
             bool runAsync)
         {
             var shouldDetach = isMultipleExecution || runAsync;
+            var shouldRedirectOutput = !shouldDetach && !UserInterfaceService.IsInteractive;
 
             var processStartInfo = new ProcessStartInfo
             {
                 FileName = filename,
                 Arguments = arguments,
-                RedirectStandardOutput = !shouldDetach,
-                RedirectStandardError = !shouldDetach,
+                RedirectStandardOutput = shouldRedirectOutput,
+                RedirectStandardError = shouldRedirectOutput,
                 UseShellExecute = shouldDetach
             };
 

@@ -8,6 +8,8 @@ We are currently looking for testers on **Linux** and **macOS**. If you can help
 
 **Turn your software into tools that humans, automation, and AI agents can use.**
 
+[![CI](https://github.com/softwareworkercom/byo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/softwareworkercom/byo/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoftwareworkercom%2Fbyo%2Fbadges%2Fcoverage.json)](https://github.com/softwareworkercom/byo/actions/workflows/ci.yml)
 [![.NET](https://img.shields.io/badge/.NET-10-blueviolet)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/softwareworkercom/byo)](https://github.com/softwareworkercom/byo/issues)
@@ -129,6 +131,7 @@ The `byo` CLI is built with the BYO SDK and is the reference for what you get. I
 A plugin is a NuGet package that adds your own command groups to `byo`. Write command handlers against `BYO.SDK`, pack, install, and your commands appear in `byo --help`, the interactive shell, scripts and CI alongside the built-in ones.
 
 - **[Building a plugin](docs/building-a-plugin.md)**: Quick start, the command model, parameters, SDK services, packaging and troubleshooting
+- **[AI agent skill](docs/ai-agent-skill.md)**: A reusable skill file that helps agents guide users to the right BYO commands, workflows, or plugins
 
 ## Documentation
 
@@ -161,7 +164,7 @@ Secrets can be set directly with `byo secrets set`, or collected during a run by
 
 All commands follow a consistent pattern: `byo <group> <action> [options]`
 
-For a complete walkthrough with a practical example check out the [Getting Started Guide](docs/getting-started.md).
+For a complete walkthrough with a practical example check out the [Getting Started Guide](docs/getting-started.md). For agent-led onboarding, use the [AI agent skill](docs/ai-agent-skill.md).
 
 ## Community
 

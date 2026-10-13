@@ -3,9 +3,9 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SoftwareWorker.BYO.SDK.Secrets
+namespace SoftwareWorker.BYO.SDK.Vault
 {
-    public class WindowsSecretStore : ISecretStore
+    internal class WindowsVault : IVault
     {
         private const int CRED_TYPE_GENERIC = 1;
         private const int CRED_MAX_CREDENTIAL_BLOB_SIZE = 5 * 512;

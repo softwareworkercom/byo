@@ -1,4 +1,3 @@
-using SoftwareWorker.BYO.SDK.Helpers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,41 +8,9 @@ namespace SoftwareWorker.BYO.SDK.Services
         private const string Pkcs8Prefix = "pkcs8:";
 
         // AES-GCM constants
-        private const int SaltSize = 32;        // 256-bit salt for PBKDF2
         private const int NonceSize = 12;       // 96-bit nonce for AES-GCM (recommended size)
         private const int TagSize = 16;         // 128-bit authentication tag
         private const int KeySize = 32;         // 256-bit key for AES-256
-        private const int Pbkdf2Iterations = 600000; // OWASP recommended iterations for SHA-256
-
-        private static readonly byte[] _masterSecret = GenerateMachineSpecificSecret();
-
-        /// <summary>
-        /// Generates a machine-specific secret using hardware identifiers.
-        /// This is used as input for key derivation, not directly as an encryption key.
-        /// Uses cross-platform runtime information instead of WMI.
-        /// </summary>
-        private static byte[] GenerateMachineSpecificSecret()
-        {
-            string machineId = MachineIdentifierHelper.GetMachineIdentifier();
-            // Use SHA-512 to get more entropy from the machine identifier
-            return SHA512.HashData(Encoding.UTF8.GetBytes(machineId));
-        }
-
-        /// <summary>
-        /// Derives an encryption key using PBKDF2 with the machine secret and a random salt.
-        /// </summary>
-        private static byte[] DeriveKey(byte[] salt)
-        {
-            // Use PBKDF2 with SHA-256 for secure key derivation
-            return Rfc2898DeriveBytes.Pbkdf2(
-                _masterSecret,
-                salt,
-                Pbkdf2Iterations,
-                HashAlgorithmName.SHA256,
-                KeySize);
-        }
-
-
 
         /// <summary>
         /// Encrypts a vault entry using RSA-OAEP with SHA-256.

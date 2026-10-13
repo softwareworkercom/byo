@@ -70,36 +70,31 @@ namespace SoftwareWorker.BYO.SDK.Services
                 }
 
                 var optionText = arg[2..].Trim();
-                if (string.IsNullOrWhiteSpace(optionText))
+                if (string.IsNullOrWhiteSpace(optionText) || optionText.Contains('='))
                 {
                     continue;
                 }
 
-                var key = optionText;
-                string? value = null;
-
-                var eqIndex = optionText.IndexOf('=');
-                if (eqIndex > 0)
+                if (index + 1 >= args.Count)
                 {
-                    key = optionText[..eqIndex].Trim();
-                    value = optionText[(eqIndex + 1)..].Trim();
-                }
-                else if (index + 1 < args.Count && !args[index + 1].StartsWith("--", StringComparison.Ordinal))
-                {
-                    value = args[++index];
+                    continue;
                 }
 
-                if (!string.IsNullOrWhiteSpace(key) && value != null)
+                var value = args[index + 1];
+                if (string.IsNullOrWhiteSpace(value) || value.StartsWith("--", StringComparison.Ordinal))
                 {
-                    overrides[key] = value;
+                    continue;
                 }
+
+                overrides[optionText] = value;
+                index++;
             }
 
             return overrides;
         }
         private static string? ResolveToken(string token, object obj, IReadOnlyDictionary<string, string>? tokenOverrides)
         {
-            string? value = null;
+            string? value;
 
             if (TryResolveTokenFromOverrides(token, tokenOverrides, out value))
             {

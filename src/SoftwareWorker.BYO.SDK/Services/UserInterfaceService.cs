@@ -1005,13 +1005,6 @@ namespace SoftwareWorker.BYO.SDK.Services
         private static Table ConvertDataTableToTable(DataTable dataTable)
         {
             var table = new Table().Border(TableBorder.Rounded).BorderColor(Color.Grey).ShowRowSeparators();
-            var consoleWidth = GetConsoleWidth();
-            if (consoleWidth <= 0)
-            {
-                consoleWidth = 120;
-            }
-
-            var columnCount = Math.Max(1, dataTable.Columns.Count);
             var columnNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var columnHeaders = new string[dataTable.Columns.Count];
             var contentWidths = new int[dataTable.Columns.Count];

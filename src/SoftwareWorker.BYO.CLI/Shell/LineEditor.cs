@@ -80,16 +80,6 @@ namespace SoftwareWorker.BYO.CLI.Shell
 
         private readonly record struct EditorSnapshot(string Text, int Caret);
 
-        public string Text => _text;
-
-        public int Caret => _caret;
-
-        public bool IsCompletionMenuOpen => _completion != null;
-
-        public IReadOnlyList<ShellCompletionItem> CompletionItems => _completion?.Items ?? [];
-
-        public int SelectedCompletionIndex => _menuIndex;
-
         private bool HasSelection => _selectionAnchor.HasValue && _selectionAnchor.Value != _caret;
 
         private int SelectionStart => Math.Min(_selectionAnchor ?? _caret, _caret);

@@ -24,7 +24,7 @@ Create or update a saved command.
 ### Syntax
 
 ```bash
-byo commands set --name <name> --executable <command> [--bookmark <path>] [--shell <PowerShell|Cmd|Wsl>] [--directory <path>]
+byo commands set --name <name> --executable <command> [--bookmark <path>] [--shell <PowerShell|Cmd|Wsl|Mxc>] [--directory <path>]
 ```
 
 ### Options
@@ -34,7 +34,7 @@ byo commands set --name <name> --executable <command> [--bookmark <path>] [--she
 | `--name` | Yes | Display name for the command |
 | `--executable` | Yes | Shell command to execute. Supports `{{tokenName}}` |
 | `--bookmark` | No | Bookmark hierarchy path (for example `DevOps/Deploy`) |
-| `--shell` | No | Shell type: `PowerShell`, `Cmd`, or `Wsl` |
+| `--shell` | No | Shell type: `PowerShell`, `Cmd`, `Wsl`, or `Mxc` |
 | `--directory` | No | Working directory for execution |
 
 ### Shell types
@@ -71,11 +71,22 @@ byo commands set --name "Legacy Build" --shell Cmd --executable "build.bat"
 byo commands set --name "List Linux Files" --shell Wsl --executable "ls -la ~/project"
 ```
 
+#### `Mxc`
+
+- Runs the command through MXC container execution.
+- Useful when you want the command to run in an isolated, policy-driven environment.
+- Command output is captured and reported back through BYO like other saved commands.
+
+```bash
+byo commands set --name "Contained Build" --shell Mxc --executable "dotnet build"
+```
+
 #### Choosing the right shell
 
 - Use `PowerShell` for most .NET and Windows-native developer workflows.
 - Use `Cmd` only when you need Command Prompt compatibility.
 - Use `Wsl` when your command depends on Linux tooling or scripts.
+- Use `Mxc` when you want the command to run in an isolated container environment.
 
 ### Examples
 

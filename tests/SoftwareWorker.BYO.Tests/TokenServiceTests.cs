@@ -241,7 +241,7 @@ public sealed class TokenServiceTests : IDisposable
     }
 
     [Fact]
-    public void ParseOverridesFromCommandLine_ShouldSupportEqualsSeparatedValues()
+    public void ParseOverridesFromCommandLine_ShouldIgnoreEqualsSeparatedValues()
     {
         var overrides = TokenService.ParseOverridesFromCommandLine(new[]
         {
@@ -250,8 +250,7 @@ public sealed class TokenServiceTests : IDisposable
             "--context:region=westus"
         });
 
-        Assert.Equal("prod", overrides["Tenant"]);
-        Assert.Equal("westus", overrides["context:region"]);
+        Assert.Empty(overrides);
     }
 
     [Fact]
