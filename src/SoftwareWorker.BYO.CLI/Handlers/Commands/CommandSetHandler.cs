@@ -10,7 +10,7 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Commands
     [Parameter("name", "Command name", true, null)]
     [Parameter("bookmark", "Bookmark hierarchy path (e.g. DevOps/Deploy)", false, null)]
     [Parameter("executable", "Command executable (use {{tokenName}} for tokens resolved from configuration)", true, null)]
-    [Parameter("shell", "Shell type", false, "PowerShell|Cmd|Wsl")]
+    [Parameter("shell", "Shell type", false, "PowerShell|Cmd|Wsl|Mxc")]
     [Parameter("directory", "Working directory", false, null)]
     internal class CommandSetHandler : BaseCommandHandler
     {

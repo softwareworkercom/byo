@@ -189,11 +189,11 @@ public sealed class CliHandlerTests : IDisposable
         Assert.Contains("Command update cancelled.", console.Output);
 
         console.PushKeys(ConsoleKey.Enter);
-        await new CommandSetHandler { Name = "build", Executable = "dotnet build -c Release", Bookmark = "ops", Directory = "C:/repo", Shell = "Wsl" }.ExecuteAsync();
+        await new CommandSetHandler { Name = "build", Executable = "dotnet build -c Release", Bookmark = "ops", Directory = "C:/repo", Shell = "Mxc" }.ExecuteAsync();
         var updated = Assert.Single(CommandService.GetList());
         Assert.Equal("dotnet build -c Release", updated.Executable);
         Assert.Equal("C:/repo", updated.Directory);
-        Assert.Equal(ShellTypeEnum.Wsl, updated.Shell);
+        Assert.Equal(ShellTypeEnum.Mxc, updated.Shell);
         Assert.Contains("Command updated successfully!", console.Output);
 
         await new CommandSetHandler { Name = "Other", Executable = "echo", Shell = "bogus" }.ExecuteAsync();
