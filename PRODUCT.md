@@ -63,7 +63,7 @@ The CLI is free, MIT-licensed, and open source. There is no paid tier, no pricin
 
 - The site must be static. GitHub Pages hosting rules out anything requiring a server at request time.
 - Requires .NET 10 to build; the shipped binaries are self-contained per platform.
-- Version is **0.41.1** — pre-1.0. The site must not imply a stable 1.0 release or long production track record.
+- Version is **0.41.2** — pre-1.0. The site must not imply a stable 1.0 release or long production track record.
 - **Linux and macOS are explicitly under-tested.** The README currently opens with a call for testers on those platforms. Any cross-platform claim on the site must stay honest about this.
 - Terminology to use exactly as the product does: *commands*, *workflows*, *settings*, *secrets*, *bookmarks*, *plugins*, *steps*, *token replacement*, *interactive shell*.
 

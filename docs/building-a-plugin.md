@@ -33,7 +33,7 @@ Create a class library whose name starts with `BYO.Plugin.` and reference the `B
 ```bash
 dotnet new classlib -n BYO.Plugin.Weather
 cd BYO.Plugin.Weather
-dotnet add package BYO.SDK --version 0.41.1
+dotnet add package BYO.SDK --version 0.41.2
 ```
 
 The `BYO.Plugin.` prefix is required: it is how `byo` tells plugin assemblies apart from their dependencies. The project file in [Packaging and distribution](#packaging-and-distribution) shows the resulting settings.
@@ -236,7 +236,7 @@ A plugin is an ordinary NuGet package with two hard requirements:
 </PropertyGroup>
 
 <ItemGroup>
-  <PackageReference Include="BYO.SDK" Version="0.41.1" />
+  <PackageReference Include="BYO.SDK" Version="0.41.2" />
 </ItemGroup>
 ```
 
