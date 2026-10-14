@@ -983,9 +983,14 @@ namespace SoftwareWorker.BYO.SDK.Services
         }
 
         /// <summary>
+        /// Test seam: when set, <see cref="IsInteractive"/> returns this value instead of probing the real console.
+        /// </summary>
+        internal static bool? InteractiveOverride { get; set; }
+
+        /// <summary>
         /// Gets a value indicating whether the current console environment is interactive.
         /// </summary>
-        public static bool IsInteractive => AnsiConsole.Profile.Capabilities.Interactive && !Console.IsInputRedirected;
+        public static bool IsInteractive => InteractiveOverride ?? (AnsiConsole.Profile.Capabilities.Interactive && !Console.IsInputRedirected);
 
         /// <summary>
         /// Gets the current console width.

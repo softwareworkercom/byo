@@ -126,7 +126,9 @@ public sealed class SdkHelpersTests
     public void FindProcessId_ShouldReturnTheIdOfARunningProcess()
     {
         using var console = new ConsoleScope();
-        var processName = Path.GetFileNameWithoutExtension(Environment.ProcessPath)!;
+        // Use the OS-visible process name: on Linux it is truncated to 15 characters,
+        // so deriving it from Environment.ProcessPath would not match GetProcessesByName.
+        var processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
         var processId = ProcessHelper.FindProcessId(processName);
 

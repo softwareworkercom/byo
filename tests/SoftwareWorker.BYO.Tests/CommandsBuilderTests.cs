@@ -126,7 +126,19 @@ public sealed class CommandsBuilderTests
         Assert.Equal(Environment.ProcessPath, startInfo.FileName);
         Assert.False(startInfo.UseShellExecute);
         Assert.Equal(Environment.CurrentDirectory, startInfo.WorkingDirectory);
-        Assert.Equal(["settings", "list", "--filter", "a b"], startInfo.ArgumentList);
+
+        // When tests run under the dotnet muxer ("dotnet SoftwareWorker.BYO.Tests.dll"), the entry
+        // assembly is expected as the first argument so the relaunched process loads the right code.
+        var entryPoint = Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
+        var expectedArguments = new List<string>();
+        if (string.Equals(Path.GetFileNameWithoutExtension(Environment.ProcessPath), "dotnet", StringComparison.OrdinalIgnoreCase)
+            && entryPoint.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+        {
+            expectedArguments.Add(entryPoint);
+        }
+
+        expectedArguments.AddRange(["settings", "list", "--filter", "a b"]);
+        Assert.Equal(expectedArguments, startInfo.ArgumentList);
     }
 
     private static RootCommand BuildRoot()

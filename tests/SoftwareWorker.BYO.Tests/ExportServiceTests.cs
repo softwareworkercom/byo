@@ -20,6 +20,9 @@ public sealed class ExportServiceTests
         var originalDirectory = Directory.GetCurrentDirectory();
         var directory = Directory.CreateTempSubdirectory("byo-export-").FullName;
         Directory.SetCurrentDirectory(directory);
+        // On macOS the temp directory lives behind a symlink (/var -> /private/var), and the export
+        // path is built from the resolved current directory, so compare against that resolved form.
+        var resolvedDirectory = Directory.GetCurrentDirectory();
 
         try
         {
@@ -37,7 +40,7 @@ public sealed class ExportServiceTests
             var path = await ExportService.ExportFile([orders, unnamed], " ");
 
             Assert.NotNull(path);
-            Assert.StartsWith(Path.Combine(directory, "export_"), path);
+            Assert.StartsWith(Path.Combine(resolvedDirectory, "export_"), path);
             Assert.EndsWith(".json", path);
             Assert.Contains("Exported to:", console.Output);
 

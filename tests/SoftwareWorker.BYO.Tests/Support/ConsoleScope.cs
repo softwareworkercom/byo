@@ -27,6 +27,9 @@ internal sealed class ConsoleScope : IDisposable
         }
 
         AnsiConsole.Console = Terminal;
+        // Console.IsInputRedirected reflects the real stdin handle and is always true on CI runners,
+        // so pin the interactivity the test asked for instead of probing the environment.
+        SoftwareWorker.BYO.SDK.Services.UserInterfaceService.InteractiveOverride = interactive;
         System.Console.SetOut(_systemOut);
         if (standardInput != null)
         {
@@ -54,6 +57,7 @@ internal sealed class ConsoleScope : IDisposable
 
     public void Dispose()
     {
+        SoftwareWorker.BYO.SDK.Services.UserInterfaceService.InteractiveOverride = null;
         AnsiConsole.Console = _originalConsole;
         System.Console.SetOut(_originalOut);
         System.Console.SetIn(_originalIn);

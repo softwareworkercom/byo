@@ -72,9 +72,15 @@ namespace SoftwareWorker.BYO.SDK.Helpers
 
         public static int? FindProcessId(string processName)
         {
-            var pid = Process.GetProcessesByName(processName).FirstOrDefault().Id;
-            UserInterfaceService.ShowWarning($"Process ID for {processName}.exe: {pid}");
-            return pid;
+            var process = Process.GetProcessesByName(processName).FirstOrDefault();
+            if (process == null)
+            {
+                UserInterfaceService.ShowWarning($"No running process found for {processName}.exe");
+                return null;
+            }
+
+            UserInterfaceService.ShowWarning($"Process ID for {processName}.exe: {process.Id}");
+            return process.Id;
         }
 
     }
