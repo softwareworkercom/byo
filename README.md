@@ -9,7 +9,6 @@ We are currently looking for testers on **Linux** and **macOS**. If you can help
 **Turn your software into tools that humans, automation, and AI agents can use.**
 
 [![CI](https://github.com/softwareworkercom/byo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/softwareworkercom/byo/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoftwareworkercom%2Fbyo%2Fbadges%2Fcoverage.json)](https://github.com/softwareworkercom/byo/actions/workflows/ci.yml)
 [![.NET](https://img.shields.io/badge/.NET-10-blueviolet)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/softwareworkercom/byo)](https://github.com/softwareworkercom/byo/issues)
