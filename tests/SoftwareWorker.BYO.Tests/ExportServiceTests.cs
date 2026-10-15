@@ -69,4 +69,47 @@ public sealed class ExportServiceTests
             Directory.Delete(directory, recursive: true);
         }
     }
+
+    [Theory]
+    [InlineData("customers", true)]
+    [InlineData("customers", false)]
+    [InlineData(" ", true)]
+    [InlineData(" ", false)]
+    public async Task ExportFile_ShouldIncludeTimestamp_OnlyWhenEnabled(string fileName, bool includeTimestamp)
+    {
+        using var console = new ConsoleScope();
+        var originalDirectory = Directory.GetCurrentDirectory();
+        var directory = Directory.CreateTempSubdirectory("byo-export-").FullName;
+        Directory.SetCurrentDirectory(directory);
+        var resolvedDirectory = Directory.GetCurrentDirectory();
+
+        try
+        {
+            var table = new DataTable("Customers");
+            table.Columns.Add("Id", typeof(int));
+            table.Rows.Add(1);
+            var expectedName = string.IsNullOrWhiteSpace(fileName) ? "export" : fileName;
+
+            var path = await ExportService.ExportFile([table], fileName, includeTimestamp);
+
+            Assert.NotNull(path);
+            Assert.Equal(resolvedDirectory, Path.GetDirectoryName(path));
+            if (includeTimestamp)
+            {
+                Assert.Matches($"^{expectedName}_[0-9]{{14}}\\.json$", Path.GetFileName(path));
+            }
+            else
+            {
+                Assert.Equal($"{expectedName}.json", Path.GetFileName(path));
+            }
+            Assert.True(File.Exists(path));
+            using var document = JsonDocument.Parse(await File.ReadAllTextAsync(path, TestContext.Current.CancellationToken));
+            Assert.Equal(1, document.RootElement.GetProperty("tables")[0].GetProperty("data")[0].GetProperty("Id").GetInt32());
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
 }
