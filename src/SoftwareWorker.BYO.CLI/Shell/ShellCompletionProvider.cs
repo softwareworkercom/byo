@@ -85,8 +85,8 @@ namespace SoftwareWorker.BYO.CLI.Shell
         {
             if (state.PendingOption != null)
             {
-                var runCompletions = GetRunValueCandidates(state, precedingTokens);
-                return runCompletions ?? GetValueCandidates(state.PendingOption, word);
+                var bookmarkCompletions = GetBookmarkAndNameCandidates(state, precedingTokens);
+                return bookmarkCompletions ?? GetValueCandidates(state.PendingOption, word);
             }
 
             if (state.IsDynamicValuePending && !CommandLineAnalyzer.IsOptionLike(word))
@@ -132,17 +132,29 @@ namespace SoftwareWorker.BYO.CLI.Shell
                 .Select(o => new ShellCompletionItem(o.Name, o.Name, o.Description, ShellCompletionKind.Option, o.Name));
         }
 
-        private static IEnumerable<ShellCompletionItem>? GetRunValueCandidates(
+        private static IEnumerable<ShellCompletionItem>? GetBookmarkAndNameCandidates(
             CommandLineState state,
             IReadOnlyList<ShellToken> precedingTokens)
         {
-            if (!string.Equals(state.CurrentCommand.Name, "run", StringComparison.OrdinalIgnoreCase) ||
-                state.PendingOption == null)
+            if (state.PendingOption == null)
             {
                 return null;
             }
 
-            var target = GetOptionValue(precedingTokens, "--target");
+            var commandPath = state.CommandPath.Select(command => command.Name).ToList();
+            var isRun = commandPath.Count == 2 && string.Equals(commandPath[1], "run", StringComparison.OrdinalIgnoreCase);
+            var isCommandSet = commandPath.Count == 3 &&
+                string.Equals(commandPath[1], "commands", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(commandPath[2], "set", StringComparison.OrdinalIgnoreCase);
+            var isWorkflowSet = commandPath.Count == 3 &&
+                string.Equals(commandPath[1], "workflows", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(commandPath[2], "set", StringComparison.OrdinalIgnoreCase);
+            if (!isRun && !isCommandSet && !isWorkflowSet)
+            {
+                return null;
+            }
+
+            var target = isCommandSet ? "command" : isWorkflowSet ? "workflow" : GetOptionValue(precedingTokens, "--target");
             var bookmark = GetOptionValue(precedingTokens, "--bookmark");
             IEnumerable<ShellCompletionItem> Complete(IEnumerable<string> values) => values
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -173,7 +185,7 @@ namespace SoftwareWorker.BYO.CLI.Shell
                 }));
             }
 
-            if (!string.Equals(state.PendingOption.Name, "--name", StringComparison.Ordinal) || string.IsNullOrWhiteSpace(bookmark))
+            if (!string.Equals(state.PendingOption.Name, "--name", StringComparison.Ordinal))
             {
                 return null;
             }

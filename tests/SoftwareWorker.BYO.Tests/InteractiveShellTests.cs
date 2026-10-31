@@ -196,16 +196,40 @@ public class InteractiveShellTests
         WorkflowService.Create("Root workflow", []);
         WorkflowService.Create("Nested workflow", [], "Ops");
         var provider = new ShellCompletionProvider(CommandsRouter.BuildRootCommand(), InteractiveShell.Builtins);
+        const string commandLine = "run --target command --bookmark Ops --name ";
+        const string workflowLine = "run --target workflow --bookmark Ops --name ";
 
-        var commandNames = provider.GetCompletions(
-            "run --target command --bookmark Ops --name ",
-            43).Items.Select(item => item.Label);
-        var workflowNames = provider.GetCompletions(
-            "run --target workflow --bookmark Ops --name ",
-            44).Items.Select(item => item.Label);
+        var commandNames = provider.GetCompletions(commandLine, commandLine.Length).Items.Select(item => item.Label);
+        var workflowNames = provider.GetCompletions(workflowLine, workflowLine.Length).Items.Select(item => item.Label);
 
         Assert.Equal(["Nested command"], commandNames);
         Assert.Equal(["Nested workflow"], workflowNames);
+    }
+
+    [Fact]
+    public void GetCompletions_ForSetCommands_ShouldListBookmarksAndNamesInBookmarkOrder()
+    {
+        using var storage = new TemporaryStorageScope();
+        CommandService.Create("Root command", "echo root");
+        CommandService.Create("Nested command", "echo nested", folderPath: "Ops");
+        WorkflowService.Create("Root workflow", []);
+        WorkflowService.Create("Nested workflow", [], "Deploy");
+        var provider = new ShellCompletionProvider(CommandsRouter.BuildRootCommand(), InteractiveShell.Builtins);
+        List<string> GetLabels(string line) => provider.GetCompletions(line, line.Length).Items.Select(item => item.Label).ToList();
+
+        var commandBookmarks = GetLabels("commands set --bookmark ");
+        var workflowBookmarks = GetLabels("workflows set --bookmark ");
+        var commandNames = GetLabels("commands set --bookmark Ops --name ");
+        var workflowNames = GetLabels("workflows set --bookmark Deploy --name ");
+        var commandOptions = GetLabels("commands set ");
+        var workflowOptions = GetLabels("workflows set ");
+
+        Assert.Equal(["/", "Ops"], commandBookmarks);
+        Assert.Equal(["/", "Deploy"], workflowBookmarks);
+        Assert.Equal(["Nested command"], commandNames);
+        Assert.Equal(["Nested workflow"], workflowNames);
+        Assert.True(commandOptions.IndexOf("--bookmark") < commandOptions.IndexOf("--name"));
+        Assert.True(workflowOptions.IndexOf("--bookmark") < workflowOptions.IndexOf("--name"));
     }
 
     #endregion

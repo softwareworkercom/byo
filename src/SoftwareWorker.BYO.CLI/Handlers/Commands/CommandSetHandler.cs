@@ -7,8 +7,8 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Commands
 {
     [TrunkCommand("commands", "Saved command management")]
     [BranchCommand("set", "Create a new saved command")]
-    [Parameter("name", "Command name", true, null)]
     [Parameter("bookmark", "Bookmark hierarchy path (e.g. DevOps/Deploy)", false, null)]
+    [Parameter("name", "Command name", true, null)]
     [Parameter("executable", "Command executable (use {{tokenName}} for tokens resolved from configuration)", true, null)]
     [Parameter("shell", "Shell type", false, "PowerShell|Cmd|Wsl|Mxc")]
     [Parameter("directory", "Working directory", false, null)]

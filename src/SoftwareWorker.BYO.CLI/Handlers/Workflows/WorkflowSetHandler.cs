@@ -10,8 +10,8 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Workflows
 {
     [TrunkCommand("workflows", "Workflow management")]
     [BranchCommand("set", "Create a new workflow with interactive steps")]
-    [Parameter("name", "Workflow name", true, null)]
     [Parameter("bookmark", "Bookmark hierarchy path (e.g. DevOps/Deploy)", true, null)]
+    [Parameter("name", "Workflow name", true, null)]
     public class WorkflowSetHandler : BaseCommandHandler
     {
         public string? Name { get; set; }
