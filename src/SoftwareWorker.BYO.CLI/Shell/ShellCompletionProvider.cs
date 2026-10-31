@@ -1,3 +1,4 @@
+using SoftwareWorker.BYO.SDK.Services;
 using System.CommandLine;
 using System.CommandLine.Completions;
 
@@ -71,16 +72,21 @@ namespace SoftwareWorker.BYO.CLI.Shell
             var replaceEnd = current?.End ?? caret;
 
             var state = CommandLineAnalyzer.Walk(_rootCommand, _builtinNames, tokens, precedingCount);
-            var candidates = GetCandidates(state, word);
+            var precedingTokens = tokens.Take(precedingCount).ToList();
+            var candidates = GetCandidates(state, word, precedingTokens);
 
             return new ShellCompletionResult(replaceStart, replaceEnd, word, Filter(candidates, word));
         }
 
-        private IEnumerable<ShellCompletionItem> GetCandidates(CommandLineState state, string word)
+        private IEnumerable<ShellCompletionItem> GetCandidates(
+            CommandLineState state,
+            string word,
+            IReadOnlyList<ShellToken> precedingTokens)
         {
             if (state.PendingOption != null)
             {
-                return GetValueCandidates(state.PendingOption, word);
+                var runCompletions = GetRunValueCandidates(state, precedingTokens);
+                return runCompletions ?? GetValueCandidates(state.PendingOption, word);
             }
 
             if (state.IsDynamicValuePending && !CommandLineAnalyzer.IsOptionLike(word))
@@ -124,6 +130,96 @@ namespace SoftwareWorker.BYO.CLI.Shell
             return CommandLineAnalyzer.GetOptionsInScope(state)
                 .Where(o => !o.Hidden && !state.UsedOptions.Contains(o))
                 .Select(o => new ShellCompletionItem(o.Name, o.Name, o.Description, ShellCompletionKind.Option, o.Name));
+        }
+
+        private static IEnumerable<ShellCompletionItem>? GetRunValueCandidates(
+            CommandLineState state,
+            IReadOnlyList<ShellToken> precedingTokens)
+        {
+            if (!string.Equals(state.CurrentCommand.Name, "run", StringComparison.OrdinalIgnoreCase) ||
+                state.PendingOption == null)
+            {
+                return null;
+            }
+
+            var target = GetOptionValue(precedingTokens, "--target");
+            var bookmark = GetOptionValue(precedingTokens, "--bookmark");
+            IEnumerable<ShellCompletionItem> Complete(IEnumerable<string> values) => values
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+                .Select(value => new ShellCompletionItem(
+                    value,
+                    ShellTokenizer.Quote(value),
+                    null,
+                    ShellCompletionKind.Value,
+                    value));
+
+            if (string.Equals(state.PendingOption.Name, "--bookmark", StringComparison.Ordinal))
+            {
+                var bookmarks = new List<string>();
+                if (string.IsNullOrWhiteSpace(target) || string.Equals(target, "command", StringComparison.OrdinalIgnoreCase))
+                {
+                    bookmarks.AddRange(CommandService.GetList().Select(command => command.Bookmark ?? string.Empty));
+                }
+                if (string.IsNullOrWhiteSpace(target) || string.Equals(target, "workflow", StringComparison.OrdinalIgnoreCase))
+                {
+                    bookmarks.AddRange(WorkflowService.GetList().Select(workflow => workflow.Bookmark ?? string.Empty));
+                }
+
+                return Complete(bookmarks.Select(value =>
+                {
+                    var normalized = FolderNavigationService.NormalizePath(value);
+                    return string.IsNullOrEmpty(normalized) ? "/" : normalized;
+                }));
+            }
+
+            if (!string.Equals(state.PendingOption.Name, "--name", StringComparison.Ordinal) || string.IsNullOrWhiteSpace(bookmark))
+            {
+                return null;
+            }
+
+            var normalizedBookmark = FolderNavigationService.NormalizePath(bookmark);
+            var names = new List<string>();
+            if (string.IsNullOrWhiteSpace(target) || string.Equals(target, "command", StringComparison.OrdinalIgnoreCase))
+            {
+                names.AddRange(CommandService.GetList()
+                    .Where(command => string.Equals(
+                        FolderNavigationService.NormalizePath(command.Bookmark),
+                        normalizedBookmark,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(command => command.Name ?? command.Executable));
+            }
+            if (string.IsNullOrWhiteSpace(target) || string.Equals(target, "workflow", StringComparison.OrdinalIgnoreCase))
+            {
+                names.AddRange(WorkflowService.GetList()
+                    .Where(workflow => string.Equals(
+                        FolderNavigationService.NormalizePath(workflow.Bookmark),
+                        normalizedBookmark,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(workflow => workflow.Name));
+            }
+
+            return Complete(names);
+        }
+
+        private static string? GetOptionValue(IReadOnlyList<ShellToken> tokens, string optionName)
+        {
+            for (var index = 0; index < tokens.Count; index++)
+            {
+                var token = tokens[index].Value;
+                if (token.StartsWith(optionName + "=", StringComparison.OrdinalIgnoreCase) ||
+                    token.StartsWith(optionName + ":", StringComparison.OrdinalIgnoreCase))
+                {
+                    return token[(optionName.Length + 1)..];
+                }
+
+                if (string.Equals(token, optionName, StringComparison.OrdinalIgnoreCase) && index + 1 < tokens.Count)
+                {
+                    return tokens[index + 1].Value;
+                }
+            }
+
+            return null;
         }
 
         private static IEnumerable<ShellCompletionItem> GetValueCandidates(Option option, string word)

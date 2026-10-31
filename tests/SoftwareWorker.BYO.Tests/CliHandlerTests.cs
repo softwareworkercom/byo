@@ -582,13 +582,45 @@ public sealed class CliHandlerTests : IDisposable
         CommandService.Create("Say", "echo picked-command", shell: LocalShell);
         WorkflowService.Create("W", [MessageStep("picked-workflow")]);
 
-        console.PushKeys(ConsoleKey.Enter);
+        console.PushKeys(ConsoleKey.Enter, ConsoleKey.Enter);
         await new RunHandler { Target = RunTargetEnum.Command }.ExecuteAsync();
-        console.PushKeys(ConsoleKey.Enter);
+        console.PushKeys(ConsoleKey.Enter, ConsoleKey.Enter);
         await new RunHandler { Target = RunTargetEnum.Workflow }.ExecuteAsync();
 
+        Assert.Contains("bookmark", console.Output);
         Assert.Contains("picked-command", console.Output);
         Assert.Contains("picked-workflow", console.Output);
+    }
+
+    [Fact]
+    public async Task Run_ShouldListBookmarksThenOnlyItemsInTheSelectedBookmark()
+    {
+        using var console = new ConsoleScope(interactive: true);
+        CommandService.Create("Root", "echo root-command", shell: LocalShell);
+        CommandService.Create("Alpha", "echo alpha-command", folderPath: "Ops");
+        CommandService.Create("Beta", "echo selected-command", folderPath: "Ops", shell: LocalShell);
+
+        console.PushKeys(ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.DownArrow, ConsoleKey.Enter);
+        await new RunHandler { Target = RunTargetEnum.Command }.ExecuteAsync();
+
+        Assert.Contains("(root)", console.Output);
+        Assert.Contains("Ops", console.Output);
+        Assert.Contains("Alpha (echo alpha-command)", console.Output);
+        Assert.Contains("Beta (echo selected-command)", console.Output);
+        Assert.Contains("selected-command", console.Output);
+        Assert.DoesNotContain("root-command", console.Output);
+
+        WorkflowService.Create("Root Workflow", [MessageStep("root-workflow")]);
+        WorkflowService.Create("Alpha Workflow", [MessageStep("alpha-workflow")], "Ops");
+        WorkflowService.Create("Beta Workflow", [MessageStep("selected-workflow")], "Ops");
+
+        console.PushKeys(ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.DownArrow, ConsoleKey.Enter);
+        await new RunHandler { Target = RunTargetEnum.Workflow }.ExecuteAsync();
+
+        Assert.Contains("Alpha Workflow", console.Output);
+        Assert.Contains("Beta Workflow", console.Output);
+        Assert.Contains("selected-workflow", console.Output);
+        Assert.DoesNotContain("root-workflow", console.Output);
     }
 
     #endregion

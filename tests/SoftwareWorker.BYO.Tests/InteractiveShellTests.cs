@@ -1,5 +1,7 @@
 using SoftwareWorker.BYO.CLI.Engine;
 using SoftwareWorker.BYO.CLI.Shell;
+using SoftwareWorker.BYO.SDK.Services;
+using SoftwareWorker.BYO.Tests.Support;
 using System.CommandLine;
 using System.CommandLine.Completions;
 
@@ -168,6 +170,42 @@ public class InteractiveShellTests
         var labels = provider.GetCompletions("run --target ", 13).Items.Select(i => i.Label);
 
         Assert.Equal(["command", "workflow"], labels);
+    }
+
+    [Fact]
+    public void GetCompletions_ForRunBookmark_ShouldListAvailableBookmarks()
+    {
+        using var storage = new TemporaryStorageScope();
+        CommandService.Create("Root command", "echo root");
+        CommandService.Create("Nested command", "echo nested", folderPath: "Ops/Deploy");
+        WorkflowService.Create("Root workflow", []);
+        WorkflowService.Create("Nested workflow", [], "Dev");
+        var provider = new ShellCompletionProvider(CommandsRouter.BuildRootCommand(), InteractiveShell.Builtins);
+
+        var labels = provider.GetCompletions("run --target command --bookmark ", 32).Items.Select(item => item.Label);
+
+        Assert.Equal(["/", "Ops/Deploy"], labels);
+    }
+
+    [Fact]
+    public void GetCompletions_ForRunName_ShouldOnlyListItemsInSelectedBookmark()
+    {
+        using var storage = new TemporaryStorageScope();
+        CommandService.Create("Root command", "echo root");
+        CommandService.Create("Nested command", "echo nested", folderPath: "Ops");
+        WorkflowService.Create("Root workflow", []);
+        WorkflowService.Create("Nested workflow", [], "Ops");
+        var provider = new ShellCompletionProvider(CommandsRouter.BuildRootCommand(), InteractiveShell.Builtins);
+
+        var commandNames = provider.GetCompletions(
+            "run --target command --bookmark Ops --name ",
+            43).Items.Select(item => item.Label);
+        var workflowNames = provider.GetCompletions(
+            "run --target workflow --bookmark Ops --name ",
+            44).Items.Select(item => item.Label);
+
+        Assert.Equal(["Nested command"], commandNames);
+        Assert.Equal(["Nested workflow"], workflowNames);
     }
 
     #endregion

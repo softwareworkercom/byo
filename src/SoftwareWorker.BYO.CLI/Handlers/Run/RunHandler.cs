@@ -87,13 +87,15 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Run
             }
             else
             {
-                selectedCommand = FolderNavigationService.NavigateAndSelect(
+                selectedCommand = SelectItemInBookmark(
                     commands,
+                    bookmark,
                     c => c.Bookmark,
                     c => string.IsNullOrWhiteSpace(c.Name)
                         ? c.Executable
                         : $"{c.Name} ({c.Executable})",
-                    "command to run");
+                    "command to run",
+                    "commands");
             }
 
             if (selectedCommand == null)
@@ -144,11 +146,13 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Run
             }
             else
             {
-                selectedWorkflow = FolderNavigationService.NavigateAndSelect(
+                selectedWorkflow = SelectItemInBookmark(
                     workflows,
+                    bookmark,
                     w => w.Bookmark,
                     w => w.Name,
-                    "workflow to run");
+                    "workflow to run",
+                    "workflows");
             }
 
             if (selectedWorkflow == null)
@@ -159,5 +163,51 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Run
 
             await WorkflowExecutionService.ExecuteWorkflowAsync(selectedWorkflow);
         }
+
+        private static T? SelectItemInBookmark<T>(
+            List<T> items,
+            string? bookmark,
+            Func<T, string?> getBookmark,
+            Func<T, string> getDisplayName,
+            string selectionTitle,
+            string itemType) where T : class
+        {
+            if (string.IsNullOrWhiteSpace(bookmark))
+            {
+                var bookmarks = items
+                    .Select(item => FolderNavigationService.NormalizePath(getBookmark(item)))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                    .Select(path => new BookmarkOption(path, string.IsNullOrEmpty(path) ? "(root)" : path))
+                    .ToList();
+
+                bookmark = UserInterfaceService.SelectSingleItem(
+                    "bookmark",
+                    bookmarks,
+                    option => Markup.Escape(option.DisplayName)).Path;
+            }
+
+            var normalizedBookmark = FolderNavigationService.NormalizePath(bookmark);
+            var itemsInBookmark = items
+                .Where(item => string.Equals(
+                    FolderNavigationService.NormalizePath(getBookmark(item)),
+                    normalizedBookmark,
+                    StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (itemsInBookmark.Count == 0)
+            {
+                var bookmarkLabel = string.IsNullOrEmpty(normalizedBookmark) ? "/" : normalizedBookmark;
+                UserInterfaceService.ShowWarning($"No {itemType} found in bookmark '{bookmarkLabel}'.");
+                return null;
+            }
+
+            return UserInterfaceService.SelectSingleItem(
+                selectionTitle,
+                itemsInBookmark,
+                item => Markup.Escape(getDisplayName(item)));
+        }
+
+        private sealed record BookmarkOption(string Path, string DisplayName);
     }
 }
