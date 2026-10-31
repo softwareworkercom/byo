@@ -10,8 +10,8 @@ namespace SoftwareWorker.BYO.CLI.Handlers.Run
     [AllowDynamicParameters]
     [TrunkCommand("run", "Interactive execution")]
     [Parameter("target", "What to run (command or workflow)", true, "command|workflow")]
-    [Parameter("name", "Name of the command/workflow to run", false, null)]
     [Parameter("bookmark", "Bookmark hierarchy path to locate the command/workflow", false, null)]
+    [Parameter("name", "Name of the command/workflow to run", false, null)]
     internal class RunHandler : BaseCommandHandler
     {
         public RunTargetEnum? Target { get; set; }
