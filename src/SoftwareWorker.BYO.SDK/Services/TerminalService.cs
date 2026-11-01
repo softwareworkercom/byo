@@ -104,7 +104,7 @@ namespace SoftwareWorker.BYO.SDK.Services
             {
                 ShellTypeEnum.Cmd => ("cmd.exe", $"/c {command}"),
                 ShellTypeEnum.Wsl => ("wsl.exe", $"bash -c \"{command.Replace("\"", "\\\"")}\""),
-                ShellTypeEnum.PowerShell => ("powershell.exe", $"-noprofile -nologo -c {command}"),
+                ShellTypeEnum.PowerShell => GetPowerShellCommand(command),
                 ShellTypeEnum.Bash => ("/bin/bash", $"-c \"{command.Replace("\"", "\\\"")}\""),
                 ShellTypeEnum.Zsh => ("/bin/zsh", $"-c \"{command.Replace("\"", "\\\"")}\""),
                 ShellTypeEnum.Sh => ("/bin/sh", $"-c \"{command.Replace("\"", "\\\"")}\""),
@@ -199,12 +199,18 @@ namespace SoftwareWorker.BYO.SDK.Services
             }
         }
 
+        private static (string filename, string arguments) GetPowerShellCommand(string command)
+        {
+            // Encoding preserves quotes that PowerShell's native command-line parsing would remove.
+            var encodedPowerShellCommand = Convert.ToBase64String(Encoding.Unicode.GetBytes(command));
+            return ("powershell.exe", $"-noprofile -nologo -encodedCommand {encodedPowerShellCommand}");
+        }
+
         private static (string filename, string arguments) GetDefaultShellCommand(string command)
         {
             if (OperatingSystem.IsWindows())
             {
-                var encodedPowerShellCommand = Convert.ToBase64String(Encoding.Unicode.GetBytes(command));
-                return ("powershell.exe", $"-noprofile -nologo -encodedCommand {encodedPowerShellCommand}");
+                return GetPowerShellCommand(command);
             }
             else if (OperatingSystem.IsMacOS())
             {
