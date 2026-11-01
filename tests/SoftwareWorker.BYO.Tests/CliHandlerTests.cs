@@ -86,6 +86,47 @@ public sealed class CliHandlerTests : IDisposable
     }
 
     [Fact]
+    public async Task SettingsImport_ShouldReadTheJsonPathAndStoreItsValue()
+    {
+        using var console = new ConsoleScope();
+        var filePath = Path.Combine(_storage.Root, "export.json");
+        await System.IO.File.WriteAllTextAsync(filePath, """
+            {
+              "tables": [
+                {
+                  "databaseName": null,
+                  "tableName": "Table1",
+                  "schemaName": null,
+                  "columns": [{ "columnName": "Ids", "dataType": "System.String" }],
+                  "data": [{ "Ids": "123|456" }]
+                }
+              ]
+            }
+            """);
+
+        await new SettingsImportCommand { Key = "ImportedIds", Path = "tables[0].data[0].Ids", File = filePath }.ExecuteAsync();
+
+        Assert.Equal("123|456", SettingsService.Get("ImportedIds"));
+        Assert.Null(SettingsService.Get("Ids", showErrorIfNotFound: false));
+        Assert.Contains("Imported setting 'ImportedIds'", console.Output);
+    }
+
+    [Fact]
+    public async Task SettingsImport_ShouldReportWhenTheJsonPathDoesNotResolve()
+    {
+        using var console = new ConsoleScope();
+        var filePath = Path.Combine(_storage.Root, "export.json");
+        await System.IO.File.WriteAllTextAsync(filePath, """
+            { "tables": [{ "data": [{ "OtherColumn": "value" }] }] }
+            """);
+
+        await new SettingsImportCommand { Key = "ImportedIds", Path = "tables[0].data[0].Ids", File = filePath }.ExecuteAsync();
+
+        Assert.Null(SettingsService.Get("ImportedIds", showErrorIfNotFound: false));
+        Assert.Contains("does not identify a value.", console.Output);
+    }
+
+    [Fact]
     public async Task SettingsDelete_ShouldRequireAKey_AndDeleteTheSetting()
     {
         using var console = new ConsoleScope();

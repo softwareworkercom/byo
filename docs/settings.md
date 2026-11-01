@@ -9,11 +9,14 @@ Manage non-sensitive configuration key-value pairs, including JSON arrays.
   - [Options](#options)
   - [Examples](#examples)
   - [Behavior](#behavior)
-- [settings list](#settings-list)
+- [settings import](#settings-import)
   - [Syntax](#syntax-1)
-- [settings delete](#settings-delete)
-  - [Syntax](#syntax-2)
   - [Behavior](#behavior-1)
+- [settings list](#settings-list)
+  - [Syntax](#syntax-2)
+- [settings delete](#settings-delete)
+  - [Syntax](#syntax-3)
+  - [Behavior](#behavior-2)
 
 ## settings set
 
@@ -49,6 +52,28 @@ byo settings set --key Teams:Channels --value ["general","engineering","alerts"]
 - Stores values in local configuration
 - If `--value` is a valid JSON array, it is saved as a real JSON array in `settings.json`
 - In PowerShell, prefer single quotes around JSON values to avoid escaping double quotes
+
+## settings import
+
+Import one value from a JSON file into a setting. The destination setting key and source JSON path are specified separately. Paths support dot-separated object properties and numeric array indexes, with an optional `$` root prefix.
+
+### Syntax
+
+```bash
+byo settings import --key <setting-key> --path <json-path> --file <path>
+```
+
+### Behavior
+
+- Resolves the specified JSON path directly in the file; missing or null values are reported without changing settings
+- Prompts before replacing an existing key and enforces the same settings/secrets key exclusivity as `settings set`
+- String values are stored as strings; non-string JSON values are stored as their JSON text
+
+Example:
+
+```bash
+byo settings import --key ImportedIds --path 'tables[0].data[0].Ids' --file export.json
+```
 
 ## settings list
 
