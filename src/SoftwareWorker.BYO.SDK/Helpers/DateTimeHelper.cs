@@ -4,9 +4,19 @@ namespace SoftwareWorker.BYO.SDK.Helpers
     {
         public static bool TryResolveRangeStart(string dateTimeWindow, out string startDate)
         {
+            return TryResolveRangeStart(dateTimeWindow, useUtc: false, out startDate);
+        }
+
+        public static bool TryResolveUtcRangeStart(string dateTimeWindow, out string startDate)
+        {
+            return TryResolveRangeStart(dateTimeWindow, useUtc: true, out startDate);
+        }
+
+        private static bool TryResolveRangeStart(string dateTimeWindow, bool useUtc, out string startDate)
+        {
             startDate = string.Empty;
 
-            if (ResolveRangeDateTime(dateTimeWindow) is not DateTime start)
+            if (ResolveRangeDateTime(dateTimeWindow, useUtc) is not DateTime start)
             {
                 return false;
             }
@@ -15,7 +25,7 @@ namespace SoftwareWorker.BYO.SDK.Helpers
             return true;
         }
 
-        private static DateTime? ResolveRangeDateTime(string dateTimeWindow)
+        private static DateTime? ResolveRangeDateTime(string dateTimeWindow, bool useUtc)
         {
             dateTimeWindow = NormalizeDateTimeWindow(dateTimeWindow);
             if (string.IsNullOrWhiteSpace(dateTimeWindow))
@@ -35,7 +45,7 @@ namespace SoftwareWorker.BYO.SDK.Helpers
                 return null;
             }
 
-            var now = DateTime.Now;
+            var now = useUtc ? DateTime.UtcNow : DateTime.Now;
             return unit switch
             {
                 "m" => now.AddMinutes(-value),

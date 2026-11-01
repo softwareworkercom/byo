@@ -55,9 +55,9 @@ These tokens are resolved without needing a saved setting or secret:
 | `{{UtcDateTimeNow}}` | Current UTC date and time | `yyyy-MM-dd HH:mm` |
 | `{{Guid}}` | New random GUID | Standard GUID string |
 
-### `{{DateTimeWindow}}`
+### `{{DateTimeWindow}}` and `{{UtcDateTimeWindow}}`
 
-`{{DateTimeWindow}}` is a special override token. When supplied through command-line or programmatic overrides, BYO converts a relative time expression into an absolute local datetime.
+These are special override tokens. When supplied through command-line or programmatic overrides, BYO converts a relative time expression into an absolute datetime. `{{DateTimeWindow}}` uses local time; `{{UtcDateTimeWindow}}` calculates and formats the result using UTC.
 
 Supported expressions:
 
@@ -88,9 +88,10 @@ Examples:
 ```bash
 byo run --target command --name "Demo API Bearer Check" --Tenant prod --context:region westus
 byo run --target command --name "Recent Errors" --DateTimeWindow 7d
+byo run --target command --name "Recent Errors" --UtcDateTimeWindow 7d
 ```
 
-Those values can satisfy matching tokens such as `{{Tenant}}`, `{{context:region}}`, and `{{DateTimeWindow}}`.
+Those values can satisfy matching tokens such as `{{Tenant}}`, `{{context:region}}`, `{{DateTimeWindow}}`, and `{{UtcDateTimeWindow}}`.
 
 ## Settings and secrets tokens
 
@@ -107,7 +108,7 @@ You can also supply overrides directly when calling `TokenService.ResolveTokens(
 Example:
 
 ```csharp
-var text = "Tenant={{Tenant}}, Region={{Deployment.Region}}, From={{DateTimeWindow}}";
+var text = "Tenant={{Tenant}}, Region={{Deployment.Region}}, LocalFrom={{DateTimeWindow}}, UtcFrom={{UtcDateTimeWindow}}";
 var payload = new
 {
     Deployment = new
@@ -119,7 +120,8 @@ var payload = new
 var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 {
     ["Tenant"] = "prod",
-    ["DateTimeWindow"] = "7d"
+    ["DateTimeWindow"] = "7d",
+    ["UtcDateTimeWindow"] = "7d"
 };
 
 var resolved = TokenService.ResolveTokens(

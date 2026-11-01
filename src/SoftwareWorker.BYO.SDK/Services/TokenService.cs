@@ -129,20 +129,19 @@ namespace SoftwareWorker.BYO.SDK.Services
         /// Attempts to resolve a token value from the provided override dictionary.
         /// </summary>
         /// <remarks>
-        /// This method handles token resolution with special processing for the "DateTimeWindow" key.
-        /// For DateTimeWindow tokens, the value is processed through DateTimeHelper.TryResolveRangeStart
-        /// to convert relative time expressions (e.g., "1d", "2h", "30m") into absolute datetime strings.
+        /// This method handles special processing for the "DateTimeWindow" and "UtcDateTimeWindow" keys.
+        /// Relative time expressions are converted into absolute datetimes using local or UTC time respectively.
         /// For all other tokens, the override value is returned as-is.
         /// </remarks>
         /// <param name="token">The token name to resolve (case-insensitive comparison).</param>
         /// <param name="tokenOverrides">The dictionary of token overrides to search. Can be null or empty.</param>
         /// <param name="value">
-        /// When successful, contains the resolved token value formatted as "yyyy-MM-dd HH:mm" for DateTimeWindow tokens,
+        /// When successful, contains the resolved token value formatted as "yyyy-MM-dd HH:mm" for date-time window tokens,
         /// or the raw override value for other tokens. Null if resolution fails.
         /// </param>
         /// <returns>
         /// True if the token was found in the overrides and successfully resolved; otherwise false.
-        /// For DateTimeWindow tokens, returns true only if DateTimeHelper.TryResolveRangeStart succeeds.
+        /// For date-time window tokens, returns true only if the corresponding DateTimeHelper conversion succeeds.
         /// </returns>
         private static bool TryResolveTokenFromOverrides(string token, IReadOnlyDictionary<string, string>? tokenOverrides, out string? value)
         {
@@ -160,10 +159,14 @@ namespace SoftwareWorker.BYO.SDK.Services
                     continue;
                 }
 
-                // Handle DateTimeWindow special case - convert relative time to absolute datetime
-                if (string.Equals(overrideItem.Key, "DateTimeWindow", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(overrideItem.Key, "DateTimeWindow", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(overrideItem.Key, "UtcDateTimeWindow", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (DateTimeHelper.TryResolveRangeStart(overrideItem.Value, out value))
+                    var resolved = string.Equals(overrideItem.Key, "UtcDateTimeWindow", StringComparison.OrdinalIgnoreCase)
+                        ? DateTimeHelper.TryResolveUtcRangeStart(overrideItem.Value, out value)
+                        : DateTimeHelper.TryResolveRangeStart(overrideItem.Value, out value);
+
+                    if (resolved)
                     {
                         return true;
                     }

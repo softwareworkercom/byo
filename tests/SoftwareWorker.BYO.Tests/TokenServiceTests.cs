@@ -308,6 +308,23 @@ public sealed class TokenServiceTests : IDisposable
     }
 
     [Fact]
+    public void ResolveTokens_ShouldConvertUtcDateTimeWindowOverridesToAbsoluteUtcDateTime()
+    {
+        var before = DateTime.UtcNow.AddDays(-7);
+
+        var result = TokenService.ResolveTokens("From={{UtcDateTimeWindow}}", tokenOverrides: new Dictionary<string, string>
+        {
+            ["UtcDateTimeWindow"] = "7d"
+        });
+
+        var after = DateTime.UtcNow.AddDays(-7);
+        var value = result["From=".Length..];
+        var parsed = DateTime.ParseExact(value, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+        Assert.InRange(parsed, before.AddMinutes(-1), after.AddMinutes(1));
+    }
+
+    [Fact]
     public void ResolveTokens_ShouldConvertDateTimeWindowOverridesCaseInsensitively()
     {
         var before = DateTime.Now.AddDays(-7);

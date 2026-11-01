@@ -41,6 +41,18 @@ public sealed class SdkHelpersTests
         Assert.InRange(parsed, DateTime.Now.AddDays(-2).AddMinutes(-2), DateTime.Now.AddDays(-2).AddMinutes(1));
     }
 
+    [Fact]
+    public void TryResolveUtcRangeStart_ShouldSubtractTheWindowFromUtcNow()
+    {
+        var before = DateTime.UtcNow.AddDays(-2);
+
+        Assert.True(DateTimeHelper.TryResolveUtcRangeStart("2d", out var startDate));
+
+        var after = DateTime.UtcNow.AddDays(-2);
+        var parsed = DateTime.ParseExact(startDate, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+        Assert.InRange(parsed, before.AddMinutes(-1), after.AddMinutes(1));
+    }
+
     #endregion
 
     #region WorkflowStepDescriptionHelper
