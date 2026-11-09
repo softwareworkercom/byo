@@ -79,11 +79,6 @@ public sealed class ScheduledCommandServiceTests
     [Fact]
     public void AcquireLease_ShouldPreventDuplicatesAndAllowRecoveryAfterRelease()
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            return;
-        }
-
         var path = Path.Combine(Path.GetTempPath(), "byo-schedule-test-" + Guid.NewGuid().ToString("N"), "schedule.lock");
         try
         {

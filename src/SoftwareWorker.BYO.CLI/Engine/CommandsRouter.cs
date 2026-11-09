@@ -23,7 +23,16 @@ namespace SoftwareWorker.BYO.CLI.Engine
 
                 var rootCommand = BuildRootCommand();
                 var parseResult = rootCommand.Parse(args);
-                return parseResult.Invoke();
+                var configuration = new InvocationConfiguration();
+                var scheduleOption = parseResult.CommandResult.Command.Options.OfType<Option<string>>()
+                    .FirstOrDefault(option => option.Name == "--schedule");
+                if (!OperatingSystem.IsWindows() && scheduleOption != null
+                    && !string.IsNullOrWhiteSpace(parseResult.CommandResult.GetValue(scheduleOption)))
+                {
+                    // Scheduled Unix commands own SIGINT handling; SIGTERM must leave recovery enabled for shutdowns.
+                    configuration.ProcessTerminationTimeout = null;
+                }
+                return parseResult.Invoke(configuration);
             }
             catch (Exception ex) when (PluginCompatibilityHelper.IsCompatibilityException(ex))
             {

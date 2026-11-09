@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using SoftwareWorker.BYO.CLI.Helpers;
 using SoftwareWorker.BYO.CLI.Service;
 using SoftwareWorker.BYO.SDK;
+using System.Runtime.InteropServices;
 
 
 namespace SoftwareWorker.BYO.CLI.Engine
@@ -147,7 +148,7 @@ namespace SoftwareWorker.BYO.CLI.Engine
         {
             var scheduleOption = new Option<string>($"--{ScheduleOptionName}")
             {
-                Description = "Repeat command on a schedule, with crash and sign-in recovery on Windows. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.",
+                Description = "Repeat command on a schedule, with crash and sign-in recovery on Windows, macOS and Linux (systemd). Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.",
                 Required = false
             };
             command.Add(scheduleOption);
@@ -258,16 +259,10 @@ namespace SoftwareWorker.BYO.CLI.Engine
                     return;
                 }
 
-                using var recovery = OperatingSystem.IsWindows()
-                    ? await ScheduledCommandService.RegisterAsync(rawTokens)
-                    : null;
-                if (OperatingSystem.IsWindows() && recovery == null)
+                using var recovery = await ScheduledCommandService.RegisterAsync(rawTokens);
+                if (recovery == null)
                 {
                     return;
-                }
-                if (!OperatingSystem.IsWindows())
-                {
-                    UserInterfaceService.ShowGrey("Automatic crash/restart recovery is only available on Windows. This schedule ends when the process stops.");
                 }
 
                 using var cancellation = new CancellationTokenSource();
@@ -276,8 +271,18 @@ namespace SoftwareWorker.BYO.CLI.Engine
                     eventArgs.Cancel = true;
                     cancellation.Cancel();
                 };
+                using var interruptRegistration = OperatingSystem.IsWindows()
+                    ? null
+                    : PosixSignalRegistration.Create(PosixSignal.SIGINT, context =>
+                    {
+                        context.Cancel = true;
+                        cancellation.Cancel();
+                    });
 
-                Console.CancelKeyPress += cancelHandler;
+                if (OperatingSystem.IsWindows())
+                {
+                    Console.CancelKeyPress += cancelHandler;
+                }
                 try
                 {
                     UserInterfaceService.ShowGrey($"Running on schedule every {scheduleInterval:c}. Press Ctrl+C to stop.");
@@ -299,7 +304,10 @@ namespace SoftwareWorker.BYO.CLI.Engine
                 }
                 finally
                 {
-                    Console.CancelKeyPress -= cancelHandler;
+                    if (OperatingSystem.IsWindows())
+                    {
+                        Console.CancelKeyPress -= cancelHandler;
+                    }
                 }
             });
         }

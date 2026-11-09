@@ -38,7 +38,9 @@ internal static class ScheduledCommandService
         {
             return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         }
-        catch (IOException ex) when ((ex.HResult & 0xffff) is 32 or 33)
+        catch (IOException ex) when ((ex.HResult & 0xffff) is 32 or 33
+            || OperatingSystem.IsLinux() && (ex.HResult & 0xffff) == 11
+            || OperatingSystem.IsMacOS() && (ex.HResult & 0xffff) == 35)
         {
             return null;
         }
@@ -46,16 +48,24 @@ internal static class ScheduledCommandService
 
     internal static async Task<Registration?> RegisterAsync(IReadOnlyList<string> arguments)
     {
-        if (!OperatingSystem.IsWindows())
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS())
         {
-            throw new PlatformNotSupportedException("Schedule recovery requires Windows Task Scheduler.");
+            throw new PlatformNotSupportedException("Schedule recovery requires Windows, Linux with systemd, or macOS with launchd.");
         }
 
         var startInfo = CommandsBuilder.CreateSelfProcessStartInfo(arguments);
         var taskName = GetTaskName(startInfo);
-        var leasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "BYO", "Schedules", taskName + ".lock");
+        var leaseDirectory = OperatingSystem.IsWindows()
+            ? Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "share");
+        var leasePath = Path.Combine(leaseDirectory, "BYO", "Schedules", taskName + ".lock");
         var lease = AcquireLease(leasePath);
+        // Native Unix managers start a worker immediately. It waits while the foreground process owns the schedule.
+        while (lease == null && IsWorker && !OperatingSystem.IsWindows())
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            lease = AcquireLease(leasePath);
+        }
         if (lease == null)
         {
             UserInterfaceService.ShowGrey($"This schedule is already running ({taskName}).");
@@ -64,7 +74,18 @@ internal static class ScheduledCommandService
 
         try
         {
-            if (!IsWorker)
+            Func<Task> stop = () => RunSchedulerAsync(["/Delete", "/TN", taskName, "/F"]);
+            if (!OperatingSystem.IsWindows())
+            {
+                var unix = new UnixScheduledCommandService(OperatingSystem.IsMacOS(),
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    Environment.GetEnvironmentVariable("XDG_CONFIG_HOME"), RunManagerAsync);
+                // Workers also resolve their stop action, but must never register or restart their own supervisor.
+                stop = IsWorker
+                    ? await unix.GetStopActionAsync(taskName)
+                    : await unix.RegisterAsync(taskName, CommandsBuilder.CreateSelfProcessStartInfo([WorkerArgument, .. arguments]));
+            }
+            else if (!IsWorker)
             {
                 var workerStartInfo = CommandsBuilder.CreateSelfProcessStartInfo([WorkerArgument, .. arguments]);
                 using var identity = WindowsIdentity.GetCurrent();
@@ -81,8 +102,13 @@ internal static class ScheduledCommandService
                 }
             }
 
-            UserInterfaceService.ShowGrey($"Recovery enabled: {taskName}. Restarts within about a minute after a crash and after Windows sign-in.");
-            return new Registration(taskName, lease);
+            var recoveryDescription = OperatingSystem.IsWindows()
+                ? "Restarts within about a minute after a crash and after Windows sign-in."
+                : OperatingSystem.IsMacOS()
+                    ? "launchd recovery enabled; resumes after macOS sign-in."
+                    : "systemd user recovery enabled; resumes at sign-in (at boot if user lingering is enabled).";
+            UserInterfaceService.ShowGrey($"Recovery enabled: {taskName}. {recoveryDescription}");
+            return new Registration(stop, lease);
         }
         catch
         {
@@ -144,11 +170,14 @@ internal static class ScheduledCommandService
         return result.Append('"').ToString();
     }
 
-    private static async Task RunSchedulerAsync(IEnumerable<string> arguments)
+    private static Task<string> RunSchedulerAsync(IEnumerable<string> arguments) => RunManagerAsync(
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "schtasks.exe"), arguments.ToArray());
+
+    private static async Task<string> RunManagerAsync(string executable, string[] arguments)
     {
         var startInfo = new ProcessStartInfo
         {
-            FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "schtasks.exe"),
+            FileName = executable,
             UseShellExecute = false,
             CreateNoWindow = true,
             RedirectStandardOutput = true,
@@ -160,19 +189,22 @@ internal static class ScheduledCommandService
         }
 
         using var process = Process.Start(startInfo)
-            ?? throw new InvalidOperationException("Unable to start Windows Task Scheduler.");
+            ?? throw new InvalidOperationException($"Unable to start recovery manager '{executable}'.");
         var output = process.StandardOutput.ReadToEndAsync();
         var error = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
+        var outputText = await output;
+        var errorText = await error;
         if (process.ExitCode != 0)
         {
-            throw new InvalidOperationException($"Windows Task Scheduler failed ({process.ExitCode}): {await error} {await output}");
+            throw new InvalidOperationException($"Recovery manager '{executable}' failed ({process.ExitCode}): {errorText} {outputText}");
         }
+        return outputText;
     }
 
-    internal sealed class Registration(string taskName, FileStream lease) : IDisposable
+    internal sealed class Registration(Func<Task> stop, FileStream lease) : IDisposable
     {
-        internal Task StopAsync() => RunSchedulerAsync(["/Delete", "/TN", taskName, "/F"]);
+        internal Task StopAsync() => stop();
         public void Dispose() => lease.Dispose();
     }
 }
