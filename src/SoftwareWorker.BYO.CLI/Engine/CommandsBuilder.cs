@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using SoftwareWorker.BYO.CLI.Helpers;
+using SoftwareWorker.BYO.CLI.Service;
 using SoftwareWorker.BYO.SDK;
 
 
@@ -146,7 +147,7 @@ namespace SoftwareWorker.BYO.CLI.Engine
         {
             var scheduleOption = new Option<string>($"--{ScheduleOptionName}")
             {
-                Description = "Repeat command on a schedule. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.",
+                Description = "Repeat command on a schedule, with crash and sign-in recovery on Windows. Supports hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.",
                 Required = false
             };
             command.Add(scheduleOption);
@@ -180,7 +181,7 @@ namespace SoftwareWorker.BYO.CLI.Engine
                     throw new InvalidOperationException($"Handler class '{handlerName}' not found or does not implement BaseCommandHandler.");
                 }
 
-                var rawTokens = Environment.GetCommandLineArgs().Skip(1).ToList();
+                var rawTokens = parseResult.Tokens.Select(token => token.Value).ToList();
                 var optionsDict = ExtractOptionValues(parseResult, optionsMap);
                 var dynamicParameters = ExtractDynamicParameters(rawTokens, optionsMap);
                 var scheduleValue = parseResult.CommandResult.GetValue(scheduleOption);
@@ -253,8 +254,20 @@ namespace SoftwareWorker.BYO.CLI.Engine
 
                 if (!TryParseScheduleInterval(scheduleValue, out var scheduleInterval))
                 {
-                    UserInterfaceService.ShowError("Invalid --schedule value. Use hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo.");
+                    UserInterfaceService.ShowError("Invalid --schedule value. Use hh:mm:ss or short format like 30s, 5m, 1h, 1d, 1w, 1mo (maximum interval is approximately 49 days).");
                     return;
+                }
+
+                using var recovery = OperatingSystem.IsWindows()
+                    ? await ScheduledCommandService.RegisterAsync(rawTokens)
+                    : null;
+                if (OperatingSystem.IsWindows() && recovery == null)
+                {
+                    return;
+                }
+                if (!OperatingSystem.IsWindows())
+                {
+                    UserInterfaceService.ShowGrey("Automatic crash/restart recovery is only available on Windows. This schedule ends when the process stops.");
                 }
 
                 using var cancellation = new CancellationTokenSource();
@@ -276,8 +289,12 @@ namespace SoftwareWorker.BYO.CLI.Engine
                         await executeOnce();
                     }
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
                 {
+                    if (recovery != null)
+                    {
+                        await recovery.StopAsync();
+                    }
                     UserInterfaceService.ShowGrey("Schedule stopped.");
                 }
                 finally
@@ -297,7 +314,7 @@ namespace SoftwareWorker.BYO.CLI.Engine
 
             if (TimeSpan.TryParse(input, out interval) && interval > TimeSpan.Zero)
             {
-                return true;
+                return interval.TotalMilliseconds >= 1 && interval.TotalMilliseconds <= uint.MaxValue - 1;
             }
 
             var match = ScheduleIntervalRegex.Match(input.Trim());
@@ -306,18 +323,24 @@ namespace SoftwareWorker.BYO.CLI.Engine
                 return false;
             }
 
-            interval = match.Groups["unit"].Value.ToLowerInvariant() switch
+            var unitMilliseconds = match.Groups["unit"].Value.ToLowerInvariant() switch
             {
-                "s" => TimeSpan.FromSeconds(value),
-                "m" => TimeSpan.FromMinutes(value),
-                "h" => TimeSpan.FromHours(value),
-                "d" => TimeSpan.FromDays(value),
-                "w" => TimeSpan.FromDays(value * 7),
-                "mo" => TimeSpan.FromDays(value * 30),
-                _ => TimeSpan.Zero
+                "s" => 1000d,
+                "m" => 60_000d,
+                "h" => 3_600_000d,
+                "d" => 86_400_000d,
+                "w" => 604_800_000d,
+                "mo" => 2_592_000_000d,
+                _ => 0d
             };
+            var milliseconds = value * unitMilliseconds;
+            if (milliseconds <= 0 || milliseconds > uint.MaxValue - 1)
+            {
+                return false;
+            }
 
-            return interval > TimeSpan.Zero;
+            interval = TimeSpan.FromMilliseconds(milliseconds);
+            return true;
         }
 
         private static Dictionary<string, object> ExtractOptionValues(

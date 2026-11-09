@@ -1,2 +1,3 @@
 using SoftwareWorker.BYO.CLI.Engine;
-return CommandsRouter.Route(args);
+using SoftwareWorker.BYO.CLI.Service;
+return CommandsRouter.Route(ScheduledCommandService.GetCommandArguments(args));
